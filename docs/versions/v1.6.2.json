@@ -1,0 +1,18 @@
+{
+  "version": "1.6.2",
+  "built_at": "2026-11-19T20:28:23+08:00",
+  "builder": "Python 3.12.14 / PyInstaller 6.22.3",
+  "entry": "雀魂策略助手.exe",
+  "launcher": "启动-v1.6.2.cmd",
+  "exe_sha256": "53f368b4c8fea37bfb5562ecd9c21218328edb3b77b4a6f56faef4c2f1e6cb9a",
+  "exe_bytes": 5511228,
+  "file_count": 1240,
+  "total_bytes": 232053568,
+  "critical_fix": "回退 v1.6.1 的宝牌单循环错误改动：荣誉牌为两个独立循环（风牌東→南→西→北→東、三元牌白→發→中→白），经六个权威中文立直麻将资料与用户在局确认（v1.6.1 曾错误输出 北→白/中→東）",
+  "prompt_fixes": [
+    "立直资格：明副露（吃/碰/明杠）后不能立直，暗杠不影响；删除错误的\"除非已有役\"例外",
+    "ukeire 定性校准：进张数为参考上限，允许结合图中牌河定性取舍"
+  ],
+  "tests": "desktop 35/35; legacy 6/6; packaged selfcheck ok",
+  "note": "GUI 实机验收仍需在获准环境完成"
+}

@@ -27,3 +27,4 @@ _selfcheck.json
 _dev/user-fixtures/
 # Legacy HTML-tool UI preview screenshots (contain session ids), unreferenced.
 /预览*.png
+_dev/benchmark/results-*.json

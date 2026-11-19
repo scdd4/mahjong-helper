@@ -1,0 +1,42 @@
+{
+  "version": "1.6.1",
+  "built_at": "2026-11-19T20:11:24+08:00",
+  "builder": "Python 3.12.14 / PyInstaller 6.22.3",
+  "entry": "雀魂策略助手.exe",
+  "launcher": "启动-v1.6.1.cmd",
+  "exe_sha256": "e2795ea735bf1d989ca72b82890e97b6883bda8b57f1ca9adcdb893c7b08f846",
+  "exe_bytes": 5511048,
+  "file_count": 1240,
+  "total_bytes": 232053388,
+  "features": [
+    "宝牌面板叶槽皮肤兜底：白面块+墨迹判别+叶槽即停，四张截图全部命中",
+    "read_scene 手牌∥环境识别并行化",
+    "宝牌荣誉牌换算修复：双循环(北→東,错)改标准单循环東南西北白發中(北→白、中→東)",
+    "riichi 状态字段消费端就绪(检测端待正样本,模型读图兜底)"
+  ],
+  "dora_validation": {
+    "样例-1": [
+      "4p",
+      "4z",
+      "2s"
+    ],
+    "样例-2": [
+      "8s",
+      "2z",
+      "8m"
+    ],
+    "碰西": [
+      "6m",
+      "8s",
+      "4z"
+    ],
+    "四家": [
+      "8p",
+      "5s",
+      "2p",
+      "7z"
+    ]
+  },
+  "tests": "desktop 35/35 (新增面板fixture/riichi消费/单循环换算三项); legacy 6/6; packaged selfcheck ok",
+  "note": "GUI 实机验收仍需在获准环境完成；旧版本目录不应分发"
+}
