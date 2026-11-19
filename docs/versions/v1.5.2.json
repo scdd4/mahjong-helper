@@ -1,0 +1,18 @@
+{
+  "version": "1.5.2",
+  "built_at": "2026-11-19T13:59:38+08:00",
+  "builder": "Python 3.12.14 / PyInstaller 6.22.3",
+  "entry": "雀魂策略助手.exe",
+  "launcher": "启动-v1.5.2.cmd",
+  "exe_sha256": "e7901e8ef28e1b9d5294153d0902c1f4f6634922dbb220e8a169b7c13a87eea6",
+  "exe_bytes": 5505463,
+  "file_count": 1240,
+  "total_bytes": 232047803,
+  "features": [
+    "四家副露识别：own/upstream+透视矫正交叉验证；right 纵轴兜底（四向旋转）；across 兜底（倒置双向）；碰/杠按牌种统一投票补全（红五=五）；吃组以无名牌组呈现",
+    "上游 across 区域修正记录于 SOURCE.json"
+  ],
+  "truth_validation": "四家副露截图实测：本家吃 7p8p9p（7p 命中）、对家杠北（4z×3）+吃索（无名牌组呈现）、上家碰五饼（5p×3）、下家碰八条（8s×3）全部检出",
+  "tests": "desktop 30/30 with fixtures; legacy 6/6; packaged selfcheck ok",
+  "note": "GUI 实机验收仍需在获准环境完成；旧版本目录不应分发"
+}
