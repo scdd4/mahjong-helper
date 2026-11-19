@@ -1,0 +1,17 @@
+{
+  "version": "1.4.2",
+  "built_at": "2026-11-19T12:42:59+08:00",
+  "builder": "Python 3.12.14 / PyInstaller 6.22.3",
+  "entry": "雀魂策略助手.exe",
+  "launcher": "启动-v1.4.2.cmd",
+  "exe_sha256": "a9125b2e9792958f6f25fef190f353400a98bb1835d746278e0ed5c15984fe0e",
+  "exe_bytes": 5493325,
+  "file_count": 1240,
+  "total_bytes": 232035337,
+  "fixes": [
+    "遮挡时自动回退全屏截图（v1.4.1）",
+    "自定义分辨率归一化识别：1280x700 至 3840x2100、任意宽高比、全屏任意偏移均正确"
+  ],
+  "tests": "desktop 28/28 with fixtures; legacy 6/6; packaged selfcheck ok",
+  "note": "GUI 实机验收仍需在获准环境完成；旧版本目录不应分发"
+}
