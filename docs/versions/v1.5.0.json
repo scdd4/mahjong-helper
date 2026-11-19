@@ -1,0 +1,18 @@
+{
+  "version": "1.5.0",
+  "built_at": "2026-11-19T13:02:19+08:00",
+  "builder": "Python 3.12.14 / PyInstaller 6.22.3",
+  "entry": "雀魂策略助手.exe",
+  "launcher": "启动-v1.5.0.cmd",
+  "exe_sha256": "c3593d0960f092bc5012c68d3fbc9fb2fef77cc4a03f071ca50c5b41d2f588dd",
+  "exe_bytes": 5494682,
+  "file_count": 1240,
+  "total_bytes": 232036694,
+  "features": [
+    "副露(鸣牌)手牌支持：暗牌+副露合计13/14张判定",
+    "自定义分辨率归一化",
+    "遮挡自动回退全屏截图"
+  ],
+  "tests": "desktop 30/30 with fixtures; legacy 6/6; packaged selfcheck ok",
+  "note": "GUI 实机验收仍需在获准环境完成；旧版本目录不应分发"
+}
