@@ -1,0 +1,21 @@
+{
+  "version": "1.5.3",
+  "built_at": "2026-11-19T14:46:19+08:00",
+  "builder": "Python 3.12.14 / PyInstaller 6.22.3",
+  "entry": "雀魂策略助手.exe",
+  "launcher": "启动-v1.5.3.cmd",
+  "exe_sha256": "e3498bde7611251ca381f1f6bc5b0995e3a09dc8eb54bdeb3d715f56af2f7e35",
+  "exe_bytes": 5506866,
+  "file_count": 1240,
+  "total_bytes": 232049206,
+  "features": [
+    "吃牌完整命名：两端牌名可读时按连续性推断中间张（inferred 标记）",
+    "副露牌名识别增强：5z白板噪声守卫+早退+墨迹门控低阈值采信",
+    "杠 4 张整组采纳",
+    "牌河低置信(<0.65)读数门控，消除假超编降级"
+  ],
+  "region_rotation_eval": "整区旋转方案经原型评估未采用：透视未矫正致分数 0.3-0.6（warp 路径 0.744）、blob 粘连与 5z 对称干扰；落地为 refine 路径增益+吃牌推断",
+  "truth_validation": "四家副露图：own 吃 7p8p9p 完整命名、right 8s×3、across 4z×3+无名吃组、left 5p×3；碰西图 5z×3(0.98)+1m×3、9m×3",
+  "tests": "desktop 32/32 with fixtures; legacy 6/6; packaged selfcheck ok",
+  "note": "GUI 实机验收仍需在获准环境完成；旧版本目录不应分发"
+}
