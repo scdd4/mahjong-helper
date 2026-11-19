@@ -1,0 +1,37 @@
+{
+  "version": "1.4.0",
+  "built_at": "2026-11-19T12:06:34+08:00",
+  "builder": "Python 3.12.14 / PyInstaller 6.22.3",
+  "entry": "雀魂策略助手.exe",
+  "launcher": "启动-v1.4.0.cmd",
+  "exe_sha256": "9a3558acfdc16ea38e12846b166cf1fb47dcf29991878e4dafe8365f4fb4cd68",
+  "exe_bytes": 5491639,
+  "file_count": 1240,
+  "total_bytes": 232033651,
+  "key_resources": {
+    "雀魂友人场助手.html": true,
+    "auto_vision_vendor/templates": true,
+    "auto_vision_vendor/LICENSE": true,
+    "auto_vision_vendor/SOURCE.json": true
+  },
+  "modes": {
+    "structured": "default, ~8s",
+    "fast": "single image, ~9s",
+    "full": "two-stage, 85-148s"
+  },
+  "auto_analysis": "screenshot-only opt-in; window capture only; 8s cooldown",
+  "tests": {
+    "desktop": "25/25 with private fixtures",
+    "legacy_node": "6/6 exit 0",
+    "packaged_selfcheck": "ok (opencv 4.14.0, model configured)"
+  },
+  "security_scan": {
+    "credential_strings": 0,
+    "private_screenshot_names": 0
+  },
+  "status": "review build - not replacing official dist until GUI acceptance",
+  "remaining": [
+    "GUI real-machine acceptance pending",
+    "old dist/ still v1.3.0 - do not distribute"
+  ]
+}
