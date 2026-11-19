@@ -1,0 +1,2130 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>雀魂友人场助手 · 手牌分析</title>
+<style>
+:root{
+  --bg:#0f1420; --panel:#1a2233; --panel2:#222c40; --line:#2e3a52;
+  --text:#e9eef8; --muted:#93a1bb; --gold:#e8b45c; --green:#43c08a;
+  --red:#ef6b6b; --blue:#5aa9e6;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:radial-gradient(1100px 560px at 15% -12%, #1e2c48, #0f1420 62%) no-repeat, #0f1420;
+  color:var(--text);
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:64px;
+}
+header{padding:20px 20px 4px;max-width:1080px}
+h1{font-size:20px;margin:0 0 6px;letter-spacing:.5px}
+h1 .em{color:var(--gold)}
+.sub{color:var(--muted);font-size:13px;margin:0;line-height:1.6}
+nav{display:flex;gap:8px;padding:14px 20px 6px;flex-wrap:wrap;max-width:1080px}
+nav button{background:var(--panel);color:var(--muted);border:1px solid var(--line);padding:8px 16px;
+  border-radius:999px;cursor:pointer;font-size:14px;font-family:inherit;transition:.15s}
+nav button:hover{border-color:var(--gold);color:var(--text)}
+nav button.active{background:var(--gold);color:#191c22;border-color:var(--gold);font-weight:700}
+main{padding:8px 20px 40px;max-width:1080px}
+[hidden]{display:none !important}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;
+  box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.panel h2{font-size:15px;margin:0 0 12px;color:var(--gold);font-weight:700;letter-spacing:.5px}
+.panel h3{font-size:14px;margin:16px 0 8px;color:var(--text)}
+.panel p,.panel li{font-size:13.5px;line-height:1.75;color:#cfd8e8}
+.panel ul{padding-left:20px;margin:6px 0}
+.panel li{margin:3px 0}
+b{color:#fff}
+.mono{font-family:ui-monospace,Consolas,"Courier New",monospace}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+
+/* ---------- 输入区 ---------- */
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#txt{flex:1 1 260px;min-width:0;background:#0e1626;border:1px solid var(--line);color:var(--text);
+  border-radius:10px;padding:11px 13px;font-size:15px;font-family:ui-monospace,Consolas,monospace;letter-spacing:1px}
+#txt:focus{outline:none;border-color:var(--gold)}
+button.btn{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;
+  padding:10px 14px;font-size:13.5px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.15s}
+button.btn:hover{border-color:var(--gold);color:#fff}
+button.btn.ghost{background:transparent}
+#err{color:var(--red);font-size:12.5px;min-height:18px;margin-top:6px}
+.inputhint{font-size:12.5px;color:var(--muted);line-height:1.7;margin-top:8px}
+.inputhint b{color:#c6d2e6;font-weight:600}
+.inputhint .mono{color:var(--gold);font-family:ui-monospace,Consolas,monospace}
+
+.palette{margin-top:14px;display:flex;flex-direction:column;gap:7px}
+.prow{display:flex;gap:6px;align-items:center}
+.plabel{width:22px;color:var(--muted);font-size:12px;text-align:center;flex:none}
+
+.tile{position:relative;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+  width:40px;height:56px;border-radius:7px;border:none;cursor:pointer;padding:0;
+  background:linear-gradient(180deg,#fffdf7 0%,#f2ead8 55%,#e3d9c2 100%);
+  box-shadow:inset 0 -3px 0 rgba(120,100,60,.28), 0 2px 4px rgba(0,0,0,.45);
+  font-family:inherit;transition:transform .07s ease, box-shadow .07s ease;user-select:none}
+.tile:hover{transform:translateY(-3px);box-shadow:inset 0 -3px 0 rgba(120,100,60,.28),0 6px 10px rgba(0,0,0,.5)}
+.tile:active{transform:translateY(0)}
+.tile .num{font-size:19px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.tile .suit{font-size:10.5px;opacity:.8;margin-top:2px;font-weight:600}
+.tile.honor .num{font-size:23px;font-weight:700}
+.tile.man{color:#b62f2a}
+.tile.pin{color:#1b4f8c}
+.tile.sou{color:#136b3f}
+.tile.honor{color:#33363d}
+.tile .badge{position:absolute;top:-6px;right:-6px;min-width:17px;height:17px;line-height:17px;
+  border-radius:9px;background:var(--gold);color:#141414;font-size:11px;font-weight:800;text-align:center;
+  padding:0 3px;display:none;box-shadow:0 1px 3px rgba(0,0,0,.5)}
+.tile.has .badge{display:block}
+.tile.full{opacity:.28;cursor:not-allowed}
+.tile.full:hover{transform:none;box-shadow:inset 0 -3px 0 rgba(120,100,60,.28),0 2px 4px rgba(0,0,0,.45)}
+.tile.sm{width:34px;height:48px;border-radius:6px;cursor:default}
+.tile.sm .num{font-size:16px}
+.tile.sm .suit{font-size:9px}
+.tile.sm.honor .num{font-size:19px}
+.tile.sm:hover{transform:none;box-shadow:inset 0 -3px 0 rgba(120,100,60,.28),0 2px 4px rgba(0,0,0,.45)}
+.tile.xs{width:29px;height:41px;border-radius:5px;cursor:default}
+.tile.xs .num{font-size:14px}
+.tile.xs .suit{font-size:8px;margin-top:1px}
+.tile.xs.honor .num{font-size:16px}
+.tile.xs:hover{transform:none;box-shadow:inset 0 -3px 0 rgba(120,100,60,.28),0 2px 4px rgba(0,0,0,.45)}
+
+.handwrap{margin-top:16px;border-top:1px dashed var(--line);padding-top:14px}
+.handhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px;flex-wrap:wrap;gap:6px}
+.handhead .t{font-size:13px;color:var(--muted)}
+.handhead .c{font-size:13px;color:var(--gold);font-weight:700}
+#hand{display:flex;gap:5px;flex-wrap:wrap;min-height:58px;align-items:center}
+#hand .empty{color:#5b6a85;font-size:13px;padding:16px 0}
+
+details.adv{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+details.adv summary{cursor:pointer;color:var(--muted);font-size:13px;user-select:none}
+details.adv summary:hover{color:var(--gold)}
+.advbody{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;color:var(--muted)}
+.field input,.field select{background:#0e1626;border:1px solid var(--line);color:var(--text);
+  border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit}
+.field input[type=text]{font-family:ui-monospace,Consolas,monospace;width:150px}
+.field input:focus,.field select:focus{outline:none;border-color:var(--gold)}
+
+/* ---------- 结果 ---------- */
+#result .summary{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.bigshanten{font-size:40px;font-weight:800;line-height:1;color:#fff;letter-spacing:-1px}
+.bigshanten small{font-size:15px;color:var(--muted);font-weight:600;margin-left:4px;letter-spacing:0}
+.bigshanten.gold{color:var(--gold)}
+.bigshanten.green{color:var(--green)}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:5px 11px;
+  font-size:12px;color:#c6d2e6;white-space:nowrap}
+.chip.on{border-color:var(--gold);color:var(--gold)}
+.chip.warn{border-color:#7a4a3a;background:#2b1c18;color:#f0a58e}
+.chip.good{border-color:#2f6b52;background:#152a22;color:#7bd6ab}
+
+.advice{margin:14px 0 4px;padding:12px 14px;border-radius:12px;background:linear-gradient(90deg,#2a2438,#222c40);
+  border:1px solid #4a3f2a;font-size:15px;line-height:1.6}
+.advice .k{color:var(--gold);font-weight:800}
+
+table.rank{width:100%;border-collapse:collapse;margin-top:6px;font-size:13.5px}
+table.rank th{color:var(--muted);font-weight:600;font-size:12px;text-align:left;padding:8px 8px;
+  border-bottom:1px solid var(--line);white-space:nowrap}
+table.rank td{padding:8px 8px;border-bottom:1px solid #212b3d;vertical-align:middle}
+table.rank tr.top td{background:rgba(232,180,92,.07)}
+table.rank tr.dim td{opacity:.45}
+table.rank .no{color:var(--muted);font-variant-numeric:tabular-nums;width:26px}
+table.rank .tiles{display:flex;gap:3px}
+table.rank .res{white-space:nowrap}
+.tblwrap{overflow-x:auto}
+.tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:6px;margin-left:5px;
+  background:#2b4a3c;color:#8fe0b6;border:1px solid #35614c;vertical-align:1px}
+.tag.bad{background:#3a2020;color:#f0a0a0;border-color:#5a2e2e}
+.tag.info{background:#22304a;color:#9cc0ea;border-color:#2f4466}
+
+.waits{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 2px;align-items:center}
+.waittile{position:relative}
+.waittile .n{position:absolute;right:-4px;bottom:-4px;background:#0e1626;border:1px solid var(--line);
+  color:var(--muted);font-size:10px;border-radius:8px;padding:0 5px;line-height:14px}
+
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px;margin-top:8px}
+.kv .k{color:var(--muted)}
+.yakulist{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.yaku{background:#233047;border:1px solid #33425e;border-radius:8px;padding:4px 9px;font-size:12.5px}
+.yaku b{color:var(--gold)}
+
+.note{margin-top:12px;font-size:12.5px;color:var(--muted);line-height:1.7}
+.err{color:var(--red);font-size:13px}
+.footer{max-width:1080px;padding:0 20px;color:#5b6a85;font-size:11.5px;line-height:1.7}
+kbd{background:#0e1626;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:11.5px;
+  font-family:ui-monospace,Consolas,monospace;color:#cfd8e8}
+
+/* ---------- 速查表 ---------- */
+table.doc{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+table.doc th{text-align:left;color:var(--muted);font-size:12px;font-weight:600;padding:7px 10px;border-bottom:1px solid var(--line)}
+table.doc td{padding:7px 10px;border-bottom:1px solid #212b3d;line-height:1.5}
+table.doc tr:last-child td{border-bottom:none}
+table.doc .han{color:var(--gold);font-weight:700;white-space:nowrap;text-align:right}
+.callout{background:#1b2740;border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:10px 14px;margin:12px 0;font-size:13.5px;line-height:1.7}
+.callout.red{border-left-color:var(--red);background:#2a1a1a}
+.callout.green{border-left-color:var(--green);background:#16281f}
+@media(max-width:640px){
+  .tile{width:34px;height:48px}
+  .tile .num{font-size:16px}
+  .tile.honor .num{font-size:19px}
+  .bigshanten{font-size:32px}
+  header,nav,main{padding-left:14px;padding-right:14px}
+}
+
+/* ---------- 迷你模式：和雀魂客户端并排 ---------- */
+#btnMini{position:absolute;right:20px;top:20px;font-size:12.5px;padding:7px 12px}
+body.mini #btnMini{background:var(--gold);color:#191c22;border-color:var(--gold);font-weight:700}
+body.mini header{padding:8px 14px 0}
+body.mini header .sub{display:none}
+body.mini nav,
+body.mini .palette,
+body.mini .handwrap,
+body.mini details.adv,
+body.mini .tblwrap,
+body.mini .note,
+body.mini .chips,
+body.mini .footer,
+body.mini #tab-cheat,
+body.mini #tab-guide,
+body.mini .row button.ghost{display:none !important}
+body.mini main{padding:2px 12px 24px;max-width:none}
+body.mini .panel{padding:10px 12px;margin-bottom:8px;border-radius:12px}
+body.mini #txt{font-size:19px;padding:13px 15px;letter-spacing:2px}
+body.mini .bigshanten{font-size:46px}
+body.mini .advice{font-size:17px;padding:14px;margin:10px 0 2px}
+body.mini .summary{gap:12px}
+body.mini #llmBox{font-size:15px}
+
+/* ---------- 本地模型解释 ---------- */
+#llmBox{font-size:13.5px;line-height:1.75;color:#cfd8e8}
+#llmBox .llmhead{display:flex;align-items:center;gap:8px;margin-bottom:6px;color:var(--gold);font-size:12px}
+#llmBox .dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block}
+#llmBox .dot.busy{background:var(--gold);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
+#llmBox .txt{font-size:14.5px;color:#fff}
+#llmBox .llmnote{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.6}
+
+/* ---------- 截图识别弹窗 ---------- */
+.modal{position:fixed;inset:0;z-index:1000;background:rgba(6,10,18,.88);
+  display:flex;align-items:center;justify-content:center;padding:18px}
+.modalbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;width:100%;
+  max-width:1150px;max-height:96vh;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.modalhead{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--line)}
+.modalhead b{font-size:14.5px;color:var(--gold);white-space:nowrap}
+.mhint{font-size:12.5px;color:var(--muted);flex:1;line-height:1.5}
+.modalhead select{background:#0e1626;border:1px solid var(--line);color:var(--text);
+  border-radius:8px;padding:7px 8px;font-size:12.5px;font-family:inherit}
+.stage{position:relative;background:#05080e;overflow:auto;flex:0 1 auto;text-align:center}
+.shotwrap{position:relative;display:inline-block;line-height:0;max-width:100%}
+.shotwrap img{display:block;max-width:100%;max-height:56vh;height:auto;cursor:crosshair;user-select:none}
+#capOverlay{position:absolute;inset:0;pointer-events:none}
+#capOverlay .cellr{position:absolute;border:1px solid rgba(90,169,230,.9);background:rgba(90,169,230,.10);border-radius:3px}
+#capOverlay .cellr.bad{border-color:rgba(239,107,107,.95);background:rgba(239,107,107,.16)}
+#capOverlay .cellr.ok{border-color:rgba(67,192,138,.9);background:rgba(67,192,138,.10)}
+#capOverlay .mark{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;
+  background:var(--gold);box-shadow:0 0 0 3px rgba(232,180,92,.35)}
+.modalbody{padding:12px 16px;overflow:auto;flex:1 1 auto;min-height:60px}
+.modalfoot{display:flex;align-items:center;gap:10px;padding:11px 16px;border-top:1px solid var(--line)}
+.cappal{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.clus{display:flex;align-items:center;gap:10px;padding:7px 8px;border-bottom:1px solid #212b3d;cursor:pointer;border-radius:8px}
+.clus:hover{background:#1f2a3d}
+.clus.sel{background:#243049;outline:1px solid var(--gold)}
+.clus img{width:42px;height:58px;object-fit:cover;border-radius:5px;background:#fff}
+.clus .cs{font-size:12px;color:var(--muted)}
+.clus .state{margin-left:auto;font-size:12px;color:var(--gold)}
+.clus .state.done{color:var(--green)}
+.slot{display:inline-flex;flex-direction:column;align-items:center;margin:0 4px 8px 0}
+.slot .lb{font-size:10px;color:var(--muted);margin-top:3px}
+.slot.bad .lb{color:var(--red)}
+.capres{font-size:13px;color:#cfd8e8;margin-bottom:8px;line-height:1.7}
+.capres b{color:var(--gold);font-size:16px;letter-spacing:1px}
+.capdora{display:flex;align-items:center;gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);flex-wrap:wrap}
+.capdora .dl{font-size:12.5px;color:var(--muted);margin-right:2px}
+#capOverlay .cellr.dora{border:1px dashed rgba(232,180,92,.95);background:rgba(232,180,92,.10)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🀄 雀魂 <span class="em">友人场</span> 助手</h1>
+  <p class="sub">把手上的牌点进去，帮你算：还差几张听牌、该打哪一张、听哪几张、和了大概几番。<br>
+  牌效率计算在本机完成，不读游戏内存；截图识别仅按按钮触发，可选模型解释会请求你配置的服务。</p>
+  <button class="btn" id="btnMini" title="只留输入框和结论，适合和雀魂客户端并排">▣ 迷你模式</button>
+</header>
+
+<nav>
+  <button data-tab="analyze" class="active">① 手牌分析</button>
+  <button data-tab="cheat">② 役 &amp; 规则速查</button>
+  <button data-tab="tutorial">③ 使用教程</button>
+  <button data-tab="guide">④ 新手怎么打</button>
+</nav>
+
+<main>
+<!-- ============ 手牌分析 ============ -->
+<section id="tab-analyze">
+  <div class="panel">
+    <div class="row">
+      <input id="txt" type="text" placeholder="直接打：123456789万2345筒北　（回车）" autocomplete="off" spellcheck="false">
+      <button class="btn" id="btnParse">解析</button>
+      <button class="btn ghost" id="btnUndo">撤销</button>
+      <button class="btn ghost" id="btnClear">清空</button>
+      <button class="btn ghost" id="btnDemo">看示例</button>
+      <button class="btn" id="btnCap" title="从屏幕截图里读出手牌（需要先运行 启动.cmd）">📷 识别</button>
+    </div>
+    <div class="inputhint">
+      念着打就行：<b>万 筒 索</b> 用「万筒索」，字牌用「东 南 西 北 白 发 中」。
+      例：<span class="mono">123456789万2345筒北</span>　=　<span class="mono">123456789m2345p4z</span>
+      （m=万 p=筒 s=索 z=字）　·　也可以直接点上面的牌
+    </div>
+    <div id="err"></div>
+    <div class="palette" id="palette"></div>
+    <div class="handwrap">
+      <div class="handhead">
+        <span class="t">我的手牌 <span class="small muted">（点下面的牌可以删掉）</span></span>
+        <span class="c" id="handCount">0 / 14</span>
+      </div>
+      <div id="hand"></div>
+    </div>
+    <details class="adv">
+      <summary>进阶设置：自风 / 场风 / 宝牌 / 已见牌（可选）</summary>
+      <div class="advbody">
+        <div class="field">
+          <label for="seat">我的自风（东家=东）</label>
+          <select id="seat">
+            <option value="27" selected>东</option>
+            <option value="28">南</option>
+            <option value="29">西</option>
+            <option value="30">北</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="round">本局场风</label>
+          <select id="round">
+            <option value="27" selected>东场</option>
+            <option value="28">南场</option>
+            <option value="29">西场</option>
+            <option value="30">北场</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="doraInd">宝牌指示牌（游戏里牌山上翻开的）</label>
+          <input id="doraInd" type="text" placeholder="例如 5m 或 3p1s" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="seen">已经看得见的牌<span class="muted">（不含手牌和已填宝牌指示牌；每张只算一次）</span></label>
+          <input id="seen" type="text" placeholder="例如 1129m488p" autocomplete="off">
+          <span class="small muted">可填自己/别人的舍牌及副露；宝牌指示牌会另行自动扣除，勿重复录入。</span>
+        </div>
+        <div class="field">
+          <label>赤宝牌</label>
+          <div class="small" style="display:flex;gap:12px;align-items:center;color:var(--text)">
+            <label><input type="checkbox" id="redM"> 赤5万</label>
+            <label><input type="checkbox" id="redP"> 赤5筒</label>
+            <label><input type="checkbox" id="redS"> 赤5索</label>
+          </div>
+          <span class="small muted">只勾手里实际持有的；每种默认至多一枚。</span>
+        </div>
+        <div class="field">
+          <label>本地大模型（可选）</label>
+          <label class="small" style="display:flex;gap:6px;align-items:center;color:var(--text)">
+            <input type="checkbox" id="llm"> 让本地模型补一句解释（要先运行 server.mjs）
+          </label>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="panel" id="result">
+    <div class="muted small">把牌点进去（13 张或 14 张）就会自动出结果。</div>
+  </div>
+  <div class="panel" id="llmBox" hidden></div>
+
+  <!-- 截图识别弹窗 -->
+  <div id="capModal" class="modal" hidden>
+    <div class="modalbox">
+      <div class="modalhead">
+        <b>📷 截图识别手牌</b>
+        <span class="mhint" id="capHint"></span>
+        <select id="capN" title="手牌张数"><option value="14">14 张</option><option value="13">13 张</option></select>
+        <button class="btn ghost" id="capClose">关闭</button>
+      </div>
+      <div class="stage" id="capStage">
+        <div class="shotwrap" id="shotWrap">
+          <img id="capImg" alt="screenshot">
+          <div id="capOverlay"></div>
+        </div>
+      </div>
+      <div class="modalbody">
+        <div id="capBody"></div>
+        <div id="capPalette" class="cappal" hidden></div>
+      </div>
+      <div class="modalfoot">
+        <button class="btn ghost" id="capRedo">重新截图</button>
+        <button class="btn ghost" id="capRebox" title="雀魂窗口挪了位置、或换了分辨率时用">重设位置</button>
+        <button class="btn" id="capApply" disabled>用作手牌</button>
+        <span id="capStatus" class="muted small"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 速查 ============ -->
+<section id="tab-cheat" hidden>
+  <div class="panel">
+    <h2>一分钟规则（够你打完一局）</h2>
+    <ul>
+      <li>每人 <b>13 张</b>。轮到你：摸 1 张 → 打 1 张，一直循环。</li>
+      <li><b>和牌</b> = 4 组「面子」+ 1 对「将」（共 14 张）。面子 = 顺子（同花色连着 3 张）或刻子（3 张一样）。</li>
+      <li>也可以不按这个形状和：<b>七对子</b>（7 个对子）、<b>国士无双</b>（13 种幺九牌各 1 张 + 其中 1 张重复）。</li>
+      <li>光有形状还不够，<b>必须有「役」</b>，否则不能和牌；宝牌本身不算役。</li>
+      <li>门清听牌且满足点数、牌山等条件时可宣言<b>立直</b>，获得立直役；是否立直还要结合局势决定。</li>
+      <li>4 人东基本为东1~东4；半庄基本为东1~南4。连庄等情况会增加局数，结束时按点数排名。</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <h2>常见役（记住打勾的 5 个就够用了）</h2>
+    <div class="tblwrap">
+    <table class="doc">
+      <thead><tr><th>役</th><th>条件</th><th style="text-align:right">番</th></tr></thead>
+      <tbody>
+        <tr><td><b>✅ 立直</b></td><td>门清听牌且满足条件时宣言。之后通常摸切；暗杠须满足不改变听牌等限制。</td><td class="han">1</td></tr>
+        <tr><td><b>✅ 断幺九</b></td><td>整手牌没有 1、9 和字牌。最容易凑的役。</td><td class="han">1</td></tr>
+        <tr><td><b>✅ 平和</b></td><td>4 组全是顺子 + 将不是役牌 + 两面听牌。</td><td class="han">1</td></tr>
+        <tr><td><b>✅ 役牌</b></td><td>白发中、本局场风、自风的刻子。碰出来也算。</td><td class="han">1/种</td></tr>
+        <tr><td><b>✅ 七对子</b></td><td>7 个不同的对子，门清限定。</td><td class="han">2</td></tr>
+        <tr><td>门清自摸</td><td>门清状态下自己摸到和牌。</td><td class="han">1</td></tr>
+        <tr><td>一杯口</td><td>两组完全相同的顺子，门清限定。</td><td class="han">1</td></tr>
+        <tr><td>三色同顺</td><td>万/筒/索 三个花色各有一组同样的顺子。</td><td class="han">2</td></tr>
+        <tr><td>一气通贯</td><td>同一花色 123 + 456 + 789。</td><td class="han">2</td></tr>
+        <tr><td>对对和</td><td>4 组全是刻子。</td><td class="han">2</td></tr>
+        <tr><td>三暗刻</td><td>3 组暗刻（没有碰出来的刻子）。</td><td class="han">2</td></tr>
+        <tr><td>小三元</td><td>白发中里 2 个刻子 + 1 个对子。</td><td class="han">2</td></tr>
+        <tr><td>混全带幺九</td><td>每组面子都带 1/9/字牌，将也是。</td><td class="han">2</td></tr>
+        <tr><td>混一色</td><td>只有一种花色 + 字牌。</td><td class="han">3</td></tr>
+        <tr><td>纯全带幺九</td><td>混全带幺九但没有字牌。</td><td class="han">3</td></tr>
+        <tr><td>二杯口</td><td>两组一杯口（4 组顺子两两相同），门清限定。</td><td class="han">3</td></tr>
+        <tr><td>清一色</td><td>只有一种花色，没有字牌。</td><td class="han">6</td></tr>
+        <tr><td>国士无双 / 四暗刻 / 大三元 / 清老头 / 九莲宝灯</td><td>役满，直接 32000 点起。</td><td class="han">13</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="callout small">表格是<b>门清</b>时的番数。吃/碰之后：平和、一杯口、二杯口、七对子 直接没了；混一色 3→2 番，清一色 6→5 番，混全 2→1 番。</div>
+  </div>
+
+  <div class="panel">
+    <h2>立直 · 鸣牌 · 振听（三个最容易翻车的地方）</h2>
+    <h3>立直</h3>
+    <ul>
+      <li>条件：门清 + 听牌 + 点数 ≥ 1000 + 牌山还剩 ≥ 4 张。</li>
+      <li>好处：+1 番，而且一定有役。</li>
+      <li>代价：交 1000 点供托；之后通常<b>不能换牌</b>，摸到什么打什么。暗杠须满足不改变听牌等限制。</li>
+      <li>门清听牌后可以考虑立直，也要结合打点、巡目、对手进攻和当前分数决定。</li>
+    </ul>
+    <h3>吃 / 碰 / 杠</h3>
+    <ul>
+      <li>碰：任何人都能碰；吃：只能吃上家；杠：4 张一样。</li>
+      <li>鸣牌（吃碰）之后手牌变成「副露」，<b>失去立直、门清自摸、平和、一杯口</b>，通常不划算。</li>
+      <li>例外：役牌碰出来、断幺九碰出来，是新手最快的和牌方式。</li>
+      <li>初学时可以先练门清手牌；准备吃碰前，先确认副露后仍有役，再比较速度和打点。</li>
+    </ul>
+    <h3>振听（新手最迷惑的规则）</h3>
+    <ul>
+      <li>自己舍牌里只要包含<b>任意一张当前听牌张</b>，整手牌都不能荣和（仍可自摸），不是只禁那一种。错过和牌也可能产生临时振听或立直振听。</li>
+      <li>例：你打过 3 万，后来听 3、6 万 → 因为舍牌振听，<b>3 万和 6 万都不能荣和</b>，但可以自摸。</li>
+      <li>舍牌振听可通过改变听牌、使当前听牌张不再包含自己舍牌来解除，或等待自摸。立直后的振听不能这样改听解除。</li>
+    </ul>
+    <div class="callout red small">还有一条：<b>宝牌不是役</b>。宝牌只是「加番」，手上有一堆宝牌但没役，照样不能和。</div>
+  </div>
+
+  <div class="panel">
+    <h2>流局 &amp; 防守（输得少 = 赢）</h2>
+    <ul>
+      <li>通常荒牌流局时，未听牌方共付 <b>3000 点</b>，由听牌方分摊。例如 1 人听牌收 3000、2 人各收 1500、3 人各收 1000；全听或全不听时不收付这项罚符。</li>
+      <li>有人立直时，他自己打过的<b>现物</b>对该立直者不会放铳；<b>对其他人并不保证安全</b>。</li>
+      <li>没有现物时，需要结合各家舍牌、已见张数等判断。<b>字牌和 1、9 也可能放铳</b>，不能只凭牌的种类判定安全；本工具尚未计算防守。</li>
+      <li>新手最容易犯的错：为了自己一个小牌，往立直的人手里冲。一次放铳可能就是 8000 点。</li>
+      <li>目标不是每局都和，而是「<b>不点炮、能听就听、能和就和</b>」。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 使用教程 ============ -->
+<section id="tab-tutorial" hidden>
+  <div class="panel">
+    <h2>这东西怎么用（3 分钟看完）</h2>
+    <p>操作流程：<b>点按钮截图 → 核对并纠正手牌 → 用作手牌 → 查看牌效率建议</b>。宝牌和舍牌识别仅供预览，请核对后手填。它不操作游戏，只读取屏幕。</p>
+
+    <h3>第一次用：标定位置并学习牌面</h3>
+    <ol>
+      <li><b>双击 <span class="mono">启动.cmd</span></b>，会自动开浏览器。<br>
+          <span class="muted small">如果浏览器没自动开，手动打开 http://127.0.0.1:7788</span></li>
+      <li>打开雀魂，窗口摆好。要求只有一条：<b>手牌和左上角宝牌，屏幕上要看得见</b>（别被浏览器盖住）。</li>
+      <li>点输入框右边的 <b>📷 识别</b>，然后按提示点两下：
+        <br>① 手牌<b>最左边那张</b>的左上角　② 手牌<b>最右边那张</b>的右下角</li>
+      <li>弹窗里再点 <b>标定宝牌</b>，点两下：① 宝牌指示牌<b>最左边</b>的左上角　② <b>最右边</b>的右下角。
+        <br><span class="muted small">后面几张牌背也一起框进去；牌背和漏识别不一定能区分，预览结果请与实际画面对照。</span></li>
+      <li>这时它会列出"认不出的类别"。点一个类别 → 从下面的牌堆里点它是哪张。
+        <br>也可以点单张牌纠错。核对后点「用作手牌」才保存标注；模板可供以后使用，换皮肤、尺寸或画面变化后仍可能需要重新标注。</li>
+    </ol>
+
+    <h3>之后每一回合</h3>
+    <p><b>点 📷 → 核对并纠正 → 点「用作手牌」→ 补填宝牌和已见牌 → 查看建议。</b>耗时取决于设备和所需校正次数；出牌还需结合局势判断。</p>
+    <p>配置并勾选「本地模型」后，可以异步补充一句解释。响应速度取决于模型服务，牌效率结果不必等它返回。</p>
+
+    <h3>进阶：让它也读别人的舍牌</h3>
+    <ol>
+      <li>弹窗里点 <b>标定舍牌</b>，按提示依次框三下（下家 → 对家 → 上家），一共 6 次点击。</li>
+      <li>框的时候<b>把整个舍牌区都框进去</b>（6 张宽 × 4 行高），别只框已经打出的那几张。</li>
+      <li>舍牌识别须<b>模板齐全（34/34）</b>才启用。模板齐全也可能误认或漏牌，结果<b>仅供预览，不自动写入已见牌</b>；请逐项核对后手填，不能据此保证某张是安全牌。弹窗右下角显示模板进度。</li>
+    </ol>
+
+    <h3>认错了 / 位置变了怎么办</h3>
+    <ul>
+      <li><b>窗口挪了、分辨率改了</b> → 弹窗里点 <b>重设位置</b>，重新点两下。</li>
+      <li><b>某张牌认错</b> → 把鼠标移到那个格子上看框对不对；如果框偏了，重设位置；
+          如果框对但认错，多半是模板不够像，重新标一次那张牌就行。</li>
+      <li><b>换了雀魂的牌面皮肤</b> → 删掉 <span class="mono">templates</span> 文件夹里的文件，重新标一遍。</li>
+    </ul>
+
+    <h3>小技巧</h3>
+    <ul>
+      <li>点右上角 <b>迷你模式</b>，只留输入框和大字结论，跟雀魂左右并排最舒服。</li>
+      <li>不想截图也行：直接打 <span class="mono">123456789万2345筒北</span> 回车，一样出建议。</li>
+      <li>地址后面加 <span class="mono">?mini=1</span> 直接进迷你模式，加 <span class="mono">?llm=1</span> 顺便开模型解释。</li>
+    </ul>
+
+    <h3>现在能认什么、不能认什么</h3>
+    <table class="doc">
+      <thead><tr><th>能</th><th>不能（或有限制）</th></tr></thead>
+      <tbody>
+        <tr><td>自己手牌（13/14 张）</td><td>吃/碰之后的手牌（不是整排，且求解器只做门清）</td></tr>
+        <tr><td>宝牌指示牌预览（须核对手填）</td><td>别人的暗手牌</td></tr>
+        <tr><td>三家舍牌预览（34/34 模板，须核对手填）</td><td>副露区、牌山剩余数（尚未识别）</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 指南 ============ -->
+<section id="tab-guide" hidden>
+  <div class="panel">
+    <h2>第一步：先决定只做这三件事</h2>
+    <ol>
+      <li><b>把手牌整理成「4 组 + 1 对」。</b>先数你有几组完整的，剩下的单张就是「要打掉」的。</li>
+      <li><b>只往「听牌」这一个目标走。</b>别管做大牌，先学会最快听牌。</li>
+      <li><b>听牌后确认役种，再考虑立直。</b>立直须满足条件，也要结合打点、巡目、分数与对手进攻决定。</li>
+    </ol>
+    <div class="callout green small">四人东从东1打到东4，连庄等情况会增加局数。前几次可以先练习整理手牌、认识役种和听牌。</div>
+  </div>
+
+  <div class="panel">
+    <h2>打牌的先后顺序（最简单的牌效率）</h2>
+    <ul>
+      <li><b>先打孤张字牌</b>（东南西北白发中，单张没对子的）。它们既不能做顺子，也容易被别人碰走。</li>
+      <li><b>再打孤张的 1、9</b>。它们只能和 2、3（或 8、7）连，效率低。</li>
+      <li><b>中间的 3~7 留着</b>，尤其 4、5、6，最好连。</li>
+      <li><b>对子留着</b>（可以做将，也可以碰），但如果已经有 2 个对子以上，多出来的对子可以拆。</li>
+      <li>「打哪张」拿不准的时候，就用上面那个分析的表格：它会把「打这张以后还差几张听牌」算给你。</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <h2>四个新手必踩的坑</h2>
+    <ol>
+      <li><b>无役</b>：形状完成却没有役，不能荣和。→ 提前规划役种；门清听牌后可在满足条件、局势合适时考虑立直，门清自摸也能成役。</li>
+      <li><b>振听</b>：把要听的牌自己打掉了。→ 出牌前想一想「这张会不会是我以后要听的」。</li>
+      <li><b>乱吃碰</b>：副露后失去门清役，又没凑成其他役。→ 吃碰前先确认役种，再比较速度与打点。</li>
+      <li><b>追大牌</b>：想清一色，结果别人先和了。→ 先学「能和就和」。</li>
+    </ol>
+  </div>
+
+  <div class="panel">
+    <h2>友人场开房小贴士</h2>
+    <ul>
+      <li>开房页面能选：<b>四人/三人、东风战/半庄、赤宝牌、食断、观战</b>等。<b>第一次选「四人东」</b>，短、快、不劝退。</li>
+      <li>让朋友开「观战」权限，你打完可以回头看别人的牌，学得最快。</li>
+      <li>打完一局可以看<b>牌谱</b>复盘：哪一张打错了一眼就能看出来。</li>
+      <li>规则细节（食断、赤宝牌几张）开房页面上都写着，开局前扫一眼就行，不影响你打。</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <h2>怎么用「我」帮你打</h2>
+    <ul>
+      <li><b>实时问</b>：把牌打给我（例如「手牌 123456789m1235p，场上有人立直」），我给你这一张打哪、为什么。</li>
+      <li><b>截图问</b>：在对局里截一张图，存到这个文件夹，我直接看图给你分析（我能读图）。</li>
+      <li><b>复盘</b>：打完把牌谱截图发我，我告诉你哪几张是「关键错牌」。</li>
+      <li><b>别让我替你点鼠标</b>：自动打牌的插件属于外挂，违反雀魂用户协议，有封号风险，而且这是友人场，没必要。</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<div class="footer">
+  本工具只做本地算术（向听数 / 进张 / 和牌形 / 役种估算），不连接雀魂、不读取游戏数据。<br>
+  役种与番数为「门清、荣和」估算，不含立直/自摸/符数，实际点数以游戏结算为准。
+</div>
+
+<script id="mj-core">
+/* =========================================================
+   麻将核心算法（纯函数，不依赖 DOM）
+   牌编号 0~33：0-8 = 1万~9万，9-17 = 1筒~9筒，
+                18-26 = 1索~9索，27-33 = 东南西北白发中
+   ========================================================= */
+var MJ = (function () {
+  'use strict';
+
+  var NAMES = (function () {
+    var a = [], suits = [['万'], ['筒'], ['索']], i, s;
+    for (s = 0; s < 3; s++) for (i = 1; i <= 9; i++) a.push(i + suits[s][0]);
+    var honors = ['东', '南', '西', '北', '白', '发', '中'];
+    for (i = 0; i < 7; i++) a.push(honors[i]);
+    return a;
+  })();
+  var TERMINAL = { 0: 1, 8: 1, 9: 1, 17: 1, 18: 1, 26: 1 };
+  var HONOR = {}; for (var _h = 27; _h <= 33; _h++) HONOR[_h] = 1;
+  var YAOCHU = [0, 8, 9, 17, 18, 26, 27, 28, 29, 30, 31, 32, 33];
+  var DRAGON = [31, 32, 33];
+  var WIND = [27, 28, 29, 30];
+
+  function isHonor(i) { return i >= 27; }
+  function isTerminal(i) { return i < 27 && (i % 9 === 0 || i % 9 === 8); }
+  function isYaochu(i) { return isHonor(i) || isTerminal(i); }
+  function zero() { var a = new Array(34); for (var i = 0; i < 34; i++) a[i] = 0; return a; }
+  function sum(c) { var s = 0; for (var i = 0; i < 34; i++) s += c[i]; return s; }
+  function clone(c) { return c.slice(); }
+  function tilesOf(c) { var a = []; for (var i = 0; i < 34; i++) for (var k = 0; k < c[i]; k++) a.push(i); return a; }
+
+  /* ---------- 解析 / 输出 ---------- */
+  function parseTiles(str) {
+    var s = String(str == null ? '' : str);
+    s = s.replace(/[東东]/g, '|1z').replace(/南/g, '|2z').replace(/西/g, '|3z').replace(/北/g, '|4z')
+         .replace(/白/g, '|5z').replace(/[發发]/g, '|6z').replace(/中/g, '|7z')
+         .replace(/[萬万]/g, 'm').replace(/[筒餅饼]/g, 'p').replace(/[索條条]/g, 's').replace(/字/g, 'z')
+          .replace(/[\s,，、]/g, '')
+         .toLowerCase();
+    if (/[^0-9mpsz|]/.test(s)) throw new Error('含有无法识别的字符，请只输入牌号、花色和字牌');
+    var counts = zero(), digits = [], i, ch, d, n, base;
+    for (i = 0; i < s.length; i++) {
+      ch = s[i];
+      if (ch >= '0' && ch <= '9') { digits.push(Number(ch)); continue; }
+      if (ch === '|') {
+        if (digits.length) throw new Error('数字后面要跟花色字母（m=万 p=筒 s=索 z=字）');
+        continue;
+      }
+      base = ch === 'm' ? 0 : ch === 'p' ? 9 : ch === 's' ? 18 : 27;
+      if (!digits.length) throw new Error('花色前面需要写牌号（例如 123m）');
+      for (d = 0; d < digits.length; d++) {
+        n = digits[d];
+        if (ch === 'z') {
+          if (n < 1 || n > 7) throw new Error('字牌只能写 1z~7z（东南西北白发中）');
+          counts[base + n - 1]++;
+        } else {
+          if (n === 0) n = 5;
+          if (n > 9) throw new Error('数牌只能是 1~9');
+          counts[base + n - 1]++;
+        }
+      }
+      digits = [];
+    }
+    if (digits.length) throw new Error('最后的数字没写花色（m=万 p=筒 s=索 z=字）');
+    for (i = 0; i < 34; i++) if (counts[i] > 4) throw new Error('「' + NAMES[i] + '」超过 4 张了');
+    return counts;
+  }
+
+  function toText(c) {
+    var out = [], suits = ['m', 'p', 's'], si, i, buf;
+    for (si = 0; si < 3; si++) {
+      buf = '';
+      for (i = 0; i < 9; i++) for (var k = 0; k < c[si * 9 + i]; k++) buf += (i + 1);
+      if (buf) out.push(buf + suits[si]);
+    }
+    buf = '';
+    for (i = 0; i < 7; i++) for (var j = 0; j < c[27 + i]; j++) buf += (i + 1);
+    if (buf) out.push(buf + 'z');
+    return out.join('');
+  }
+
+  function doraOf(i) {
+    if (i < 27) { var off = i % 9; return i - off + (off + 1) % 9; }
+    if (i <= 30) return i === 30 ? 27 : i + 1;
+    return i === 33 ? 31 : i + 1;
+  }
+
+  /* ---------- 和牌判定 ---------- */
+  function checkMelds(c) {
+    var i = 0;
+    while (i < 34 && c[i] === 0) i++;
+    if (i === 34) return true;
+    if (c[i] >= 3) {
+      c[i] -= 3;
+      var ok = checkMelds(c);
+      c[i] += 3;
+      if (ok) return true;
+    }
+    if (i < 27 && i % 9 <= 6 && c[i + 1] > 0 && c[i + 2] > 0) {
+      c[i]--; c[i + 1]--; c[i + 2]--;
+      var ok2 = checkMelds(c);
+      c[i]++; c[i + 1]++; c[i + 2]++;
+      if (ok2) return true;
+    }
+    return false;
+  }
+
+  function isStdWin(c) {
+    if (sum(c) % 3 !== 2) return false;
+    var t = c.slice();
+    for (var i = 0; i < 34; i++) {
+      if (t[i] >= 2) {
+        t[i] -= 2;
+        var ok = checkMelds(t);
+        t[i] += 2;
+        if (ok) return true;
+      }
+    }
+    return false;
+  }
+
+  function chiitoiWin(c) {
+    var kinds = 0, total = 0;
+    for (var i = 0; i < 34; i++) {
+      if (c[i] === 0) continue;
+      if (c[i] !== 2) return false;
+      kinds++; total += c[i];
+    }
+    return kinds === 7 && total === 14;
+  }
+
+  function kokushiWin(c) {
+    var kinds = 0, pairs = 0, total = 0, i;
+    for (i = 0; i < YAOCHU.length; i++) {
+      var t = YAOCHU[i];
+      if (c[t] > 0) kinds++;
+      if (c[t] >= 2) pairs++;
+      total += c[t];
+    }
+    return kinds === 13 && pairs >= 1 && total === 14;
+  }
+
+  function isWin(c) {
+    if (sum(c) !== 14) return false;
+    return chiitoiWin(c) || kokushiWin(c) || isStdWin(c);
+  }
+
+  /* ---------- 向听数 ---------- */
+  /* Enumerate legal target blocks once, then minimize missing tiles per suit.
+     Unlike a block-count formula, every target respects the four-copy limit:
+     four identical honors can never become a triplet plus a fifth-tile pair. */
+  var targetPatterns = [null, null], suitCostCache = [new Map(), new Map()];
+  function buildTargetPatterns(honors) {
+    var len = honors ? 7 : 9, groups = [], maps = [], c = new Array(len).fill(0), i;
+    for (i = 0; i < 10; i++) maps.push(new Map());
+    for (i = 0; i < len; i++) { var tri = new Array(len).fill(0); tri[i] = 3; groups.push(tri); }
+    if (!honors) for (i = 0; i < 7; i++) {
+      var seq = new Array(len).fill(0); seq[i] = seq[i + 1] = seq[i + 2] = 1; groups.push(seq);
+    }
+    function put(m, p) {
+      var key = 0;
+      for (var k = len - 1; k >= 0; k--) key = key * 5 + c[k];
+      if (!maps[m * 2 + p].has(key)) maps[m * 2 + p].set(key, c.slice());
+    }
+    function go(start, m) {
+      put(m, 0);
+      for (var k = 0; k < len; k++) if (c[k] <= 2) { c[k] += 2; put(m, 1); c[k] -= 2; }
+      if (m === 4) return;
+      for (var g = start; g < groups.length; g++) {
+        var valid = true;
+        for (var j = 0; j < len; j++) { c[j] += groups[g][j]; if (c[j] > 4) valid = false; }
+        if (valid) go(g, m + 1);
+        for (j = 0; j < len; j++) c[j] -= groups[g][j];
+      }
+    }
+    go(0, 0);
+    return maps.map(function (m) { return Array.from(m.values()); });
+  }
+  function suitCosts(c, off, honors) {
+    var len = honors ? 7 : 9, key = 0, i, kind = honors ? 1 : 0;
+    for (i = len - 1; i >= 0; i--) key = key * 5 + c[off + i];
+    var cache = suitCostCache[kind];
+    if (cache.has(key)) return cache.get(key);
+    if (!targetPatterns[kind]) targetPatterns[kind] = buildTargetPatterns(honors);
+    var costs = targetPatterns[kind].map(function (patterns) {
+      var best = 99;
+      for (var p = 0; p < patterns.length; p++) {
+        var missing = 0;
+        for (var k = 0; k < len; k++) {
+          var d = patterns[p][k] - c[off + k];
+          if (d > 0) missing += d;
+          if (missing >= best) break;
+        }
+        if (missing < best) best = missing;
+        if (best === 0) break;
+      }
+      return best;
+    });
+    if (cache.size >= 4096) cache.delete(cache.keys().next().value);
+    cache.set(key, costs);
+    return costs;
+  }
+  function shantenStd(c) {
+    var dp = new Array(10).fill(99); dp[0] = 0;
+    for (var part = 0; part < 4; part++) {
+      var costs = suitCosts(c, part * 9, part === 3), next = new Array(10).fill(99);
+      for (var m = 0; m <= 4; m++) for (var p = 0; p <= 1; p++) {
+        for (var mm = 0; mm + m <= 4; mm++) for (var pp = 0; pp + p <= 1; pp++) {
+          var index = (m + mm) * 2 + p + pp, v = dp[m * 2 + p] + costs[mm * 2 + pp];
+          if (v < next[index]) next[index] = v;
+        }
+      }
+      dp = next;
+    }
+    return dp[9] - 1;
+  }
+
+  function shantenChiitoi(c) {
+    var pairs = 0, kinds = 0;
+    for (var i = 0; i < 34; i++) { if (c[i] > 0) kinds++; if (c[i] >= 2) pairs++; }
+    return 6 - pairs + (kinds < 7 ? 7 - kinds : 0);
+  }
+
+  function shantenKokushi(c) {
+    var kinds = 0, pair = 0, i, t;
+    for (i = 0; i < YAOCHU.length; i++) { t = YAOCHU[i]; if (c[t] > 0) kinds++; if (c[t] >= 2) pair = 1; }
+    return 13 - kinds - pair;
+  }
+
+  function bestShanten(c) {
+    var std = shantenStd(c), chi = shantenChiitoi(c), kok = shantenKokushi(c);
+    var v = std;
+    if (chi < v) v = chi;
+    if (kok < v) v = kok;
+    return { value: v, std: std, chiitoi: chi, kokushi: kok };
+  }
+
+  /* ---------- 听牌 / 进张 ---------- */
+  function waitsOf(c13) {
+    var res = [], i, t;
+    for (i = 0; i < 34; i++) {
+      if (c13[i] >= 4) continue;
+      c13[i]++;
+      if (isWin(c13)) res.push(i);
+      c13[i]--;
+    }
+    return res;
+  }
+
+  function remainingOf(base, seen, t) {
+    var v = 4 - base[t] - ((seen && seen[t]) || 0);
+    return v < 0 ? 0 : v;
+  }
+
+  /* ---------- 手牌拆分（枚举所有和牌解释） ---------- */
+  function findDecomps(c) {
+    var out = [], stack = [];
+    function go() {
+      var i = 0;
+      while (i < 34 && c[i] === 0) i++;
+      if (i === 34) { out.push(stack.slice()); return; }
+      if (c[i] >= 3) {
+        c[i] -= 3; stack.push({ k: 'tri', t: i });
+        go();
+        stack.pop(); c[i] += 3;
+      }
+      if (i < 27 && i % 9 <= 6 && c[i + 1] > 0 && c[i + 2] > 0) {
+        c[i]--; c[i + 1]--; c[i + 2]--; stack.push({ k: 'seq', t: i });
+        go();
+        stack.pop(); c[i]++; c[i + 1]++; c[i + 2]++;
+      }
+    }
+    go();
+    return out;
+  }
+
+  function allWinDecomps(c14) {
+    var res = [], c = c14.slice(), i, ds, j;
+    for (i = 0; i < 34; i++) {
+      if (c[i] >= 2) {
+        c[i] -= 2;
+        ds = findDecomps(c);
+        for (j = 0; j < ds.length; j++) res.push({ pair: i, melds: ds[j] });
+        c[i] += 2;
+      }
+    }
+    return res;
+  }
+
+  function winPlacements(d, wt) {
+    var out = [];
+    if (d.pair === wt) out.push({ shape: '单骑', openTri: -1 });
+    for (var i = 0; i < d.melds.length; i++) {
+      var m = d.melds[i], s = null, off = m.t % 9;
+      if (m.k === 'seq') {
+        if (wt === m.t) s = off === 6 ? '边张' : '两面';
+        else if (wt === m.t + 1) s = '嵌张';
+        else if (wt === m.t + 2) s = off === 0 ? '边张' : '两面';
+      } else if (m.t === wt) s = '双碰';
+      if (s) out.push({ shape: s, openTri: m.k === 'tri' ? i : -1 });
+    }
+    return out;
+  }
+  function classifyShape(d, wt) {
+    var rank = { '两面': 4, '边张': 3, '嵌张': 3, '双碰': 2, '单骑': 1 };
+    var ps = winPlacements(d, wt), best = '';
+    for (var i = 0; i < ps.length; i++) if (!best || rank[ps[i].shape] > rank[best]) best = ps[i].shape;
+    return best;
+  }
+
+  /* ---------- 役判定 ---------- */
+  function isChuuren(c) {
+    var su, i, s, need, extra, ok, d;
+    for (su = 0; su < 3; su++) {
+      s = 0;
+      for (i = 0; i < 9; i++) s += c[su * 9 + i];
+      if (s !== 14) continue;
+      ok = true;
+      for (i = 0; i < 34; i++) {
+        if ((i < su * 9 || i >= su * 9 + 9) && c[i] > 0) { ok = false; break; }
+      }
+      if (!ok) continue;
+      need = [3, 1, 1, 1, 1, 1, 1, 1, 3];
+      extra = 0; ok = true;
+      for (i = 0; i < 9; i++) {
+        d = c[su * 9 + i] - need[i];
+        if (d < 0) { ok = false; break; }
+        extra += d;
+      }
+      if (ok && extra === 1) return true;
+    }
+    return false;
+  }
+
+  function evalDecomp(c, d, wt, o, placement, knownWinTile) {
+    o = o || {};
+    if (!placement) {
+      var ps = winPlacements(d, wt), best = null;
+      for (var pi = 0; pi < ps.length; pi++) {
+        var candidate = evalDecomp(c, d, wt, o, ps[pi], knownWinTile);
+        if (!best || better(candidate, best)) best = candidate;
+      }
+      return best || { han: 0, yakus: [], yakuman: 0, shape: '' };
+    }
+    var seatWind = o.seatWind == null ? 27 : o.seatWind;
+    var roundWind = o.roundWind == null ? 27 : o.roundWind;
+    var yakus = [], han = 0, yakuman = 0;
+    var melds = d.melds, i, m;
+    var hasHonor = false, hasTerminal = false;
+    for (i = 27; i < 34; i++) if (c[i] > 0) hasHonor = true;
+    for (i = 0; i < 27; i++) if (c[i] > 0 && (i % 9 === 0 || i % 9 === 8)) hasTerminal = true;
+
+    var shape = placement.shape;
+    var allSeq = true, allTri = true;
+    for (i = 0; i < melds.length; i++) { if (melds[i].k !== 'seq') allSeq = false; else allTri = false; }
+    var allYaochu = true, suitsUsed = {};
+    for (i = 0; i < 34; i++) {
+      if (c[i] === 0) continue;
+      if (!isYaochu(i)) allYaochu = false;
+      if (i < 27) suitsUsed[i / 9 | 0] = 1;
+    }
+
+    var dragonTris = [], windTris = [];
+    var ankou = 0;
+    for (i = 0; i < melds.length; i++) {
+      m = melds[i];
+      if (m.k === 'tri') {
+        if (DRAGON.indexOf(m.t) >= 0) dragonTris.push(m.t);
+        if (WIND.indexOf(m.t) >= 0) windTris.push(m.t);
+        if (i !== placement.openTri) ankou++; /* Only the actual ron-completed triplet becomes open. */
+      }
+    }
+
+    /* --- 役满（可复合） --- */
+    if (dragonTris.length === 3) { yakuman++; yakus.push(['大三元', 0]); }
+    if (ankou === 4) {
+      var suu = knownWinTile && shape === '单骑' ? 2 : 1;
+      yakuman += suu; yakus.push([suu === 2 ? '四暗刻单骑' : '四暗刻', 0]);
+    }
+    if (windTris.length === 4) { yakuman += 2; yakus.push(['大四喜', 0]); }
+    else if (windTris.length === 3 && WIND.indexOf(d.pair) >= 0) { yakuman++; yakus.push(['小四喜', 0]); }
+    if (Object.keys(suitsUsed).length === 0) { yakuman++; yakus.push(['字一色', 0]); }
+    var allGreen = true, greens = [19, 20, 21, 23, 25, 32];
+    for (i = 0; i < 34; i++) if (c[i] && greens.indexOf(i) < 0) allGreen = false;
+    if (allGreen) { yakuman++; yakus.push(['绿一色', 0]); }
+    if (allYaochu && !hasHonor) { yakuman++; yakus.push(['清老头', 0]); }
+    if (isChuuren(c)) {
+      var pure = knownWinTile && wt < 27 && c[wt] === (wt % 9 === 0 || wt % 9 === 8 ? 4 : 2);
+      yakuman += pure ? 2 : 1; yakus.push([pure ? '纯正九莲宝灯' : '九莲宝灯', 0]);
+    }
+    if (yakuman) return { han: 13 * yakuman, yakus: yakus, yakuman: yakuman, shape: shape };
+
+    /* --- 普通役 --- */
+    if (!hasHonor && !hasTerminal) { han += 1; yakus.push(['断幺九', 1]); }
+
+    if (allSeq) {
+      var pairYakuhai = DRAGON.indexOf(d.pair) >= 0 || d.pair === roundWind || d.pair === seatWind;
+      if (!pairYakuhai && shape === '两面') { han += 1; yakus.push(['平和', 1]); }
+    }
+
+    for (i = 0; i < dragonTris.length; i++) { han += 1; yakus.push(['役牌 ' + NAMES[dragonTris[i]], 1]); }
+    if (windTris.indexOf(roundWind) >= 0) { han += 1; yakus.push(['场风 ' + NAMES[roundWind], 1]); }
+    if (windTris.indexOf(seatWind) >= 0) { han += 1; yakus.push(['自风 ' + NAMES[seatWind], 1]); }
+
+    if (dragonTris.length === 2 && DRAGON.indexOf(d.pair) >= 0) { han += 2; yakus.push(['小三元', 2]); }
+
+    if (allTri) { han += 2; yakus.push(['对对和', 2]); }
+    if (ankou === 3) { han += 2; yakus.push(['三暗刻', 2]); }
+    for (var rank = 0; rank < 9; rank++) {
+      var threeTris = [false, false, false];
+      for (i = 0; i < melds.length; i++) if (melds[i].k === 'tri' && melds[i].t < 27 && melds[i].t % 9 === rank) {
+        threeTris[melds[i].t / 9 | 0] = true;
+      }
+      if (threeTris[0] && threeTris[1] && threeTris[2]) { han += 2; yakus.push(['三色同刻', 2]); break; }
+    }
+
+    var seqCount = {}, dupPairs = 0, k;
+    for (i = 0; i < melds.length; i++) {
+      if (melds[i].k === 'seq') seqCount[melds[i].t] = (seqCount[melds[i].t] || 0) + 1;
+    }
+    for (k in seqCount) dupPairs += Math.floor(seqCount[k] / 2);
+    if (dupPairs >= 2) { han += 3; yakus.push(['二杯口', 3]); }
+    else if (dupPairs === 1) { han += 1; yakus.push(['一杯口', 1]); }
+
+    for (i = 0; i < 7; i++) {
+      var ok3 = true;
+      for (var su = 0; su < 3; su++) {
+        var found = false;
+        for (var j = 0; j < melds.length; j++) {
+          if (melds[j].k === 'seq' && melds[j].t === su * 9 + i) { found = true; break; }
+        }
+        if (!found) { ok3 = false; break; }
+      }
+      if (ok3) { han += 2; yakus.push(['三色同顺', 2]); break; }
+    }
+
+    for (var su2 = 0; su2 < 3; su2++) {
+      var okI = true, offs = [0, 3, 6];
+      for (i = 0; i < 3; i++) {
+        var f2 = false;
+        for (var j2 = 0; j2 < melds.length; j2++) {
+          if (melds[j2].k === 'seq' && melds[j2].t === su2 * 9 + offs[i]) { f2 = true; break; }
+        }
+        if (!f2) { okI = false; break; }
+      }
+      if (okI) { han += 2; yakus.push(['一气通贯', 2]); break; }
+    }
+
+    var suitCnt = 0;
+    for (k in suitsUsed) suitCnt++;
+    if (suitCnt === 1) {
+      if (hasHonor) { han += 3; yakus.push(['混一色', 3]); }
+      else { han += 6; yakus.push(['清一色', 6]); }
+    }
+
+    if (allYaochu && hasHonor) { han += 2; yakus.push(['混老头', 2]); }
+    else if (!allYaochu) {
+      var allWithYao = isYaochu(d.pair);
+      for (i = 0; i < melds.length && allWithYao; i++) {
+        m = melds[i];
+        if (m.k === 'tri') { if (!isYaochu(m.t)) allWithYao = false; }
+        else { var off2 = m.t % 9; if (off2 !== 0 && off2 !== 6) allWithYao = false; }
+      }
+      if (allWithYao) {
+        if (!hasHonor) { han += 3; yakus.push(['纯全带幺九', 3]); }
+        else { han += 2; yakus.push(['混全带幺九', 2]); }
+      }
+    }
+
+    return { han: han, yakus: yakus, yakuman: 0, shape: shape };
+  }
+
+  function evalChiitoi(c, o) {
+    var yakus = [['七对子', 2]], han = 2;
+    var hasHonor = false, hasTerminal = false, suits = {}, i;
+    for (i = 0; i < 34; i++) {
+      if (c[i] === 0) continue;
+      if (i >= 27) hasHonor = true;
+      else { suits[i / 9 | 0] = 1; if (i % 9 === 0 || i % 9 === 8) hasTerminal = true; }
+    }
+    if (!hasHonor && !hasTerminal) { han += 1; yakus.push(['断幺九', 1]); }
+    var cnt = 0, k;
+    for (k in suits) cnt++;
+    if (cnt === 0) return { han: 13, yakus: [['字一色', 0]], yakuman: 1, shape: '单骑' };
+    var allYao = true;
+    for (i = 0; i < 34; i++) if (c[i] && !isYaochu(i)) allYao = false;
+    if (allYao) { han += 2; yakus.push(['混老头', 2]); }
+    if (cnt === 1) {
+      if (hasHonor) { han += 3; yakus.push(['混一色', 3]); }
+      else { han += 6; yakus.push(['清一色', 6]); }
+    }
+    return { han: han, yakus: yakus, yakuman: 0, shape: '单骑' };
+  }
+
+  function better(a, b) {
+    if (a.yakuman !== b.yakuman) return a.yakuman > b.yakuman;
+    if (a.han !== b.han) return a.han > b.han;
+    return 0;
+  }
+
+  function bestScore(c14, o, forced) {
+    var best = null;
+    var cands = [], i;
+    if (kokushiWin(c14)) {
+      var thirteen = forced != null && c14[forced] === 2;
+      cands.push({ han: thirteen ? 26 : 13, yakus: [[thirteen ? '国士无双十三面' : '国士无双', 0]], yakuman: thirteen ? 2 : 1, shape: thirteen ? '十三面' : '单骑' });
+    }
+    if (chiitoiWin(c14)) cands.push(evalChiitoi(c14, o));
+
+    var tiles = tilesOf(c14);
+    if (isStdWin(c14)) {
+      var ds = allWinDecomps(c14), j, k;
+      for (j = 0; j < ds.length; j++) {
+        var wts = (forced != null) ? [forced] : tiles;
+        for (k = 0; k < wts.length; k++) {
+          cands.push(evalDecomp(c14, ds[j], wts[k], o, null, forced != null));
+        }
+      }
+    }
+    for (i = 0; i < cands.length; i++) {
+      if (!best || better(cands[i], best)) { best = cands[i]; best.winTile = (forced != null ? forced : null); }
+    }
+    return best || { han: 0, yakus: [], yakuman: 0, shape: '', winTile: null };
+  }
+
+  /* ---------- 综合 ---------- */
+  function ukeireList(c13, s, base, seen) {
+    var out = [], i, c;
+    for (i = 0; i < 34; i++) {
+      if (c13[i] >= 4) continue;
+      var remaining = remainingOf(base, seen, i);
+      if (remaining <= 0) continue;
+      c = c13.slice(); c[i]++;
+      if (bestShanten(c).value < s) {
+        out.push({ tile: i, remaining: remaining });
+      }
+    }
+    out.sort(function (a, b) { return b.remaining - a.remaining; });
+    return out;
+  }
+
+  function waitsInfo(c13, base, seen, o) {
+    var out = [], i, c, sc;
+    for (i = 0; i < 34; i++) {
+      if (c13[i] >= 4) continue;
+      c = c13.slice(); c[i]++;
+      if (!isWin(c)) continue;
+      sc = bestScore(c, o, i);
+      out.push({
+        tile: i, remaining: remainingOf(base, seen, i),
+        shape: sc.shape, han: sc.han, yakus: sc.yakus, yakuman: sc.yakuman
+      });
+    }
+    return out;
+  }
+
+  function validateCounts(c, label) {
+    if (!Array.isArray(c) || c.length !== 34) throw new Error(label + '必须包含 34 种牌的数量');
+    for (var i = 0; i < 34; i++) {
+      if (!Number.isInteger(c[i]) || c[i] < 0 || c[i] > 4) throw new Error(label + '「' + NAMES[i] + '」数量必须是 0～4 的整数');
+    }
+  }
+  function analyze(counts, opts) {
+    opts = opts || {};
+    validateCounts(counts, '手牌');
+    var seen = opts.seen || zero();
+    validateCounts(seen, '已见牌');
+    var total = sum(counts);
+    if (total !== 13 && total !== 14) throw new Error('仅支持门清的 13 或 14 张手牌');
+    for (var t = 0; t < 34; t++) if (counts[t] + seen[t] > 4) throw new Error('「' + NAMES[t] + '」手牌与已见牌合计超过 4 张，请核对');
+    ['seatWind', 'roundWind'].forEach(function (key) {
+      if (opts[key] != null && (!Number.isInteger(opts[key]) || opts[key] < 27 || opts[key] > 30)) throw new Error('自风和场风必须是东、南、西、北之一');
+    });
+    var forms = bestShanten(counts);
+    var res = {
+      total: total, forms: forms, shanten: forms.value,
+      win: false, discards: [], waits: [], ukeire: [],
+      tenpai: false, notes: [], dora: 0
+    };
+
+    if (total === 14) {
+      res.win = isWin(counts);
+      if (res.win) { res.winInfo = bestScore(counts, opts); return res; }
+
+      var cands = [], d, c13, f;
+      for (d = 0; d < 34; d++) {
+        if (!counts[d]) continue;
+        c13 = counts.slice(); c13[d]--;
+        f = bestShanten(c13);
+        cands.push({ tile: d, shanten: f.value, forms: f, c13: c13 });
+      }
+      var minS = 99, i;
+      for (i = 0; i < cands.length; i++) if (cands[i].shanten < minS) minS = cands[i].shanten;
+
+      var list = [];
+      for (i = 0; i < cands.length; i++) {
+        var x = cands[i];
+        if (x.shanten !== minS) { x.rank = 99; list.push(x); continue; }
+        if (minS === 0) {
+          x.tenpai = true;
+          x.waits = waitsInfo(x.c13, counts, seen, opts);
+          x.ukeireTotal = 0;
+          for (var w = 0; w < x.waits.length; w++) x.ukeireTotal += x.waits[w].remaining;
+          x.ukeireKinds = x.waits.filter(function (w) { return w.remaining > 0; }).length;
+          x.ryanmen = 0;
+          for (w = 0; w < x.waits.length; w++) if (x.waits[w].remaining > 0 && x.waits[w].shape === '两面') x.ryanmen++;
+        } else {
+          x.ukeireTiles = ukeireList(x.c13, minS, counts, seen);
+          x.ukeireTotal = 0;
+          for (var u = 0; u < x.ukeireTiles.length; u++) x.ukeireTotal += x.ukeireTiles[u].remaining;
+          x.ukeireKinds = x.ukeireTiles.length;
+          x.ryanmen = 0;
+        }
+        list.push(x);
+      }
+      list.sort(function (a, b) {
+        if (a.shanten !== b.shanten) return a.shanten - b.shanten;
+        if (b.ukeireTotal !== a.ukeireTotal) return b.ukeireTotal - a.ukeireTotal;
+        return b.ryanmen - a.ryanmen;
+      });
+      var rr = 0;
+      for (i = 0; i < list.length; i++) {
+        list[i].rank = (list[i].shanten === minS) ? rr++ : 999;
+      }
+      res.discards = list;
+
+    } else if (total === 13) {
+      if (res.shanten === 0) {
+        res.tenpai = true;
+        res.waits = waitsInfo(counts, counts, seen, opts);
+      } else {
+        res.ukeire = ukeireList(counts, res.shanten, counts, seen);
+      }
+    }
+    return res;
+  }
+
+  return {
+    NAMES: NAMES, YAOCHU: YAOCHU, DRAGON: DRAGON, WIND: WIND,
+    zero: zero, sum: sum, clone: clone, tilesOf: tilesOf,
+    isHonor: isHonor, isTerminal: isTerminal, isYaochu: isYaochu,
+    parseTiles: parseTiles, toText: toText, doraOf: doraOf,
+    isWin: isWin, isStdWin: isStdWin, chiitoiWin: chiitoiWin, kokushiWin: kokushiWin,
+    shantenStd: shantenStd, shantenChiitoi: shantenChiitoi, shantenKokushi: shantenKokushi,
+    bestShanten: bestShanten, waitsOf: waitsOf, remainingOf: remainingOf,
+    allWinDecomps: allWinDecomps, classifyShape: classifyShape,
+    bestScore: bestScore, evalDecomp: evalDecomp,
+    analyze: analyze, validateCounts: validateCounts, ukeireList: ukeireList, waitsInfo: waitsInfo,
+    isChuuren: isChuuren
+  };
+})();
+</script>
+
+<script id="mj-ui">
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { counts: MJ.zero(), history: [], seatWind: 27, roundWind: 27, doraInd: MJ.zero(), seen: MJ.zero(), red: [false, false, false],
+                inputError: '', optionError: '', llm: false, payload: null, llmKey: '', solveMs: 0 };
+
+  /* ---------- 小工具 ---------- */
+  function tileHTML(i, cls) {
+    var n = i % 9 + 1, suit = i < 27 ? ['万', '筒', '索'][i / 9 | 0] : null;
+    var kind = i < 27 ? ['man', 'pin', 'sou'][i / 9 | 0] : 'honor';
+    var inner = suit
+      ? '<span class="num">' + n + '</span><span class="suit">' + suit + '</span>'
+      : '<span class="num">' + MJ.NAMES[i] + '</span>';
+    return '<button type="button" class="tile ' + kind + ' ' + (cls || '') + '" data-i="' + i + '">' +
+      inner + '<span class="badge">0</span></button>';
+  }
+
+  /* ---------- 牌墙 ---------- */
+  var palette = $('palette');
+  (function buildPalette() {
+    var html = '', i, j, label;
+    var labels = ['万', '筒', '索', '字'];
+    for (j = 0; j < 4; j++) {
+      html += '<div class="prow"><span class="plabel">' + labels[j] + '</span>';
+      var start = j * 9, end = j < 3 ? start + 9 : 34;
+      for (i = start; i < end; i++) html += tileHTML(i);
+      html += '</div>';
+    }
+    palette.innerHTML = html;
+    palette.addEventListener('click', function (e) {
+      var btn = e.target.closest('.tile');
+      if (!btn) return;
+      var i = Number(btn.dataset.i);
+      if (state.counts[i] >= 4) { flash('这种牌只有 4 张'); return; }
+      if (MJ.sum(state.counts) >= 14) { flash('已经有 14 张了，先删一张'); return; }
+      pushHistory();
+      state.counts[i]++;
+      setCounts(state.counts);
+    });
+  })();
+
+  /* ---------- 手牌 ---------- */
+  function renderHand() {
+    var c = state.counts, html = '', i, n = 0;
+    for (i = 0; i < 34; i++) n += c[i];
+    for (i = 0; i < 34; i++) {
+      for (var k = 0; k < c[i]; k++) html += tileHTML(i, 'sm');
+    }
+    $('hand').innerHTML = html || '<span class="empty">还没有牌，点上面的牌，或者直接在上面输入框打字。</span>';
+    $('handCount').textContent = n + ' / 14';
+    $('handCount').style.color = (n === 13 || n === 14) ? 'var(--green)' : 'var(--gold)';
+    Array.prototype.forEach.call(palette.querySelectorAll('.tile'), function (btn) {
+      var i = Number(btn.dataset.i);
+      btn.classList.toggle('has', c[i] > 0);
+      btn.classList.toggle('full', c[i] >= 4);
+      btn.querySelector('.badge').textContent = c[i];
+    });
+  }
+
+  $('hand').addEventListener('click', function (e) {
+    var btn = e.target.closest('.tile');
+    if (!btn) return;
+    pushHistory();
+    var i = Number(btn.dataset.i);
+    if (state.counts[i] > 0) state.counts[i]--;
+    setCounts(state.counts);
+  });
+
+  function syncText() { $('txt').value = MJ.toText(state.counts); }
+
+  function setCounts(c) {
+    clearTimeout(timer);
+    state.counts = c;
+    state.inputError = '';
+    $('err').textContent = '';
+    syncText();
+    renderHand();
+    renderResult();
+  }
+
+  function pushHistory() {
+    if (state.history.length && MJ.toText(state.history[state.history.length - 1]) === MJ.toText(state.counts)) return;
+    state.history.push(state.counts.slice());
+    if (state.history.length > 60) state.history.shift();
+  }
+
+  function flash(msg) {
+    var el = $('err');
+    el.textContent = msg;
+    clearTimeout(flash._t);
+    flash._t = setTimeout(function () { el.textContent = ''; }, 2200);
+  }
+
+  /* ---------- 输入框 ---------- */
+  var timer = null;
+  $('txt').addEventListener('input', function () {
+    clearTimeout(timer);
+    state.inputError = '正在输入，请补全手牌';
+    renderResult();
+    timer = setTimeout(parseNow, 260);
+  });
+  $('txt').addEventListener('keydown', function (e) { if (e.key === 'Enter') parseNow(); });
+  $('btnParse').addEventListener('click', parseNow);
+  function parseNow() {
+    clearTimeout(timer);
+    try {
+      var c = MJ.parseTiles($('txt').value);
+      if (MJ.sum(c) > 14) throw new Error('超过 14 张了');
+      if (MJ.toText(c) !== MJ.toText(state.counts)) pushHistory();
+      $('err').textContent = '';
+      state.inputError = '';
+      state.counts = c;
+      renderHand();
+      renderResult();
+    } catch (err) { state.inputError = err.message; $('err').textContent = err.message; renderResult(); }
+  }
+  $('btnClear').addEventListener('click', function () {
+    pushHistory(); state.counts = MJ.zero(); setCounts(state.counts);
+  });
+  $('btnUndo').addEventListener('click', function () {
+    if (!state.history.length) { flash('没有可撤销的操作'); return; }
+    setCounts(state.history.pop());
+  });
+  $('btnDemo').addEventListener('click', function () {
+    pushHistory();
+    state.counts = MJ.parseTiles('123456789m2345p4z');
+    setCounts(state.counts);
+  });
+
+  /* ---------- 进阶设置 ---------- */
+  function refreshOpts() {
+    clearTimeout(optTimer);
+    state.optionError = '';
+    try {
+      var indicators = MJ.parseTiles($('doraInd').value);
+      if (MJ.sum(indicators) > 5) throw new Error('宝牌指示牌最多 5 张');
+      state.doraInd = indicators;
+    } catch (e) { state.optionError = '宝牌指示牌：' + e.message; }
+    try { state.seen = MJ.parseTiles($('seen').value); } catch (e) { state.optionError = '已见牌：' + e.message; }
+    state.seatWind = Number($('seat').value);
+    state.roundWind = Number($('round').value);
+    state.red = [$('redM').checked, $('redP').checked, $('redS').checked];
+    renderResult();
+  }
+  $('seat').addEventListener('change', refreshOpts);
+  $('round').addEventListener('change', refreshOpts);
+  ['redM', 'redP', 'redS'].forEach(function (id) { $(id).addEventListener('change', refreshOpts); });
+  $('llm').addEventListener('change', function () {
+    state.llm = this.checked;
+    if (!state.llm) hideLLM(); else { state.llmKey = ''; renderResult(); }
+  });
+  var optTimer = null;
+  function refreshLater() { clearTimeout(optTimer); state.optionError = '正在输入进阶设置，请补全'; renderResult(); optTimer = setTimeout(refreshOpts, 260); }
+  $('doraInd').addEventListener('input', refreshLater);
+  $('seen').addEventListener('input', refreshLater);
+
+  /* ---------- 计算宝牌 ---------- */
+  function doraInfo(counts) {
+    var n = 0, detail = [], i, t;
+    for (i = 0; i < 34; i++) {
+      if (state.doraInd[i]) {
+        t = MJ.doraOf(i);
+        if (counts[t] > 0) { n += counts[t] * state.doraInd[i]; detail.push(MJ.NAMES[t] + '×' + counts[t] * state.doraInd[i]); }
+      }
+    }
+    var red = 0;
+    [4, 13, 22].forEach(function (k, si) { if (state.red[si] && counts[k] > 0) red++; });
+    return { dora: n, red: red, total: n + red, detail: detail };
+  }
+
+  /* ---------- 结果渲染 ---------- */
+  function fmtHan(r) {
+    if (!r) return '';
+    if (r.yakuman) return r.yakuman > 1 ? r.yakuman + ' 倍役满' : '役满';
+    return r.han + ' 番';
+  }
+
+  function yakuChips(list) {
+    if (!list || !list.length) return '';
+    var html = '<div class="yakulist">';
+    for (var i = 0; i < list.length; i++) {
+      html += '<span class="yaku">' + list[i][0] + (list[i][1] ? ' <b>+' + list[i][1] + '</b>' : '<b> 役满</b>') + '</span>';
+    }
+    return html + '</div>';
+  }
+
+  function waitChips(waits) {
+    var html = '<div class="waits">';
+    for (var i = 0; i < waits.length; i++) {
+      html += '<span class="waittile">' + tileHTML(waits[i].tile, 'xs') +
+        '<span class="n">' + waits[i].remaining + '</span></span>';
+    }
+    return html + '</div>';
+  }
+
+  function renderResult() {
+    var el = $('result');
+    var counts = state.counts, total = MJ.sum(counts);
+    var invalid = state.inputError || state.optionError;
+    for (var vi = 0; vi < 34 && !invalid; vi++) {
+      if (counts[vi] + state.seen[vi] + state.doraInd[vi] > 4) invalid = '手牌、已见牌与宝牌指示牌中的「' + MJ.NAMES[vi] + '」合计超过 4 张，请核对有无重复录入。';
+    }
+    [4, 13, 22].forEach(function (k, si) { if (state.red[si] && !counts[k]) invalid = '勾选的赤5不在当前手牌中，请取消对应勾选。'; });
+    if (invalid) {
+      el.innerHTML = '<div class="err">' + esc(invalid) + '</div>';
+      state.payload = null;
+      hideLLM();
+      return;
+    }
+    if (total < 13) {
+      el.innerHTML = '<div class="muted small">还需要 ' + (13 - total) + ' 张牌（13 张看听牌/进张，14 张看出牌建议）。</div>';
+      hideLLM();
+      return;
+    }
+
+    var visible = state.seen.map(function (n, i) { return n + state.doraInd[i]; });
+    var opts = { seatWind: state.seatWind, roundWind: state.roundWind, seen: visible };
+    var r;
+    try {
+      var t0 = performance.now();
+      r = MJ.analyze(counts, opts);
+      state.solveMs = performance.now() - t0;
+    }
+    catch (e) { el.innerHTML = '<div class="err">计算出错：' + esc(e.message) + '</div>'; state.payload = null; hideLLM(); return; }
+    var d = doraInfo(counts);
+
+    var html = '';
+
+    /* 已经和牌 */
+    if (r.win) {
+      var sc = r.winInfo || { han: 0, yakus: [] };
+      html += '<div class="summary"><div class="bigshanten green">和牌形已完成</div>' +
+        '<div class="chips"><span class="chip">' + fmtHan(sc) + '（门清・荣和估算）</span>' +
+        (d.total ? '<span class="chip on">宝牌 ' + d.total + ' 张</span>' : '') +
+        '</div></div>';
+      html += yakuChips(sc.yakus);
+      if (!sc.yakuman && sc.han === 0) {
+        html += '<div class="callout red" style="margin-top:12px">⚠️ <b>无役</b>：形状是对的，但一个役都没有，这手牌<b>不能和</b>。<br>' +
+          '本工具按门清荣和估算；门清自摸会增加自摸役，或可在满足条件时立直。实际能否和牌还要看振听等规则。</div>';
+      }
+      html += '<div class="note">14 张牌已构成和牌形；未指定最后和牌张，役种按可能的和牌方式估算。' +
+        '番数不含立直/自摸/符；是否能荣和仍需核对役种与振听，实际以游戏结算为准。</div>';
+      el.innerHTML = html;
+      state.payload = buildPayload(counts, r);
+      maybeExplain();
+      return;
+    }
+
+    /* 头部状态 */
+    var isTenpai = r.tenpai;
+    var head;
+    if (total === 14) {
+      var best = r.discards.find(function (x) { return x.rank === 0; });
+      if (best && best.tenpai) {
+        head = '<div class="bigshanten gold">打' + MJ.NAMES[best.tile] + '<small>就听牌</small></div>';
+      } else {
+        head = '<div class="bigshanten">' + r.shanten + '<small>向听</small></div>';
+      }
+    } else {
+      head = isTenpai
+        ? '<div class="bigshanten gold">听牌<small>了</small></div>'
+        : '<div class="bigshanten">' + r.shanten + '<small>向听</small></div>';
+    }
+
+    var chips = '<span class="chip' + (r.forms.std === r.shanten ? ' on' : '') + '">标准形 ' + r.forms.std + ' 向听</span>' +
+      '<span class="chip' + (r.forms.chiitoi === r.shanten && r.forms.chiitoi <= 2 ? ' on' : '') + '">七对子 ' + r.forms.chiitoi + ' 向听</span>' +
+      '<span class="chip' + (r.forms.kokushi === r.shanten && r.forms.kokushi <= 2 ? ' on' : '') + '">国士 ' + r.forms.kokushi + ' 向听</span>';
+    if (d.total) chips += '<span class="chip on">宝牌 ' + d.total + ' 张</span>';
+    html += '<div class="summary">' + head + '<div class="chips">' + chips + '</div></div>';
+
+    /* 14 张：出牌建议 */
+    if (total === 14) {
+      var top = r.discards.filter(function (x) { return x.rank < 8; });
+      var bestRec = r.discards[0];
+      var advice = '';
+      if (bestRec) {
+        if (bestRec.tenpai) {
+          var wtxt = bestRec.waits.map(function (w) { return MJ.NAMES[w.tile]; }).join(' / ');
+          advice = '👉 牌效率建议打 <b>' + MJ.NAMES[bestRec.tile] + '</b>：形成听牌，听 <b>' + wtxt + '</b>，' +
+            '理论还剩 <b>' + bestRec.ukeireTotal + ' 张</b>。' + (bestRec.ukeireTotal === 0
+              ? '<b>可见牌范围内已无剩余和牌张</b>，请考虑改良手牌。'
+              : '是否立直还需结合分数、巡目和对手情况。');
+        } else {
+          advice = '👉 建议打 <b>' + MJ.NAMES[bestRec.tile] + '</b>：保持 <b>' + bestRec.shanten + ' 向听</b>，' +
+            '摸到 <b>' + bestRec.ukeireKinds + ' 种 / ' + bestRec.ukeireTotal + ' 张</b> 都能前进。';
+        }
+      }
+      html += '<div class="advice">' + advice + '</div>';
+
+      html += '<div class="tblwrap"><table class="rank"><thead><tr>' +
+        '<th class="no">#</th><th>打这张</th><th>之后</th><th>进张</th><th>说明</th></tr></thead><tbody>';
+      for (var i = 0; i < top.length; i++) {
+        var x = top[i];
+        var cls = (x.rank === 0 ? 'top' : '');
+        var resTxt = x.tenpai ? '<span style="color:var(--gold);font-weight:700">听牌</span>'
+          : (x.shanten + ' 向听');
+        var ukeTxt = x.tenpai
+          ? (x.ukeireKinds + ' 种 ' + x.ukeireTotal + ' 张')
+          : (x.ukeireKinds + ' 种 ' + x.ukeireTotal + ' 张');
+        var desc = '';
+        if (x.tenpai) {
+          desc = '听 ' + x.waits.map(function (w) { return MJ.NAMES[w.tile]; }).join('/');
+          var shapes = {};
+          x.waits.forEach(function (w) { shapes[w.shape] = 1; });
+          desc += '<span class="tag info">' + Object.keys(shapes).join('/') + '</span>';
+          var maxHan = 0, yk = null;
+          x.waits.forEach(function (w) { if (w.han > maxHan) { maxHan = w.han; yk = w; } });
+          if (maxHan > 0) desc += '<span class="tag">和了约 ' + fmtHan(yk) + '</span>';
+          else desc += '<span class="tag bad">荣和无役；可考虑立直或门清自摸</span>';
+        } else {
+          desc = '摸到 ' + x.ukeireTiles.slice(0, 8).map(function (u) { return MJ.NAMES[u.tile]; }).join('/') +
+            (x.ukeireTiles.length > 8 ? ' 等' : '');
+        }
+        if (d.dora > 0 && isDora(counts, x.tile)) desc += '<span class="tag bad">宝牌</span>';
+        html += '<tr class="' + cls + '"><td class="no">' + (x.rank + 1) + '</td>' +
+          '<td><div class="tiles">' + tileHTML(x.tile, 'xs') + '</div></td>' +
+          '<td class="res">' + resTxt + '</td><td>' + ukeTxt + '</td><td>' + desc + '</td></tr>';
+      }
+      html += '</tbody></table></div>';
+      var worse = r.discards.filter(function (x) { return x.rank === 999; }).length;
+      if (worse) html += '<div class="note">另外 ' + worse + ' 种打法会把向听数打坏（越打越远），没有列出来。</div>';
+
+      if (bestRec && bestRec.tenpai) {
+        html += '<div class="panel" style="margin-top:14px;background:#161e2d"><h2 style="font-size:14px">听牌详情（打' +
+          MJ.NAMES[bestRec.tile] + '之后）</h2>';
+        html += waitChips(bestRec.waits);
+        html += '<div class="tblwrap"><table class="rank"><thead><tr><th>和牌张</th><th>形</th><th>役（估算）</th></tr></thead><tbody>';
+        bestRec.waits.forEach(function (w) {
+          html += '<tr><td><div class="tiles">' + tileHTML(w.tile, 'xs') + '</div></td><td>' + w.shape + '</td><td>' +
+            (w.yakus.length ? w.yakus.map(function (y) { return y[0] + (y[1] ? '+' + y[1] : '(役满)'); }).join('・') + (w.yakuman > 1 ? '（' + fmtHan(w) + '）' : '') : '<span style="color:var(--red)">荣和无役；可考虑立直或门清自摸</span>') +
+            '</td></tr>';
+        });
+        html += '</tbody></table></div>';
+        html += '<div class="note">立直 +1 番、门清自摸 +1 番未计入；荣和需有役且不振听。是否能立直需满足分数、牌山等条件。</div>';
+        html += '</div>';
+      }
+    }
+
+    /* 13 张：听牌 / 进张 */
+    if (total === 13) {
+      if (isTenpai && r.waits.length) {
+        var liveWaits = r.waits.reduce(function (a, w) { return a + w.remaining; }, 0);
+        html += '<div class="advice">👉 已经听牌：等 <b>' +
+          r.waits.map(function (w) { return MJ.NAMES[w.tile]; }).join(' / ') + '</b>，理论还剩 <b>' +
+          liveWaits + ' 张</b>。' +
+          (liveWaits === 0 ? '<b>可见牌范围内已无剩余和牌张</b>，请考虑改良手牌。' :
+            r.waits.some(function (w) { return w.han === 0; }) ? '（部分张荣和无役；可考虑立直或门清自摸）' : '') + '</div>';
+        html += waitChips(r.waits);
+        html += '<div class="tblwrap"><table class="rank"><thead><tr><th>和牌张</th><th>形</th><th>役（估算）</th></tr></thead><tbody>';
+        r.waits.forEach(function (w) {
+          html += '<tr><td><div class="tiles">' + tileHTML(w.tile, 'xs') + '</div></td><td>' + w.shape + '</td><td>' +
+            (w.yakus.length ? w.yakus.map(function (y) { return y[0] + (y[1] ? '+' + y[1] : '(役满)'); }).join('・') + (w.yakuman > 1 ? '（' + fmtHan(w) + '）' : '') : '<span style="color:var(--red)">荣和无役；可考虑立直或门清自摸</span>') +
+            '</td></tr>';
+        });
+        html += '</tbody></table></div>';
+        html += '<div class="note">以上是形状上的听牌张；实际荣和还需有役、且不振听。剩余为 0 张的听牌不能再从牌山摸到。</div>';
+      } else if (r.ukeire.length) {
+        html += '<div class="advice">还差 <b>' + r.shanten + '</b> 步听牌。摸到下面这些牌就能前进：</div>';
+        html += waitChips(r.ukeire.slice(0, 16));
+        html += '<div class="note">数字是理论剩余张数，已扣除手牌、已见牌与已填的宝牌指示牌；同一张实体牌请勿重复录入。</div>';
+      } else {
+        html += '<div class="note">这手牌暂时没有能前进的牌，先打孤张字牌和 1、9。</div>';
+      }
+    }
+
+    /* 提示 */
+    var notes = [];
+    if (r.forms.chiitoi < r.forms.std && r.forms.chiitoi <= 2) notes.push('七对子比标准形更快（' + r.forms.chiitoi + ' 向听），可以考虑留对子。');
+    if (r.forms.kokushi < r.forms.std && r.forms.kokushi <= 2) notes.push('国士无双反而更近（' + r.forms.kokushi + ' 向听）。');
+    if (d.total >= 3) notes.push('手里有 ' + d.total + ' 张宝牌，尽量别打掉。');
+    if (notes.length) html += '<div class="note">💡 ' + notes.join('<br>💡 ') + '</div>';
+
+    html += '<div class="note">牌数：' + total + ' 张。番数为「门清・荣和」估算，不含立直/自摸/符。建议只比较牌效率，未判断防守、振听和局势。</div>';
+    el.innerHTML = html;
+    state.payload = buildPayload(counts, r);
+    maybeExplain();
+  }
+
+  /* ---------- 本地大模型解释（可选，不阻塞求解） ---------- */
+  var llmTimer = null, llmSeq = 0, llmController = null;
+
+  function buildPayload(counts, r) {
+    var o = { hand: MJ.toText(counts), tiles: counts };
+    if (r.win) {
+      o.status = '已经和牌';
+      if (r.winInfo) o.yaku = (r.winInfo.yakus || []).map(function (y) { return y[0]; });
+      return o;
+    }
+    o.shanten = r.shanten;
+    var d0 = r.discards[0], d1 = r.discards[1];
+    if (d0) {
+      o.best = MJ.NAMES[d0.tile];
+      o.best_ukeire = d0.ukeireTotal;
+      o.tenpai_after = !!d0.tenpai;
+      if (d0.tenpai) o.waits = d0.waits.map(function (w) { return MJ.NAMES[w.tile] + '(' + w.shape + ',' + w.remaining + '张)'; });
+      if (d1 && d1.rank === 1) { o.second = MJ.NAMES[d1.tile]; o.second_ukeire = d1.ukeireTotal; }
+    }
+    if (r.tenpai && r.waits && r.waits.length) {
+      o.tenpai_now = true;
+      o.waits = r.waits.map(function (w) { return MJ.NAMES[w.tile] + '(' + w.shape + ',' + w.remaining + '张)'; });
+    }
+    if (r.ukeire && r.ukeire.length) o.draws = r.ukeire.slice(0, 6).map(function (w) { return MJ.NAMES[w.tile]; });
+    return o;
+  }
+
+  function hideLLM() {
+    clearTimeout(llmTimer);
+    llmSeq++;
+    if (llmController) { llmController.abort(); llmController = null; }
+    var box = $('llmBox');
+    box.hidden = true;
+    box.innerHTML = '';
+    state.llmKey = '';
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  function maybeExplain() {
+    var box = $('llmBox');
+    if (!state.llm || !state.payload) { hideLLM(); return; }
+    var key = JSON.stringify(state.payload);
+    if (key === state.llmKey) return;
+    clearTimeout(llmTimer);
+    if (llmController) llmController.abort();
+    state.llmKey = key;
+    var seq = ++llmSeq;
+    var payload = JSON.stringify(state.payload), solveMs = state.solveMs;
+    box.hidden = false;
+    box.innerHTML = '<div class="llmhead"><span class="dot busy"></span>本地模型解释中…（结论已经出来了，不用等）</div>';
+    llmTimer = setTimeout(function () {
+      if (seq !== llmSeq || !state.llm) return;
+      llmController = new AbortController();
+      fetch('/api/explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload,
+        signal: llmController.signal,
+      }).then(function (res) {
+        return res.json().then(function (j) { return { ok: res.ok, j: j }; });
+      }).then(function (x) {
+        if (seq !== llmSeq) return;
+        if (!x.ok) throw new Error(x.j.error || 'HTTP error');
+        box.innerHTML = '<div class="llmhead"><span class="dot"></span>求解器 ' +
+          solveMs.toFixed(2) + ' ms　→　本地模型 ' + (x.j.ms / 1000).toFixed(2) + ' s · ' +
+          (x.j.tokens || 0) + ' tokens</div><div class="txt">' + esc(x.j.text) + '</div>' +
+          '<div class="llmnote">模型只负责「换句话」；具体数字、听牌形状以求解器为准（小模型偶尔会说错形状）。</div>';
+      }).catch(function (e) {
+        if (seq !== llmSeq) return;
+        box.innerHTML = '<div class="llmhead"><span class="dot busy"></span>本地模型没连上</div>' +
+          '<div class="txt muted">' + esc(e.message || '请检查服务与模型配置') + '。先运行 <kbd>启动.cmd</kbd>，并按说明配置可选模型。' +
+          '（用 file:// 直接打开时模型不可用，但上面的求解器结果照常准确）</div>';
+      });
+    }, 550);
+  }
+
+  function isDora(counts, i) {
+    for (var k = 0; k < 34; k++) if (state.doraInd[k] && MJ.doraOf(k) === i) return true;
+    if (i < 27 && i % 9 === 4 && state.red[i / 9 | 0]) return true;
+    return false;
+  }
+
+  /* ---------- Tab ---------- */
+  document.querySelectorAll('nav button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('nav button').forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      ['analyze', 'cheat', 'tutorial', 'guide'].forEach(function (t) {
+        $('tab-' + t).hidden = (t !== b.dataset.tab);
+      });
+    });
+  });
+
+  /* ---------- 截图识别 ---------- */
+  var cap = { data: null, box: null, doraBox: null, dora: [], discBoxes: null, discQueue: null,
+              discSide: null, mode: 'hand', n: 14, sel: null, cellSel: null, labels: {}, assign: {}, pending: {}, clicks: [], seq: 0, busy: false };
+
+  function capBusy(on) {
+    cap.busy = on;
+    ['capRedo', 'capRebox', 'capN'].forEach(function (id) { $(id).disabled = on; });
+    if (on) $('capApply').disabled = true;
+  }
+
+  function capDiscCount() {
+    var d = (cap.data && cap.data.discards) || {};
+    return Object.keys(d).reduce(function (a, k) { return a + (d[k].count || 0); }, 0);
+  }
+
+  function capHandText() {
+    if (cap.busy || cap.mode !== 'hand' || !cap.box || !cap.data || !cap.data.cells) return null;
+    var c = MJ.zero(), ok = true, total = 0;
+    cap.data.cells.forEach(function (cell) {
+      var v = cap.labels[cell.i];
+      if (!Number.isInteger(v) || v < 0 || v >= 34) { ok = false; return; }
+      c[v]++; total++;
+      if (c[v] > 4) ok = false;
+    });
+    return (ok && (total === 13 || total === 14)) ? MJ.toText(c) : null;
+  }
+
+  function capClusterLabel(id) {
+    var cl = (cap.data.clusters || []).find(function (x) { return x.id === id; });
+    if (!cl || !cl.cells.length) return null;
+    var first = cap.labels[cl.cells[0]];
+    return cl.cells.every(function (i) { return cap.labels[i] === first; }) ? first : null;
+  }
+
+  function capSetCell(index, label) {
+    if (cap.busy || !Number.isInteger(label) || label < 0 || label >= 34 ||
+        !cap.data.cells.some(function (c) { return c.i === index; })) return;
+    var used = cap.data.cells.filter(function (c) { return c.i !== index && cap.labels[c.i] === label; }).length;
+    if (used >= 4) { $('capStatus').textContent = '「' + MJ.NAMES[label] + '」最多 4 张'; return; }
+    cap.labels[index] = label;
+    cap.pending[index] = label;
+    capRender();
+  }
+
+  function capSetCluster(id, label) {
+    if (cap.busy || !Number.isInteger(label) || label < 0 || label >= 34) return;
+    var cl = (cap.data.clusters || []).find(function (x) { return x.id === id; });
+    if (!cl) return;
+    var used = 0;
+    cap.data.cells.forEach(function (c) { if (cl.cells.indexOf(c.i) < 0 && cap.labels[c.i] === label) used++; });
+    if (used + cl.cells.length > 4) { $('capStatus').textContent = '「' + MJ.NAMES[label] + '」最多 4 张'; return; }
+    cap.assign[id] = label;
+    cl.cells.forEach(function (i) { cap.labels[i] = label; delete cap.pending[i]; });
+    cap.pending[cl.cells[0]] = label;
+    capRender();
+  }
+
+  function capRender() {
+    var j = cap.data;
+    if (!j || !j.cells) return;
+    var ov = $('capOverlay');
+    // 用百分比定位：叠加层和图片同尺寸，不依赖任何布局换算
+    var px = function (v, tot) { return (v / tot * 100) + '%'; };
+
+    var html = '';
+    j.cells.forEach(function (c) {
+      var bad = cap.labels[c.i] == null;
+      html += '<div class="cellr ' + (bad ? 'bad' : 'ok') + '" style="left:' + px(c.rect[0], j.w) +
+        ';top:' + px(c.rect[1], j.h) + ';width:' + px(c.rect[2], j.w) + ';height:' + px(c.rect[3], j.h) + '"></div>';
+    });
+    if (j.doraBox) {
+      var db = j.doraBox;
+      for (var di = 0; di < 5; di++) {
+        html += '<div class="cellr dora" style="left:' + px(db[0] + db[2] * di / 5, j.w) +
+          ';top:' + px(db[1], j.h) + ';width:' + px(db[2] / 5, j.w) + ';height:' + px(db[3], j.h) + '"></div>';
+      }
+    }
+    (cap.clicks || []).forEach(function (pt) {
+      html += '<div class="mark" style="left:' + px(pt[0], j.w) + ';top:' + px(pt[1], j.h) + '"></div>';
+    });
+    ov.innerHTML = html;
+    var unknown = j.cells.filter(function (c) { return cap.labels[c.i] == null; }).length;
+    var res = capHandText();
+    var out = '';
+    if (res) {
+      out += '<div class="capres">识别完成：<b>' + res + '</b>　（' + j.cells.length + ' 张，全部认出来了）</div>';
+    } else if (unknown) {
+      out += '<div class="capres">还有 <b style="color:var(--red)">' + unknown + '</b> 张没认出来。' +
+        '点下面的「类别」，再从牌堆里选它是哪张。核对后点「用作手牌」才会保存模板。</div>';
+    } else {
+      out += '<div class="capres">请校正识别结果：手牌须为 13 或 14 张，每种最多 4 张。</div>';
+    }
+
+    out += '<div>' + j.cells.map(function (c) {
+      var v = cap.labels[c.i];
+      return '<span class="slot' + (v == null ? ' bad' : '') + '" data-cell="' + c.i + '" title="点击可单独纠正这张牌" style="cursor:pointer">' +
+        (v == null ? '<span class="tile xs"><span class="num">?</span></span>' : tileHTML(v, 'xs')) +
+        '<span class="lb">' + (v == null ? '?' : MJ.NAMES[v]) + '</span></span>';
+    }).join('') + '</div>';
+
+    // 宝牌指示牌
+    var dh = '<div class="capdora"><span class="dl">宝牌指示牌</span>';
+    if (cap.dora && cap.dora.length) {
+      cap.dora.forEach(function (d) { dh += tileHTML(d.label, 'xs'); });
+      dh += '<span class="dl">（宝牌 = ' + cap.dora.map(function (d) { return MJ.NAMES[MJ.doraOf(d.label)]; }).join(' / ') + '）</span>';
+      dh += '<span class="dl">仅列已识别的指示牌，请核对有无漏牌。</span>';
+    } else if (j.doraBox) {
+      dh += '<span class="dl">没认出来</span>';
+    } else {
+      dh += '<span class="dl">未标定</span>';
+    }
+    dh += '<button class="btn ghost" id="btnDora" style="margin-left:auto;font-size:12px;padding:6px 10px">' +
+      (j.doraBox ? '重新标定' : '标定宝牌') + '</button></div>';
+    out += dh;
+    if (j.doraNote) out += '<div class="small muted">' + esc(j.doraNote) + '；本次不自动填入宝牌指示牌。</div>';
+
+    // 舍牌
+    var dcount = capDiscCount();
+    var dh2 = '<div class="capdora"><span class="dl">三家舍牌</span>';
+    if (j.discardNote) {
+      dh2 += '<span class="dl" style="color:var(--gold)">' + esc(j.discardNote) + '</span>';
+    } else if (dcount > 0) {
+      ['right', 'top', 'left'].forEach(function (s) {
+        var d = (j.discards || {})[s];
+        if (d && d.count) dh2 += '<span class="dl">' + ({ right: '下家', top: '对家', left: '上家' }[s]) + ' ' + d.count + ' 张</span>';
+      });
+    } else if (j.discardBoxes) {
+      dh2 += '<span class="dl">没认出来</span>';
+    } else {
+      dh2 += '<span class="dl">未标定（可选）</span>';
+    }
+    dh2 += '<span class="dl" style="margin-left:auto">模板 ' + (j.templates || 0) + '/34</span>';
+    dh2 += '<button class="btn ghost" id="btnDisc" style="font-size:12px;padding:6px 10px">' +
+      (j.discardBoxes ? '重标舍牌' : '标定舍牌') + '</button></div>';
+    out += dh2;
+    if (dcount > 0 && !j.discardNote) {
+      out += '<div class="small muted">舍牌只统计已识别部分，不代表完整场面；自己的舍牌和副露需另行补填。请核对：</div>';
+      ['right', 'top', 'left'].forEach(function (side) {
+        var ds = (j.discards || {})[side];
+        if (ds && ds.tiles && ds.tiles.length) out += '<div class="small muted">' +
+          ({ right: '下家', top: '对家', left: '上家' }[side]) + '：' + ds.tiles.map(function (t) { return MJ.NAMES[t]; }).join(' / ') + '</div>';
+      });
+    }
+
+    var unlabeled = (j.clusters || []).filter(function (cl) { return capClusterLabel(cl.id) == null; });
+    if ((j.clusters || []).length) {
+      out += '<div style="margin-top:10px;font-size:12.5px;color:var(--muted)">牌面类别（未标注 ' +
+        unlabeled.length + ' 种；已识别的也可点击纠错）：</div>';
+      j.clusters.forEach(function (cl) {
+        var lab = capClusterLabel(cl.id);
+        out += '<div class="clus' + (cap.sel === cl.id ? ' sel' : '') + '" data-cl="' + cl.id + '">' +
+          '<img src="' + cl.crop + '" alt="">' +
+          '<span class="cs">出现 ' + cl.cells.length + ' 次</span>' +
+          '<span class="state' + (lab != null ? ' done' : '') + '">' +
+          (lab != null ? MJ.NAMES[lab] : '未标注 → 点这里') + '</span></div>';
+      });
+    }
+
+    $('capBody').innerHTML = out;
+    $('capPalette').hidden = !unlabeled.length && cap.sel == null && cap.cellSel == null;
+    $('capApply').disabled = !res;
+    if (cap.mode === 'hand' && cap.box) $('capHint').textContent = res
+      ? '可点单张或类别纠错。应用会清除旧宝牌与已见牌；不可靠的识别仅供核对，请手动补填。'
+      : '点一个类别纠正识别，再在下方选牌';
+  }
+
+  function capScan() {
+    if (cap.busy) return;
+    var seq = ++cap.seq;
+    cap.assign = {}; cap.pending = {}; cap.labels = {}; cap.sel = null; cap.cellSel = null;
+    capBusy(true);
+    $('capHint').textContent = '正在识别…';
+    var tScan = performance.now();
+    fetch('/api/capture', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'scan', box: cap.box, n: cap.n, doraBox: cap.doraBox, discardBoxes: cap.discBoxes }),
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (seq !== cap.seq) return;
+      if (!j.ok) throw new Error(j.error || '识别失败');
+      capBusy(false);
+      cap.data = j;
+      cap.dora = j.dora || [];
+      if (j.doraBox) cap.doraBox = j.doraBox;
+      cap.labels = {};
+      j.cells.forEach(function (c) { cap.labels[c.i] = c.label; });
+      $('capImg').onload = null;
+      $('capImg').src = j.image;
+      capRender();
+      $('capStatus').textContent = '识别耗时 ' + Math.round(performance.now() - tScan) + ' ms';
+    }).catch(function (e) {
+      if (seq !== cap.seq) return;
+      capBusy(false);
+      cap.data = null; cap.labels = {}; cap.pending = {}; cap.assign = {}; cap.dora = [];
+      $('capBody').innerHTML = ''; $('capOverlay').innerHTML = ''; $('capPalette').hidden = true; $('capApply').disabled = true;
+      $('capHint').textContent = '识别失败：' + e.message;
+    });
+  }
+
+  function capStart() {
+    var seq = ++cap.seq;
+    $('capModal').hidden = false;
+    $('capBody').innerHTML = '';
+    $('capPalette').hidden = true;
+    $('capOverlay').innerHTML = '';
+    $('capApply').disabled = true;
+    $('capStatus').textContent = '';
+    cap.data = null; cap.box = null; cap.doraBox = null; cap.dora = []; cap.discBoxes = null; cap.discQueue = null; cap.discSide = null; cap.mode = 'hand'; cap.sel = null; cap.cellSel = null; cap.labels = {}; cap.assign = {}; cap.pending = {}; cap.clicks = [];
+    cap.n = Number($('capN').value) || 14;
+    capBusy(true);
+    $('capHint').textContent = '正在截屏…';
+    fetch('/api/capture', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'probe' }),
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (seq !== cap.seq) return;
+      if (!j.ok) throw new Error(j.error || '截图失败');
+      cap.data = j;
+      var img = $('capImg');
+      img.onload = function () {
+        if (seq !== cap.seq) return;
+        img.onload = null;
+        capBusy(false);
+        if (j.calib && j.calib.box) {
+          cap.box = j.calib.box;
+          if (j.calib.doraBox) cap.doraBox = j.calib.doraBox;
+          if (j.calib.discardBoxes) cap.discBoxes = j.calib.discardBoxes;
+          if (j.calib.n) { cap.n = j.calib.n; $('capN').value = String(cap.n); }
+          capScan();
+        } else {
+          $('capHint').textContent = '① 点一下手牌里【最左边那张】的左上角';
+          cap.labels = {};
+        }
+      };
+      img.src = j.image;
+    }).catch(function (e) {
+      if (seq !== cap.seq) return;
+      capBusy(false);
+      $('capHint').textContent = '截图失败：' + e.message;
+      $('capStatus').textContent = '要先运行 启动.cmd 起本地服务，截图识别才能用';
+    });
+  }
+
+  $('btnCap').addEventListener('click', capStart);
+  $('capClose').addEventListener('click', function () { ++cap.seq; capBusy(false); $('capApply').disabled = true; $('capModal').hidden = true; });
+  $('capRedo').addEventListener('click', capStart);
+  $('capRebox').addEventListener('click', function () {
+    if (cap.busy || !cap.data) return;
+    cap.box = null; cap.clicks = []; cap.labels = {}; cap.assign = {}; cap.pending = {}; cap.sel = null; cap.mode = 'hand';
+    cap.data.cells = []; cap.data.clusters = [];
+    $('capOverlay').innerHTML = '';
+    $('capBody').innerHTML = '';
+    $('capPalette').hidden = true;
+    $('capApply').disabled = true;
+    $('capStatus').textContent = '';
+    $('capHint').textContent = '① 点一下手牌里【最左边那张】的左上角';
+    capRender();
+  });
+  $('capN').addEventListener('change', function () {
+    cap.n = Number(this.value) || 14;
+    if (cap.box) capScan();
+  });
+  $('capApply').addEventListener('click', function () {
+    var res = capHandText();
+    if (!res) return;
+    var counts = MJ.parseTiles(res), dc = MJ.zero(), sc = MJ.zero();
+    if (!cap.data.doraNote) (cap.dora || []).forEach(function (d) { if (Number.isInteger(d.label) && d.label >= 0 && d.label < 34) dc[d.label]++; });
+    if (cap.data && cap.data.discards && !cap.data.discardNote) {
+      Object.keys(cap.data.discards).forEach(function (k) {
+        (cap.data.discards[k].tiles || []).forEach(function (l) { if (Number.isInteger(l) && l >= 0 && l < 34) sc[l]++; });
+      });
+    }
+    for (var i = 0; i < 34; i++) {
+      if (counts[i] + sc[i] + dc[i] > 4) { $('capStatus').textContent = '识别结果冲突：「' + MJ.NAMES[i] + '」手牌、舍牌与宝牌指示牌合计超过 4 张，请重新校正。'; return; }
+    }
+    pushHistory();
+    clearTimeout(optTimer);
+    state.doraInd = dc; $('doraInd').value = MJ.toText(dc);
+    state.seen = sc; $('seen').value = MJ.toText(sc);
+    state.optionError = ''; state.red = [false, false, false];
+    ['redM', 'redP', 'redS'].forEach(function (id) { $(id).checked = false; });
+    state.counts = counts;
+    setCounts(state.counts);
+    $('capModal').hidden = true;
+    flash('已读入：' + res + (cap.data.doraNote || cap.data.discardNote ? '；宝牌/已见牌请核对后手填' : ''));
+    if (Object.keys(cap.pending).length) {
+      var learn = { assign: cap.pending, n: cap.n, scanId: cap.data.scanId };
+      cap.pending = {};
+      fetch('/api/learn', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(learn),
+      }).then(function (r) { return r.json(); }).then(function (r) {
+        if (!r.ok) throw new Error(r.error || '模板保存失败');
+      }).catch(function (e) { flash('手牌已读入，但模板未保存：' + e.message); });
+    }
+  });
+
+  function startDoraCalib() {
+    if (cap.busy) return;
+    cap.mode = 'dora';
+    cap.clicks = [];
+    $('capHint').textContent = '① 点一下宝牌指示牌【最左边那张】的左上角';
+    capRender();
+  }
+
+  var DISC_NAME = { right: '右边那家（下家）', top: '对面那家（对家）', left: '左边那家（上家）' };
+  function startDiscCalib() {
+    if (cap.busy) return;
+    cap.discBoxes = {};
+    cap.discQueue = ['right', 'top', 'left'];
+    cap.mode = 'disc';
+    cap.clicks = [];
+    cap.discSide = cap.discQueue.shift();
+    $('capHint').textContent = '① 框住' + DISC_NAME[cap.discSide] + '的舍牌：点【左上角】';
+    capRender();
+  }
+
+  $('capStage').addEventListener('click', function (e) {
+    if (cap.busy || !cap.data) return;
+    if (cap.mode === 'hand' && cap.box) return;      // 手牌已标定，再点无效
+    var r = $('capImg').getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
+    var x = (e.clientX - r.left) / r.width * cap.data.w;
+    var y = (e.clientY - r.top) / r.height * cap.data.h;
+    cap.clicks.push([x, y]);
+    if (cap.clicks.length === 1) {
+      $('capHint').textContent = cap.mode === 'dora'
+        ? '② 再点一下【最右边那张】的右下角'
+        : '② 再点一下【最右边那张】的右下角';
+      capRender();
+      return;
+    }
+    if (cap.clicks.length === 2) {
+      var a = cap.clicks[0], b = cap.clicks[1];
+      var bx = [Math.round(Math.min(a[0], b[0])), Math.round(Math.min(a[1], b[1])),
+        Math.round(Math.abs(b[0] - a[0])), Math.round(Math.abs(b[1] - a[1]))];
+      cap.clicks = [];
+      if (cap.mode === 'disc' && bx[2] > 20 && bx[3] > 20) {
+        cap.discBoxes[cap.discSide] = bx;
+        if (cap.discQueue.length) {
+          cap.discSide = cap.discQueue.shift();
+          $('capHint').textContent = '① 框住' + DISC_NAME[cap.discSide] + '的舍牌：点【左上角】';
+          cap.clicks = [];
+          capRender();
+        } else {
+          cap.mode = 'hand';
+          cap.discSide = null;
+          capScan();
+        }
+      } else if (cap.mode === 'dora' && bx[2] > 10 && bx[3] > 10) {
+        cap.doraBox = bx;
+        cap.mode = 'hand';
+        capScan();
+      } else if (cap.mode === 'hand') {
+        if (bx[2] <= 20 || bx[3] <= 20) { $('capHint').textContent = '框选范围太小，请重新点手牌左上角和右下角。'; return; }
+        cap.box = bx;
+        cap.labels = {};
+        capScan();
+      }
+    }
+  });
+
+  $('capBody').addEventListener('click', function (e) {
+    if (cap.busy) return;
+    if (e.target.closest('#btnDora')) { startDoraCalib(); return; }
+    if (e.target.closest('#btnDisc')) { startDiscCalib(); return; }
+    var slot = e.target.closest('.slot[data-cell]');
+    if (slot) { cap.cellSel = Number(slot.dataset.cell); cap.sel = null; capRender(); $('capHint').textContent = '正在纠正第 ' + (cap.cellSel + 1) + ' 张，请在下方选牌'; return; }
+    var row = e.target.closest('.clus');
+    if (!row) return;
+    cap.sel = Number(row.dataset.cl);
+    cap.cellSel = null;
+    capRender();
+  });
+
+  (function buildCapPalette() {
+    var h = '';
+    for (var i = 0; i < 34; i++) h += tileHTML(i, 'xs');
+    $('capPalette').innerHTML = h;
+    $('capPalette').addEventListener('click', function (e) {
+      var b = e.target.closest('.tile');
+      if (!b) return;
+      var label = Number(b.dataset.i), selected = cap.sel, cell = cap.cellSel;
+      if (selected == null && cell == null) { $('capStatus').textContent = '先点上面的一张牌或一类牌，再选它是什么'; return; }
+      cap.sel = null; cap.cellSel = null;
+      if (cell != null) capSetCell(cell, label); else capSetCluster(selected, label);
+    });
+  })();
+
+  /* ---------- 迷你模式 ---------- */
+  $('btnMini').addEventListener('click', function () {
+    var on = document.body.classList.toggle('mini');
+    this.textContent = on ? '▣ 退出迷你' : '▣ 迷你模式';
+    if (on) { $('txt').focus(); }
+  });
+
+  /* ---------- 启动 ---------- */
+  (function warmup() {
+    // 预热一次，避免第一次分析带上 JIT 开销（~5ms），也让显示的数字反映真实速度
+    for (var i = 0; i < 3; i++) MJ.analyze(MJ.parseTiles('123456789m2345p4z'), {});
+  })();
+  (function initFromQuery() {
+    var q = new URLSearchParams(location.search);
+    if (q.get('demo') === '1') { state.counts = MJ.parseTiles('123456789m2345p4z'); syncText(); }
+    if (q.get('llm') === '1') { $('llm').checked = true; state.llm = true; }
+    if (q.get('mini') === '1') { document.body.classList.add('mini'); $('btnMini').textContent = '▣ 退出迷你'; }
+  })();
+  renderHand();
+  renderResult();
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

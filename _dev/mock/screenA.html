@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  html,body{margin:0;width:1600px;height:900px;overflow:hidden;
+    background:radial-gradient(900px 500px at 50% 0%,#1c4a2e,#0d2a1a 70%),#0d2a1a;
+    font-family:"Microsoft YaHei",sans-serif;}
+  .topbar{position:absolute;left:0;top:0;width:100%;height:54px;background:rgba(0,0,0,.35)}
+  .pill{position:absolute;top:14px;border-radius:16px;background:rgba(255,255,255,.12);color:#e8e8e8;
+    font-size:13px;padding:5px 14px}
+  /* 手牌行：left 280 top 780 width 1120 height 110 —— 14 张，每张 80px */
+  #hand{position:absolute;left:280px;top:780px;width:1120px;height:110px;display:flex}
+  .t{flex:1;margin:0 1px;border-radius:6px;background:linear-gradient(#fffdf5,#efe6d2);
+     box-shadow:inset 0 -4px 0 rgba(120,100,60,.3),0 2px 6px rgba(0,0,0,.5);
+     display:flex;flex-direction:column;align-items:center;justify-content:center;color:#222}
+  .n{font-size:34px;font-weight:800;line-height:1}
+  .s{font-size:15px;margin-top:2px;font-weight:600}
+  .honor .n{font-size:38px}
+  .man{color:#b62f2a}.pin{color:#1b4f8c}.sou{color:#136b3f}.honor{color:#333}
+  /* 干扰元素：别人的牌、按钮 */
+  .foe{position:absolute;top:120px;display:flex;gap:4px}
+  .ft{width:34px;height:48px;border-radius:4px;background:linear-gradient(#f7f0dd,#d9cdb2)}
+  .btn{position:absolute;right:60px;bottom:120px;padding:10px 22px;border-radius:8px;
+    background:#c8a45c;color:#222;font-size:15px;font-weight:700}
+  /* 舍牌区：6 列 x 4 行网格 */
+  .disc{position:absolute;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(4,1fr);gap:2px}
+  .dt{border-radius:4px;background:linear-gradient(#fffdf5,#efe6d2);display:flex;flex-direction:column;
+      align-items:center;justify-content:center;box-shadow:inset 0 -2px 0 rgba(120,100,60,.25)}
+  .dn{font-size:19px;font-weight:800;line-height:1}
+  .ds{font-size:9px;font-weight:600}
+  .dt.honor .dn{font-size:21px}
+</style></head>
+<body>
+  <div class="topbar">
+    <div class="pill" style="left:40px">东1局</div>
+    <div class="pill" style="left:140px">剩余 68 张</div>
+    <div class="pill" style="left:270px">宝牌 5筒</div>
+  </div>
+  <div class="foe" style="left:420px">
+    <div class="ft"></div><div class="ft"></div><div class="ft"></div><div class="ft"></div>
+    <div class="ft"></div><div class="ft"></div><div class="ft"></div><div class="ft"></div>
+    <div class="ft"></div><div class="ft"></div><div class="ft"></div><div class="ft"></div>
+    <div class="ft"></div>
+  </div>
+  <div class="btn">和</div>
+
+  <!-- 三家舍牌区（测试用：全部正向摆放） -->
+  <div class="disc" style="left:40px;top:250px;width:270px;height:260px">
+    <div class="dt pin"><span class="dn">3</span><span class="ds">筒</span></div>
+    <div class="dt man"><span class="dn">7</span><span class="ds">万</span></div>
+    <div class="dt honor"><span class="dn">东</span></div>
+  </div>
+  <div class="disc" style="left:665px;top:100px;width:270px;height:260px">
+    <div class="dt sou"><span class="dn">5</span><span class="ds">索</span></div>
+    <div class="dt pin"><span class="dn">9</span><span class="ds">筒</span></div>
+    <div class="dt man"><span class="dn">1</span><span class="ds">万</span></div>
+    <div class="dt honor"><span class="dn">中</span></div>
+  </div>
+  <div class="disc" style="left:1290px;top:250px;width:270px;height:260px">
+    <div class="dt man"><span class="dn">4</span><span class="ds">万</span></div>
+    <div class="dt honor"><span class="dn">白</span></div>
+  </div>
+
+  <!-- 宝牌指示牌面板：left 60 top 40 width 300 height 100，5 格；第一张翻开(5筒)，其余是牌背 -->
+  <div id="dora" style="position:absolute;left:60px;top:40px;width:300px;height:100px;display:flex;
+       background:rgba(10,20,16,.72);border:2px solid #8a6c3a;border-radius:10px;padding:4px;box-sizing:border-box">
+    <div style="flex:1;margin:2px;border-radius:5px;background:linear-gradient(#fffdf5,#efe6d2);
+         display:flex;flex-direction:column;align-items:center;justify-content:center;color:#1b4f8c">
+      <span style="font-size:30px;font-weight:800;line-height:1">5</span>
+      <span style="font-size:13px;font-weight:600;margin-top:1px">筒</span>
+    </div>
+    <div style="flex:1;margin:2px;border-radius:5px;background:linear-gradient(#d9525f,#b83a48)"></div>
+    <div style="flex:1;margin:2px;border-radius:5px;background:linear-gradient(#d9525f,#b83a48)"></div>
+    <div style="flex:1;margin:2px;border-radius:5px;background:linear-gradient(#d9525f,#b83a48)"></div>
+    <div style="flex:1;margin:2px;border-radius:5px;background:linear-gradient(#d9525f,#b83a48)"></div>
+  </div>
+
+  <!-- 112233m 456p 789s 77z -->
+  <div id="hand">
+    <div class="t man"><span class="n">1</span><span class="s">万</span></div>
+    <div class="t man"><span class="n">1</span><span class="s">万</span></div>
+    <div class="t man"><span class="n">2</span><span class="s">万</span></div>
+    <div class="t man"><span class="n">2</span><span class="s">万</span></div>
+    <div class="t man"><span class="n">3</span><span class="s">万</span></div>
+    <div class="t man"><span class="n">3</span><span class="s">万</span></div>
+    <div class="t pin"><span class="n">4</span><span class="s">筒</span></div>
+    <div class="t pin"><span class="n">5</span><span class="s">筒</span></div>
+    <div class="t pin"><span class="n">6</span><span class="s">筒</span></div>
+    <div class="t sou"><span class="n">7</span><span class="s">索</span></div>
+    <div class="t sou"><span class="n">8</span><span class="s">索</span></div>
+    <div class="t sou"><span class="n">9</span><span class="s">索</span></div>
+    <div class="t honor"><span class="n">中</span></div>
+    <div class="t honor"><span class="n">中</span></div>
+  </div>
+</body></html>
+

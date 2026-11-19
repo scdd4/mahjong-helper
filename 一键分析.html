@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>雀魂友人场助手 · 截图分析</title>
+<style>
+:root{color-scheme:dark;--bg:#0f1420;--panel:#1a2233;--line:#2e3a52;--text:#e9eef8;--muted:#93a1bb;--gold:#e8b45c;--red:#ef9292;--green:#7bd6ab}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;min-height:100vh;background:radial-gradient(850px 520px at 15% -10%,#1e2c48,var(--bg) 70%) no-repeat,var(--bg);color:var(--text);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+main{width:min(100%,650px);margin:0 auto;padding:56px 24px 30px}
+header{margin-bottom:30px}
+h1{margin:0 0 10px;font-size:23px;letter-spacing:.5px;font-weight:700}
+h1 span{color:var(--gold)}
+.subtitle{margin:0;color:var(--muted);font-size:13px;line-height:1.8}
+.panel{padding:24px;border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:0 8px 24px #0002}
+#analyze{width:100%;min-height:60px;display:flex;justify-content:center;align-items:center;gap:10px;border:1px solid var(--gold);border-radius:11px;background:var(--gold);color:#191c22;font-weight:700;font-size:18px;line-height:1.4;font-family:inherit;cursor:pointer;transition:background .15s,border-color .15s,transform .15s}
+#analyze:hover:not(:disabled){background:#f0c57f;border-color:#f0c57f;transform:translateY(-1px)}
+#analyze:focus-visible{outline:3px solid #f4dcb0;outline-offset:4px}
+#analyze:disabled{background:#353b46;border-color:#515b70;color:#bfc8d8;cursor:wait}
+#analyze svg{width:22px;height:22px;flex:none}
+.status{margin:15px 0 0;min-height:42px;color:var(--muted);font-size:13px;line-height:1.75;overflow-wrap:anywhere}
+.status.error{color:var(--red)}
+.status.success{color:var(--green)}
+.status.busy::before{content:"";display:inline-block;width:9px;height:9px;margin-right:8px;border:1px solid #91a5c6;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
+#result{margin-top:18px;border-color:#5a4a32}
+.eyebrow{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+#recommendation{margin:9px 0 13px;font-size:38px;font-weight:800;line-height:1.3;letter-spacing:.5px;color:var(--gold);overflow-wrap:anywhere}
+#detail{margin:0;font-size:14px;line-height:1.9;color:#cfd8e8}
+#waits{margin:10px 0 0;color:#cfd8e8;font-size:13px;line-height:1.8}
+.readback{margin-top:20px;padding-top:15px;border-top:1px solid var(--line)}
+.readback p{margin:0;font-size:12px;line-height:1.9;color:var(--muted)}
+#hand{margin-top:4px;color:#cbd5e6;font-size:13px;line-height:1.9;overflow-wrap:anywhere}
+.note{margin:18px 3px 0;color:#7887a1;font-size:12px;line-height:1.9}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:480px){main{padding:30px 16px 24px}.panel{padding:20px}h1{font-size:21px}#recommendation{font-size:34px}}
+@media(prefers-reduced-motion:reduce){#analyze{transition:none}.status.busy::before{animation:none}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>雀魂 <span>友人场助手</span></h1>
+    <p class="subtitle">打开雀魂，等手牌显示完整，再点一次。</p>
+  </header>
+  <section class="panel" aria-label="截图分析">
+    <button id="analyze" type="button" aria-busy="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 5l1.5-2h5L16 5h4a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4Z"/><circle cx="12" cy="12.5" r="4"/></svg>
+      <span id="buttonLabel">截图分析</span>
+    </button>
+    <p id="status" class="status" role="status" aria-live="polite" aria-atomic="true">自动读取雀魂窗口并分析当前手牌。</p>
+  </section>
+  <section id="result" class="panel" aria-label="分析结果" aria-live="polite" hidden>
+    <p id="resultLabel" class="eyebrow">牌效率建议</p>
+    <h2 id="recommendation"></h2>
+    <p id="detail"></p>
+    <p id="waits" hidden></p>
+    <div class="readback">
+      <p>识别到的手牌</p>
+      <p id="hand"></p>
+    </div>
+  </section>
+  <p class="note">只读窗口，不操作游戏。识别偶有误差，若手牌不符请重新分析。<br>建议只比较门清牌效率，未判断防守、振听和局势。</p>
+</main>
+<script id="auto-ui">
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var busy = false, sequence = 0, activeController = null, activeTimer = null;
+  var TIMEOUT_MS = 45000;
+  var names = [];
+  ['万', '筒', '索'].forEach(function (suit) { for (var i = 1; i <= 9; i++) names.push(i + suit); });
+  names = names.concat(['东', '南', '西', '北', '白', '发', '中']);
+
+  function clearResult() {
+    $('result').hidden = true;
+    ['recommendation', 'detail', 'waits', 'hand'].forEach(function (id) { $(id).textContent = ''; });
+    $('waits').hidden = true;
+  }
+
+  function setBusy(on) {
+    busy = on;
+    $('analyze').disabled = on;
+    $('analyze').setAttribute('aria-busy', String(on));
+    $('buttonLabel').textContent = on ? '正在分析…' : '截图分析';
+  }
+
+  function setStatus(message, kind) {
+    $('status').className = 'status' + (kind ? ' ' + kind : '');
+    $('status').textContent = message;
+  }
+
+  function showError(message) {
+    clearResult();
+    setStatus(message, 'error');
+  }
+
+  function count(value) { return Number.isFinite(value) && value >= 0 ? Math.round(value) : null; }
+  function tileName(tile, index) {
+    if (Number.isInteger(index) && index >= 0 && index < names.length) return names[index];
+    return typeof tile === 'string' && tile.trim() ? tile.trim().slice(0, 12) : null;
+  }
+
+  function showSuccess(data) {
+    var a = data.analysis;
+    if (!a || (a.total !== 13 && a.total !== 14) || !Number.isInteger(a.shanten)) {
+      throw new Error('没有得到完整的手牌分析。请等手牌显示稳定后，再点「截图分析」。');
+    }
+    var title, detail, label = '牌效率建议';
+    if (a.win) {
+      title = '和牌形已完成';
+      detail = '当前手牌已组成和牌形。实际能否和牌，还需满足役种和振听等规则。';
+      label = '当前手牌';
+    } else if (a.total === 14) {
+      var best = a.best;
+      var tile = best && tileName(best.tile, best.index);
+      if (!tile) throw new Error('没有得到可用的出牌建议。请等手牌静止后，再点「截图分析」。');
+      title = '建议打 ' + (best.red ? '赤' : '') + tile;
+      var s = Number.isInteger(best.shanten) ? best.shanten : a.shanten;
+      detail = best.tenpai || s === 0 ? '打出后听牌。' : '打出后保持 ' + s + ' 向听。';
+      var ukeire = count(best.ukeire), kinds = count(best.kinds);
+      if (ukeire !== null) {
+        detail += '有效进张：' + (kinds !== null ? kinds + ' 种，' : '') + '理论剩余 ' + ukeire + ' 张。';
+        if (ukeire === 0 && (best.tenpai || s === 0)) detail += '当前已无剩余和牌张，可考虑改良手牌。';
+      }
+      if (Number.isInteger(best.position) && best.position >= 1 && best.position <= 14) detail += '对应截图中从左数第 ' + best.position + ' 张。';
+    } else {
+      title = a.tenpai || a.shanten === 0 ? '已经听牌' : a.shanten + ' 向听';
+      detail = '当前识别到 13 张手牌，等待摸牌；摸牌后可再分析出牌建议。';
+      label = '当前手牌';
+    }
+
+    var waits = Array.isArray(a.waits) ? a.waits.filter(function (w) {
+      return w && tileName(w.tile, w.index) && count(w.left) !== null;
+    }) : [];
+    if (!a.win && waits.length) {
+      $('waits').textContent = '听牌：' + waits.map(function (w) {
+        return tileName(w.tile, w.index) + '（剩 ' + count(w.left) + ' 张）';
+      }).join('、');
+      $('waits').hidden = false;
+      if (waits.every(function (w) { return w.left === 0; }) && a.total === 13) detail += '当前已无剩余和牌张。';
+    }
+
+    var codes = Array.isArray(data.tileCodes) ? data.tileCodes : [];
+    var tiles = Array.isArray(data.tiles) && data.tiles.length === a.total && data.tiles.every(function (t) {
+      return Number.isInteger(t) && t >= 0 && t < names.length;
+    }) ? data.tiles.map(function (t, i) { return (codes.length === a.total && /^0[mps]$/.test(codes[i]) ? '赤' : '') + names[t]; }).join(' ') : '';
+    if (!tiles && (typeof data.hand !== 'string' || !data.hand.trim())) {
+      throw new Error('未返回可核对的手牌。请重新点击「截图分析」。');
+    }
+    $('resultLabel').textContent = label;
+    $('recommendation').textContent = title;
+    $('detail').textContent = detail;
+    $('hand').textContent = tiles || data.hand.slice(0, 150);
+    $('result').hidden = false;
+    var source = data.window && typeof data.window.title === 'string' ? data.window.title.trim().slice(0, 64) : '';
+    var elapsed = Number.isFinite(data.ms) && data.ms >= 0 ? ' · ' + (data.ms / 1000).toFixed(2) + ' 秒' : '';
+    setStatus((source ? '已读取「' + source + '」' : '手牌分析完成') + elapsed, 'success');
+  }
+
+  async function analyze() {
+    if (busy) return;
+    var requestId = ++sequence;
+    var controller = new AbortController();
+    activeController = controller;
+    clearResult();
+    setBusy(true);
+    setStatus('正在读取雀魂窗口并识别手牌…', 'busy');
+    activeTimer = setTimeout(function () {
+      if (requestId !== sequence) return;
+      ++sequence;
+      controller.abort();
+      activeController = null;
+      activeTimer = null;
+      showError('分析超时。请确认雀魂窗口中手牌清晰、完整，再点「截图分析」重试。');
+      setBusy(false);
+    }, TIMEOUT_MS);
+    try {
+      var response = await fetch('/api/analyze-window', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}', signal: controller.signal,
+      });
+      if (requestId !== sequence) return;
+      var data;
+      try { data = await response.json(); }
+      catch (e) { throw new Error('本地服务返回异常。请确认已运行「启动.cmd」，再点「截图分析」重试。'); }
+      if (requestId !== sequence) return;
+      if (!response.ok || !data || data.ok !== true) {
+        var message = data && typeof data.error === 'string' && data.error.trim() ? data.error.trim().slice(0, 240) : '本次分析未完成';
+        throw new Error(message + ' 请检查雀魂窗口和手牌画面，再点「截图分析」重试。');
+      }
+      showSuccess(data);
+    } catch (e) {
+      if (requestId !== sequence) return;
+      showError(e instanceof TypeError
+        ? '无法连接本地服务。请先运行「启动.cmd」，再点「截图分析」重试。'
+        : e.message || '分析失败，请重新点击「截图分析」。');
+    } finally {
+      if (requestId === sequence) {
+        clearTimeout(activeTimer);
+        activeTimer = null;
+        activeController = null;
+        setBusy(false);
+      }
+    }
+  }
+
+  $('analyze').addEventListener('click', analyze);
+  window.addEventListener('pagehide', function () {
+    ++sequence;
+    if (activeController) activeController.abort();
+    clearTimeout(activeTimer);
+    activeController = null; activeTimer = null;
+    clearResult(); setBusy(false);
+    setStatus('需要时可重新点击「截图分析」。');
+  });
+})();
+</script>
+</body>
+</html>

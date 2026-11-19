@@ -1,0 +1,13 @@
+{
+  "name": "mahjong-friend-helper",
+  "version": "1.3.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node _dev/test-core.mjs && node _dev/test-oracle.mjs && node _dev/test-ui.mjs && node _dev/test-server.mjs && node _dev/test-auto-ui.mjs && node _dev/test-auto-server.mjs",
+    "test:capture": "node _dev/test-capture.mjs",
+    "test:auto": "node _dev/test-auto-ui.mjs && node _dev/test-auto-server.mjs && node _dev/test-auto-python.mjs && node _dev/test-auto-e2e.mjs"
+  }
+}

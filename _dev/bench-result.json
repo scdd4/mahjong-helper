@@ -1,0 +1,162 @@
+[
+  {
+    "hand": "49m9p1346889s1116z",
+    "expected": "发",
+    "variant": "compact",
+    "got": "9万",
+    "ok": false,
+    "ms": 4020.3122000000003,
+    "usage": {
+      "prompt_tokens": 162,
+      "completion_tokens": 121,
+      "total_tokens": 283,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    }
+  },
+  {
+    "hand": "49m9p1346889s1116z",
+    "expected": "发",
+    "variant": "nothink",
+    "got": "东",
+    "ok": false,
+    "ms": 1133.9475000000002,
+    "usage": {
+      "prompt_tokens": 138,
+      "completion_tokens": 3,
+      "total_tokens": 141,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    }
+  },
+  {
+    "hand": "246m2577p1777s113z",
+    "expected": "西",
+    "variant": "compact",
+    "got": "西",
+    "ok": true,
+    "ms": 2747.4608,
+    "usage": {
+      "prompt_tokens": 162,
+      "completion_tokens": 121,
+      "total_tokens": 283,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    }
+  },
+  {
+    "hand": "246m2577p1777s113z",
+    "expected": "西",
+    "variant": "nothink",
+    "got": "西",
+    "ok": true,
+    "ms": 1028.0421000000006,
+    "usage": {
+      "prompt_tokens": 138,
+      "completion_tokens": 3,
+      "total_tokens": 141,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    }
+  },
+  {
+    "hand": "36m2569p77899s366z",
+    "expected": "西",
+    "variant": "compact",
+    "got": "发",
+    "ok": false,
+    "ms": 2504.127999999999,
+    "usage": {
+      "prompt_tokens": 162,
+      "completion_tokens": 121,
+      "total_tokens": 283,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    }
+  },
+  {
+    "hand": "36m2569p77899s366z",
+    "expected": "西",
+    "variant": "nothink",
+    "got": "9索",
+    "ok": false,
+    "ms": 1105.5352000000003,
+    "usage": {
+      "prompt_tokens": 138,
+      "completion_tokens": 3,
+      "total_tokens": 141,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    }
+  },
+  {
+    "hand": "3446668m5p459s144z",
+    "expected": "东",
+    "variant": "compact",
+    "got": "9索",
+    "ok": false,
+    "ms": 3185.6049999999996,
+    "usage": {
+      "prompt_tokens": 162,
+      "completion_tokens": 121,
+      "total_tokens": 283,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    }
+  },
+  {
+    "hand": "3446668m5p459s144z",
+    "expected": "东",
+    "variant": "nothink",
+    "got": "6万",
+    "ok": false,
+    "ms": 1101.9615999999987,
+    "usage": {
+      "prompt_tokens": 138,
+      "completion_tokens": 3,
+      "total_tokens": 141,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    }
+  },
+  {
+    "hand": "2579m234p12999s77z",
+    "expected": "2万",
+    "variant": "compact",
+    "got": "9万",
+    "ok": false,
+    "ms": 3332.4829000000027,
+    "usage": {
+      "prompt_tokens": 162,
+      "completion_tokens": 121,
+      "total_tokens": 283,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    }
+  },
+  {
+    "hand": "2579m234p12999s77z",
+    "expected": "2万",
+    "variant": "nothink",
+    "got": "中",
+    "ok": false,
+    "ms": 1068.9792000000016,
+    "usage": {
+      "prompt_tokens": 138,
+      "completion_tokens": 3,
+      "total_tokens": 141,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    }
+  }
+]

@@ -1,0 +1,29 @@
+__pycache__/
+*.pyc
+# Root-anchored: the vendored matcher assets live in auto_vision_vendor/templates
+# and MUST be tracked; a bare `templates/` would exclude them too.
+/templates/
+/cells/
+calib.json
+latest.png
+.env
+.env.*
+!.env.example
+node_modules/
+.python-deps/
+_dev/auto-research/
+# Real-game captures and diagnostic crops are privacy-sensitive.
+_dev/real/
+_dev/*.png
+_dev/**/*.png
+_dev/**/*.jpg
+dist/
+build/
+.build*/
+.dist-review/
+dist-v*/
+*.pyz
+_selfcheck.json
+_dev/user-fixtures/
+# Legacy HTML-tool UI preview screenshots (contain session ids), unreferenced.
+/预览*.png

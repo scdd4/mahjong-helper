@@ -1,0 +1,128 @@
+{
+  "recorded_at": "2026-11-19T20:11:24+08:00",
+  "version": "1.3.0",
+  "files": {
+    "desktop_app.py": "5d5d841db5a3f838d1c885462f367aded96ac8aad250a8f968201a4b8bb81caa",
+    "desktop_runtime.py": "dd4470917dfc0ac92018f92cb87e61a0acbd6404ebd083b545821cbcc4a4a155",
+    "spark_strategy.py": "44a5bc4da4ff9b1c29581c99c06f5c6469ba7d61110451819eb7dbdd3f29409c",
+    "scene_recognize.py": "e755cdabdcb188a950de812f1051d528ea1a469b51ff53d8a744333a00497725",
+    "window_capture.py": "fff2abc56193686769e7417ba47260ba7609d8f1702deae08bb47bf24edc838b",
+    "_dev/test-desktop.py": "0b2b855045416d08b6fcdc9282a2958db540c87dffbf197122c2e6945f4ed3e4",
+    "项目交接文档.md": "26ac255f57108b27edaf486f0720ae8c2e1943b43ce8cb4f9dd1315afe04694a",
+    "table_watcher.py": "f9f4d1f40715d294c7825c8e0ccc3f2cfd10269d32e8f5b275f7b6503963cab9",
+    "desktop_app.spec": "9d5e427934115ab1bca4083bd069140195ed3cf034202a5e603d7963cc352a4c",
+    "README.md": "f9d6f7883ad9b5cc5edda9821356e4f7b3f0fe98ea6eba1bfeef6f9ace268ac3"
+  },
+  "tests": {
+    "desktop_online_fixtures": "18/18",
+    "desktop_without_fixtures": "23 pass 2 skip",
+    "legacy_node": "6/6 exit 0",
+    "self_check": "ok",
+    "desktop": "25/25 with fixtures"
+  },
+  "packaging": "pending: PyInstaller unavailable; do not ship updated source with old EXE",
+  "validation_finding": "两阶段策略-2.json 的 observed 中 3z(西) 合计 5 张，新校验已标记；原报告 validation_warnings 为空",
+  "remaining_blockers": [
+    "GUI 与真实截图验收需获准环境",
+    "模型规则性错误需真实标注数据评测",
+    "延迟 85-148 秒需真实服务分阶段测量",
+    "牌河/副露误读需人工标注样本",
+    "PyInstaller 未安装，未重打包；正式 EXE 仍为旧版"
+  ],
+  "fast_mode": {
+    "design": "single compact model call; low thinking enabled; one compressed image (1100px/q76); verified local hand injected; max_tokens 280",
+    "measured_real_service": {
+      "sample_1_13tiles": "9.44s",
+      "sample_2_14tiles": "9.45s"
+    },
+    "stage_breakdown": {
+      "local_recognition": "2.2-2.5s",
+      "model": "6.8s",
+      "other": "0.1-0.5s"
+    },
+    "hand_correctness": "13/13 and 14/14 exact match on both private samples",
+    "default": "fast",
+    "full_mode_preserved": true,
+    "tradeoff": "strategy text compressed from ~2000 chars to ~150 chars; alternatives/call_plan/placement not expanded in fast mode"
+  },
+  "model_selection": {
+    "dsv41": "rejected: images=false, 15-25 tok/s slower than Spark, tunnel closed",
+    "jev": "rejected: closed weights; Laya open alternative has no vision and is not deployed",
+    "spark_qwen": "selected: 43-62 tok/s with speculative decoding, vision capable, thinking supported"
+  },
+  "structured_mode": {
+    "design": "local recognition + rule calc produce structured facts; model receives JSON only (no image, no vision), low thinking on; model does reasoning/decision only",
+    "measured_real_service": {
+      "runs": "7.64s / 8.13s / 8.79s",
+      "min": "7.64s",
+      "max": "8.79s",
+      "avg": "8.19s"
+    },
+    "stages": {
+      "local": "2.1-2.5s",
+      "model": "5.5-6.3s",
+      "other": "0-0.34s"
+    },
+    "correctness": "hand 13/13 and 14/14 exact; dora/ukeire/shanten echoed from program; physical overflow downgrades stance to 待核验",
+    "default": "structured",
+    "modes": {
+      "structured": "recommended, ~8s",
+      "fast": "single image, ~9s",
+      "full": "two-stage, 85-148s"
+    }
+  },
+  "auto_analysis": {
+    "input": "screenshots only via window capture; no network interception, no game input, no memory reads",
+    "trigger": "stable table change detected by perceptual signature of hand + centre river; two consecutive polls; cooldown 8s; opt-in menu toggle, default off",
+    "safety": "uses same busy flag and single-instance lock; reset baseline after each analysis"
+  },
+  "vision_dataset_research": {
+    "pjura/mahjong_souls_tiles": "1979 files, apache-2.0, ungated; 34-class tile crops; 99.67% ViT finetune",
+    "pjura/mahjong_vision": "gated - access required",
+    "krmin/mahjong_vision and OktayAlpk/mahjong_vision": "ungated forks, model.safetensors ~3.67 MB",
+    "note": "candidate for future local tile classifier replacement; not integrated this round",
+    "constraint": "no network interception accepted by user"
+  },
+  "app_version": "1.6.1",
+  "app_improvements": [
+    "version constant and About dialog",
+    "structured progress label",
+    "settings dialog resized for mode selector",
+    "auto-analysis opt-in toggle with cooldown",
+    "README rewritten for v1.4.0"
+  ],
+  "deliverable": {
+    "folder": "dist-v1.4.0/雀魂策略助手",
+    "launcher": "启动-v1.4.0.cmd",
+    "exe_sha256": "9a3558acfdc16ea38e12846b166cf1fb47dcf29991878e4dafe8365f4fb4cd68",
+    "file_count": 1240,
+    "total_bytes": 232033651,
+    "manifest": "dist-v1.4.0/交付清单.json",
+    "packaged_selfcheck": "ok",
+    "credential_leak_scan": "clean",
+    "note": "review build; official dist/ remains v1.3.0 until GUI acceptance"
+  },
+  "meld_recognition": {
+    "chi_inference": "gap-2 middle inferred",
+    "five_z_guard": "refine path rejects 5z <.85",
+    "river_gate": "<0.65 excluded from state and physical check",
+    "timing": {
+      "peng_xi_read_scene": "3.38s (was 3.85s)",
+      "four_meld_meld_stages": "~4.2s of 6.45s local"
+    }
+  },
+  "hybrid_structured": {
+    "design": "JSON facts authoritative + 1100px viewport image for environment (rivers/riichi/scores/round)",
+    "retry": "one transparent retry on TransientError/JSONDecodeError; 502-503-504 and stream errors are transient",
+    "e2e": {
+      "four_meld": "15.0s attack, model confirms no riichi from image",
+      "peng_xi": "10.1s wait-for-draw"
+    }
+  },
+  "local_recognition_expansion": {
+    "dora_panel": "white-face fallback, leaf-slot discriminator, validated on 4 screenshots",
+    "parallel": "hand || environment via ThreadPoolExecutor",
+    "dora_cycle_fix": "single honor cycle per standard riichi rules",
+    "riichi": "consumer ready; detector withdrawn after false positives (no positive sample)"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "repository": "https://github.com/sdtafxy/majsoul-vision",
+  "commit": "70b7dc8407aedbb46166e587da397d4564c7f255",
+  "license": "MIT",
+  "downloaded_at": "2026-11-19",
+  "modifications": [
+    "Changed internal imports to package-relative imports.",
+    "Added optional explicit viewport parameter to hand.split/read_hand for automatic border detection and resolution normalization in the host wrapper.",
+    "Exposed the pattern runner-up margin, excluding red/ordinary-five variants; close matches require agreement from a second whole-tile comparison.",
+    "Closed reader template metadata file explicitly with UTF-8 encoding.",
+    "Added upstream meld.py with relative imports and clipped extension ROI bounds to avoid empty-image crashes.",
+    "Desktop scene reader uses component-based tile bodies, tint correction, and independent crop checks for the attached samples.",
+    "Widened meld.py across-region preset from (500,20,280,130) to (480,40,600,190) on the 2560x1440 base: two opponent calls extend further left than the original window covers. Host scene_recognize adds an original-resolution fallback that re-recognizes inverted opponent meld tiles when the upstream reader returns empty."
+  ],
+  "upstream_sha256": {
+    "hand.py": "d16a217380908cf41973e452effabbd1cb379f3bc9b6b83deb9de73f47a9d732",
+    "reader.py": "c50cff784973e38fde01e84b1c534ad918023be3f41582bbc14568dfa8470ab9",
+    "split.py": "c8bc1ec9190f621a351e562f66f16c9da4db405d56db741637470db27799cbb9",
+    "orientation.py": "d211881886a641982cbdc7dd13d9150e10bf0f118c813bc56914347a15b10843",
+    "paths.py": "72676f7159f54e82f96a0931e97e216628de40be459f9c59e2309ea67ff58652",
+    "LICENSE": "4dbafdf4b24d51388f53d7f263af18f0a5fe7daabd8f92b045be1acf729dcb3c",
+    "README.md": "3bbcdc3752124b6e219a7f2620635172ab0fe9b167dc4a966574d9d30713227d"
+  },
+  "template_files": 149
+}
