@@ -58,11 +58,17 @@ class DesktopTests(unittest.TestCase):
         parsed,repaired=parse_json_object('{"strategy": {"stance": "均衡",}}')
         self.assertTrue(repaired);self.assertEqual(parsed['strategy']['stance'],'均衡')
 
-    def test_indicator_conversion_uses_single_honor_cycle(self):
-        self.assertEqual([dora_from_indicator(x) for x in ['4p','4z','2s']],['5p','5z','3s'])
-        # 北 wraps into 白 and 中 wraps into 東: one cycle, not two.
-        self.assertEqual(dora_from_indicator('7z'),'1z')
-        self.assertEqual(dora_from_indicator('4z'),'5z')
+    def test_indicator_conversion_uses_two_independent_honor_cycles(self):
+        self.assertEqual([dora_from_indicator(x) for x in ['4p','4z','2s']],['5p','1z','3s'])
+        # Winds cycle 東→南→西→北→東 and dragons cycle 白→發→中→白 as two
+        # independent cycles (verified against riichi references; the
+        # 東南西北白發中 order is only the tile-numbering convention).
+        self.assertEqual(dora_from_indicator('4z'),'1z')
+        self.assertEqual(dora_from_indicator('7z'),'5z')
+        self.assertEqual(dora_from_indicator('1z'),'2z')
+        self.assertEqual(dora_from_indicator('5z'),'6z')
+        # Red five indicators use the number-5 successor.
+        self.assertEqual(dora_from_indicator('0p'),'6p')
 
     def test_misread_hand_and_invalid_discard_are_flagged(self):
         local={'hand':{'reliable':True,'tiles':[{'name':t} for t in HAND]}}

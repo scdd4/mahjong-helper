@@ -170,9 +170,11 @@ def dora_from_indicator(code):
     number = 5 if code[0]=='0' else int(code[0])
     if code[1]!='z':
         return str(number%9+1)+code[1]
-    # Single honor cycle 東南西北白發中→東: the successor of 北 is 白 and of
-    # 中 is 東, per standard riichi dora rules — not two separate cycles.
-    return str(number%7+1)+'z'
+    # Honor dora succession is TWO independent cycles, verified against six
+    # authoritative Chinese riichi references and in-game behavior:
+    # winds 東→南→西→北→東, dragons 白→發→中→白. (The 東南西北白發中 order
+    # is only the tile-numbering convention, not a dora cycle.)
+    return str({1:2,2:3,3:4,4:1,5:6,6:7,7:5}[number])+'z'
 
 
 def build_seen(hand_codes, evidence, min_score=0.65):
