@@ -1,0 +1,15 @@
+{
+  "version": "1.4.1",
+  "built_at": "2026-11-19T12:34:52+08:00",
+  "builder": "Python 3.12.14 / PyInstaller 6.22.3",
+  "entry": "雀魂策略助手.exe",
+  "launcher": "启动-v1.4.1.cmd",
+  "exe_sha256": "4b0d78bccbcf40cb78718b8cc8299e08667d3ff0cdfec685ff6b860a2e1b0022",
+  "exe_bytes": 5492626,
+  "file_count": 1240,
+  "total_bytes": 232034638,
+  "fix": "窗口截图被遮挡或返回空白时，自动回退为全屏截图并按游戏客户区裁剪；仍无法定位时给出明确提示",
+  "packaged_selfcheck": "ok",
+  "tests": "desktop 26/26 with fixtures; legacy 6/6",
+  "note": "GUI 实机验收仍需在获准环境完成；旧 dist/ 与 dist-v1.4.0/ 不应分发"
+}
