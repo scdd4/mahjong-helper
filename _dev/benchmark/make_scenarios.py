@@ -47,9 +47,11 @@ def efficiency_expected(hand14, seen=()):
     return {'best_shanten': best_shanten, 'max_ukeire': max_total,
             'expected': best[0], 'alternatives': best[1:], 'table': table}
 
-def tenpai_keeping(hand14):
-    """返回能保持最优向听的弃牌集合（push 场景用）。"""
-    return efficiency_expected(hand14)['expected'], efficiency_expected(hand14)['alternatives']
+def tenpai_keeping(hand14, seen=()):
+    """push 场景：返回全部能保持最优向听的弃牌（不只受入最大者）。"""
+    calc = efficiency_expected(hand14, seen)
+    all_tenpai = sorted({t['drop'] for t in calc['table'] if t['shanten'] == calc['best_shanten']})
+    return all_tenpai
 
 def physics_check(scenario):
     counts = {}
@@ -287,13 +289,18 @@ def main():
         elif sc['kind'] == 'defense':
             entry['expected'] = {'safe': sc['safe'], 'must_avoid': sc['must_avoid']}
         elif sc['kind'] == 'push_fold':
-            keep, keep_alt = tenpai_keeping(hand14)
+            seen = []
+            for seat in ('own', 'right', 'across', 'left'):
+                seen += state.get('rivers', {}).get(seat) or []
+                for group in (state.get('melds', {}).get(seat) or []):
+                    seen += group['tiles'] if isinstance(group, dict) else group
+            seen += state.get('dora_indicators', [])
             entry['expected'] = {'direction': sc['direction'], 'stance': sc['stance']}
             if sc['direction'] == 'fold':
                 entry['expected']['safe'] = sc['safe']
                 entry['expected']['must_avoid'] = sc['must_avoid']
             else:
-                entry['expected']['tenpai_discards'] = [keep] + keep_alt
+                entry['expected']['tenpai_discards'] = tenpai_keeping(hand14, seen)
         elif sc['kind'] == 'value':
             entry['expected'] = {'tile': sc['expected'], 'alternatives': sc.get('alternatives', []),
                                  'rationale_keywords': sc.get('rationale_keywords', [])}

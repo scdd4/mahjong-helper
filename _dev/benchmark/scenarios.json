@@ -1645,7 +1645,10 @@
     "direction": "push",
     "stance": "进攻",
     "tenpai_discards": [
-     "5z"
+     "1m",
+     "4m",
+     "5z",
+     "7m"
     ]
    }
   },
@@ -1761,7 +1764,10 @@
     "direction": "push",
     "stance": "进攻",
     "tenpai_discards": [
-     "7z"
+     "3m",
+     "6m",
+     "7z",
+     "9m"
     ]
    }
   },
@@ -1816,7 +1822,9 @@
     "direction": "push",
     "stance": "进攻",
     "tenpai_discards": [
-     "5z"
+     "5z",
+     "6m",
+     "9m"
     ]
    }
   },
