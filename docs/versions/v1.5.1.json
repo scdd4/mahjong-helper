@@ -1,0 +1,20 @@
+{
+  "version": "1.5.1",
+  "built_at": "2026-11-19T13:37:41+08:00",
+  "builder": "Python 3.12.14 / PyInstaller 6.22.3",
+  "entry": "雀魂策略助手.exe",
+  "launcher": "启动-v1.5.1.cmd",
+  "exe_sha256": "930425a45cb30f8ea7eaf183c18652b69c8edc85bc6e22b50f1e010b8df126fa",
+  "exe_bytes": 5502534,
+  "file_count": 1240,
+  "total_bytes": 232044874,
+  "features": [
+    "副露支持扩展到各家：对家倒置副露兜底识别（白板×3 0.98 高置信、一萬×3 双票低置信实测通过）",
+    "across 区域预设修正并记录到 SOURCE.json",
+    "开放手牌 13/14 判定",
+    "自定义分辨率归一化",
+    "遮挡自动回退全屏"
+  ],
+  "tests": "desktop 30/30 with fixtures; legacy 6/6; packaged selfcheck ok",
+  "note": "GUI 实机验收仍需在获准环境完成；旧版本目录不应分发"
+}
