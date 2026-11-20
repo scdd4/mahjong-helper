@@ -26,7 +26,7 @@ def scoreboard_panel(image):
         with image.crop(rect) as crop:
             view=crop.rotate(rotation,expand=True)
             try:
-                factor=min(280/view.width,65/view.height)
+                factor=min(280/max(1,view.width),65/max(1,view.height))
                 enlarged=view.resize((max(1,round(view.width*factor)),max(1,round(view.height*factor))),Image.Resampling.LANCZOS)
                 panel.paste(enlarged,(x+8,y+29));enlarged.close()
             finally:view.close()

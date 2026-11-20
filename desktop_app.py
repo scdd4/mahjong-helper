@@ -60,12 +60,22 @@ class AnalysisPipeline:
         self.client = None
         self.cancelled = threading.Event()
 
+    def close(self):
+        """Release the V8 context; without this every restart leaks an instance."""
+        self.cancelled.set()
+        try:
+            self.solver.close()
+        finally:
+            self.solver = None
+
     def cancel(self):
         self.cancelled.set()
         if self.client:
             self.client.cancel()
 
     def analyze(self, image, settings, progress=None, history=None):
+        if self.solver is None:
+            raise RuntimeError('本地核算器已关闭，无法继续分析')
         from scene_recognize import read_scene
         started = time.perf_counter()
         first_advice_at=None
@@ -79,13 +89,20 @@ class AnalysisPipeline:
         local = read_scene(image, self.cancelled)
         if self.cancelled.is_set():
             raise Cancelled('分析已取消')
-        seen, seen_audit = build_seen([tile['name'] for tile in local['hand']['tiles']], local) if local['hand']['reliable'] else ([], {'count': 0, 'note': '手牌未核验，未计算已见牌'})
+        hand = local.get('hand') or {}
+        if not hand.get('tiles'):
+            raise ValueError('手牌识别为空，请让牌面完整清晰后重新截图')
+        seen, seen_audit = build_seen([tile['name'] for tile in hand['tiles']], local) if hand.get('reliable') else ([], {'count': 0, 'note': '手牌未核验，未计算已见牌'})
         exact = None
-        codes = [tile['name'] for tile in local['hand']['tiles']]
-        if local['hand'].get('open_hand'):
+        codes = [tile['name'] for tile in hand['tiles']]
+        if hand.get('open_hand'):
             from open_efficiency import analyze_open
-            exact=analyze_open(codes,local['melds']['own']['groups'],seen)
-            exact['seen']=seen_audit
+            try:
+                exact=analyze_open(codes,(local.get('melds') or {}).get('own',{}).get('groups',[]),seen)
+                exact['seen']=seen_audit
+            except ValueError as error:
+                exact=None
+                log_event('open-hand local calc skipped: %s' % error, 'WARNING')
         elif local['hand']['reliable']:
             if len(codes) in (13, 14):
                 try:
@@ -99,7 +116,9 @@ class AnalysisPipeline:
                 exact = None
         if progress:
             progress({'phase':'vision_ready','hand_count':local['hand']['count']})
-        self.client = SparkClient(replace(settings))
+        if self.cancelled.is_set():
+            raise Cancelled('分析已取消')
+        self.client = SparkClient(replace(settings), cancel_event=self.cancelled)
         try:
             if getattr(settings, 'analysis_mode', 'structured') == 'structured':
                 result = self.client.analyze_structured(image, local, exact, history, track_progress)
@@ -414,10 +433,12 @@ class StrategyApp:
             messagebox.showerror('配置需要检查',self.settings_warning,parent=self.root)
             self.show_settings()
             return False
-        if not self.settings.api_key:
+        if not self.settings.api_key or not self.settings.base_url.strip():
             self.show_settings()
-            if not self.settings.api_key:
+            if not self.settings.api_key or not self.settings.base_url.strip():
                 return False
+        if self.settings.base_url.strip().startswith('http://') and not self.settings.base_url.strip().startswith(('http://127.0.0.1','http://localhost')):
+            log_event('WARNING: plaintext http base_url configured; screenshot and key travel unencrypted', 'WARNING')
         self.busy=True;self.generation+=1;self.started=time.perf_counter();self.result=None
         self.initial_advice=None
         self.pipeline.cancelled.clear()
@@ -448,18 +469,16 @@ class StrategyApp:
         else:
             self._spawn_capture(generation,settings)
 
-    def _hide_for_capture(self):
-        """Withdraw the assistant from the main thread and wait until done."""
+    def _hide_for_capture(self, generation):
+        """Ask the main thread to withdraw, then wait for its acknowledgement.
+
+        Tk must only be touched on the thread that created it. Posting a
+        message lets _poll() hide the window even while a modal dialog or a
+        busy handler previously blocked the old root.after(0, ...) path.
+        """
         done=threading.Event()
-        def hide():
-            try:
-                self.root.withdraw()
-                # Let the Windows compositor remove the helper before grabbing.
-                self.root.after(180,done.set)
-            except Exception:
-                done.set()
-        self.root.after(0,hide)
-        done.wait(2.0)
+        self.messages.put((generation,'hide',done))
+        done.wait(3.0)
 
     def _fullscreen_capture(self):
         """Full-screen grab with the game client bbox attached for local ROI."""
@@ -500,7 +519,7 @@ class StrategyApp:
                                           'window_not_visible','capture_denied'):
                             log_event('window capture fallback: '+error.code)
                             self.messages.put((generation,'notice','窗口截图受遮挡，已自动改用全屏截图'))
-                            self._hide_for_capture()
+                            self._hide_for_capture(generation)
                             image=self._fullscreen_capture()
                             image.info['capture_fallback']=error.code
                             if not image.info.get('game_bbox'):
@@ -666,8 +685,17 @@ class StrategyApp:
             if generation!=self.generation:
                 if kind=='image':
                     value.close()
+                elif kind=='hide':
+                    value.set()  # 过期请求也必须放行等待方
                 continue
-            if kind=='restore':
+            if kind=='hide':
+                try:
+                    self.root.withdraw()
+                    # Let the compositor remove the helper before grabbing.
+                    self.root.after(180,value.set)
+                except Exception:
+                    value.set()
+            elif kind=='restore':
                 self.root.deiconify()
             elif kind=='image':
                 self.show_image(value);value.close()
@@ -732,9 +760,21 @@ class StrategyApp:
         self.closed=True;self.generation+=1;self.pipeline.cancel()
         if self.watcher:
             self.watcher.stop();self.watcher=None
+        # Drain any queued frames/images so close() is not skipped by the early return.
+        self._drain_messages()
+        self.pipeline.close()
         if self.image:
             self.image.close()
         self.root.destroy()
+
+    def _drain_messages(self):
+        while True:
+            try:
+                _,kind,value=self.messages.get_nowait()
+            except queue.Empty:
+                break
+            if kind=='image' and hasattr(value,'close'):
+                value.close()
 
 
 def main():

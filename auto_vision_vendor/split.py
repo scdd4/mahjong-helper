@@ -1,3 +1,4 @@
+import threading
 """ 标准网格切分器 —— 通用、无标注、跨分辨率 
 
 ═══════════════════════════════════════════════════════════════════════
@@ -375,7 +376,30 @@ def canvas(im, thr=20):
 #   canvas / paper_mask 都是全图量级的计算，read() 一次会经过
 #   split（牌河）与 hand.split（手牌）两条路，各自都要求 canvas 与纸掩膜。
 #   缓存按「id + shape + 稀疏采样指纹」命中，避免同一张图重复计算。
-_FRAME_CACHE = {}
+class _ThreadLocalCache(dict):
+    """Per-thread frame cache: hand and table threads never share entries."""
+    def __init__(self):
+        super().__init__()
+        self._local = threading.local()
+
+    def _store(self):
+        if not hasattr(self._local, 'cache'):
+            self._local.cache = {}
+        return self._local.cache
+
+    def get(self, key, default=None):
+        return self._store().get(key, default)
+
+    def __setitem__(self, key, value):
+        self._store()[key] = value
+
+    def __contains__(self, key):
+        return key in self._store()
+
+    def clear(self):
+        self._store().clear()
+
+_FRAME_CACHE = _ThreadLocalCache()
 
 
 def _fingerprint(im):

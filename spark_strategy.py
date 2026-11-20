@@ -105,9 +105,12 @@ def complete_object(text):
 
 
 class SparkClient:
-    def __init__(self, settings):
+    def __init__(self, settings, cancel_event=None):
         self.settings = settings.validate()
-        self._cancel = threading.Event()
+        # 与外部（AnalysisPipeline）共享取消事件，避免取消发生在 client
+        # 创建前被 _cancel.clear() 抹掉；独立使用时才自建事件。
+        self._cancel = cancel_event if cancel_event is not None else threading.Event()
+        self._shared_cancel = cancel_event is not None
         self._lock = threading.Lock()
         self._socket = None
 
@@ -135,7 +138,8 @@ class SparkClient:
             raise ValueError('尚未配置 Spark API 密钥，请在模型设置里填写')
         if not self._lock.acquire(blocking=False):
             raise RuntimeError('模型为单并发，请等待上一次分析结束')
-        self._cancel.clear()
+        if not getattr(self, '_shared_cancel', False):
+            self._cancel.clear()
         try:
             context = {'local_evidence':evidence,'exact_calculations':calculations,'recent_context':history or []}
             if evidence.get('hand',{}).get('reliable'):
@@ -239,7 +243,8 @@ class SparkClient:
             raise ValueError('尚未配置 Spark API 密钥，请在模型设置里填写')
         if not self._lock.acquire(blocking=False):
             raise RuntimeError('模型为单并发，请等待上一次分析结束')
-        self._cancel.clear()
+        if not getattr(self, '_shared_cancel', False):
+            self._cancel.clear()
         try:
             hand_evidence = evidence.get('hand', {})
             if hand_evidence.get('reliable'):
@@ -358,11 +363,16 @@ class SparkClient:
                     raise TransientError('模型服务暂时不可用（HTTP %s）' % response.status)
                 raise RuntimeError('%s（HTTP %s）' % (explanation,response.status))
             answer, reasoning_chars, usage, finish = [], 0, {}, None
+            answer_chars = 0           # 累计已收字数，避免 O(n²) 的 sum(map(len,...))
+            last_emitted = 0           # 上次进度上报的字数
+            emit_partial = False       # 本次 chunk 是否需要上报
             object_complete=False
             if 'text/event-stream' not in response.getheader('Content-Type',''):
                 result = json.loads(response.read().decode('utf-8'))
                 message = result.get('choices',[{}])[0].get('message',{})
-                answer.append(message.get('content',''))
+                content = message.get('content','') or ''
+                answer.append(content)
+                answer_chars = len(content)
                 reasoning_chars = len(message.get('reasoning_content','') or '')
                 usage = result.get('usage',{})
             else:
@@ -388,11 +398,16 @@ class SparkClient:
                         reasoning_chars += len(delta.get('reasoning_content','') or '')
                         if isinstance(delta.get('content'),str) and delta['content']:
                             answer.append(delta['content'])
+                            answer_chars += len(delta['content'])
+                            if answer_chars - last_emitted >= 96:
+                                last_emitted = answer_chars
+                                emit_partial = True
                         finish = choice.get('finish_reason') or finish
-                    if progress:
+                    if progress and (not answer or emit_partial):
                         progress({'phase':'thinking' if not answer else 'writing','seconds':round(time.perf_counter()-started),
-                                  'reasoning_chars':reasoning_chars,'answer_chars':sum(map(len,answer)),
-                                  'partial_text':''.join(answer)})
+                                  'reasoning_chars':reasoning_chars,'answer_chars':answer_chars,
+                                  'partial_text':''.join(answer) if emit_partial else ''})
+                        emit_partial = False
                     if parse_mode in ('quick','fast'):
                         value=complete_object(''.join(answer))
                         required=('discard','reason','stance') if parse_mode=='quick' else ('discard','reason','stance','offense','defense','next')

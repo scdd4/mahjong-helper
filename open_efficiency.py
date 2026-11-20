@@ -27,7 +27,10 @@ def analyze_open(hand,groups,seen=None):
         for tile in tiles:
             code=tile.get('name') if isinstance(tile,dict) else tile
             own[tile_index(code)]+=1
-    for index,n in own.items():visible[index]=max(visible[index],n)
+    # max 而非 +=：build_seen 可能已把高分自家副露计入 seen，取较大值
+    # 保证同种牌只扣一次；低置信未进 seen 时由这里补足。
+    for index,n in own.items():
+        visible[index]=max(visible[index], n)
     if any(counts[i]+own[i]>4 for i in range(34)):raise ValueError('手牌与自家副露存在超过四张的同种牌')
     remaining=[max(0,4-counts[i]-visible[i]) for i in range(34)]
 

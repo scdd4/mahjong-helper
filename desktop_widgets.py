@@ -11,6 +11,8 @@ MODE_LABELS = {'structured': '结构化（推荐）', 'fast': '快速识图', 'f
 def settings_from_form(initial, values):
     """Shared validation for the settings form; retains window preferences."""
     reverse = {label: mode for mode, label in MODE_LABELS.items()}
+    if values['analysis_mode'] not in reverse:
+        raise ValueError('分析模式无效，请选择：'+ '、'.join(MODE_LABELS.values()))
     return replace(initial, base_url=values['base_url'].strip(), model=values['model'].strip(),
                    api_key=values['api_key'].strip(), reasoning_effort={'快速':'low','标准':'medium','深入':'high'}.get(values['reasoning_effort'],values['reasoning_effort']),
                    max_tokens=int(values['max_tokens']), timeout=int(values['timeout']),

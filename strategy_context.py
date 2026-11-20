@@ -48,8 +48,12 @@ def table_profile(hand,rivers,melds,indicators,riichi=None):
                         'meld_count':len(groups),'melds':groups,
                         'riichi':(riichi or {}).get(seat),
                         'note':'牌河与副露来自有置信门槛的候选；没有读出立直不等于确认未立直'}
-    safety=build_safety_facts(rivers,{s:True for s in per_seat})
+    # 只为画面中确实确认立直的座位生成现物/筋；未读出立直不等于立直，
+    # 把三家一律当立直会喂给模型错误的“安全牌”事实。
+    declared={s: bool((riichi or {}).get(s)) for s in per_seat}
+    safety=build_safety_facts(rivers, declared)
     safety.pop('客风客三元',None)
+    safety['说明']='仅对上表 riichi=true 的座位生成现物/筋；未确认立直的座位没有安全事实，不要套用他家现物。'
     return {'players':per_seat,'safety_by_player':safety,
             'instructions':'必须逐家结合可见牌河、副露与图中立直、点棒、局数判断；不能只分析自己手牌。'}
 

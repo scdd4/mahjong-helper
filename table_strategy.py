@@ -33,7 +33,8 @@ def analyze_table(client,image,evidence,calculations=None,history=None,progress=
     from spark_strategy import Cancelled,hand_tile_total
     if not client.settings.api_key:raise ValueError('请先在模型与截图设置中填写密钥')
     if not client._lock.acquire(blocking=False):raise RuntimeError('请等待上一次分析结束')
-    client._cancel.clear()
+    if not getattr(client, '_shared_cancel', False):
+        client._cancel.clear()
     started=time.perf_counter()
     try:
         own=evidence.get('hand') or {}
@@ -114,7 +115,7 @@ def analyze_table(client,image,evidence,calculations=None,history=None,progress=
         except (RuntimeError,ValueError,TimeoutError) as error:
             detail_failed=True
             notes.append('场面详解尚未完成，当前保留初步建议：'+str(error))
-            reply={**quick,'report':{**quick['report'],'offense':'详解生成未完成','defense':quick['report'].get('threat','场况待确认'),
+            reply={**quick,'report':{**quick['report'],'offense':'详解生成未完成','defense':quick['report'].get('defense','场况待确认'),
                                     'next':'牌面变化后重新截图'}}
         answer=reply['report']
         discard=resolve_tile_choice(answer.get('discard'),verified)

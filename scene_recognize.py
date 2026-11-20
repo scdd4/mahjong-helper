@@ -67,7 +67,8 @@ def read_concealed(image, cancel=None):
 def _read_concealed_impl(image, cancel, scale=1.0):
     import cv2
     import numpy as np
-    from auto_vision_vendor import hand
+    from auto_vision_vendor import hand, split
+    split._FRAME_CACHE.clear()  # thread-local: clear this worker's stale frame
 
     def aborted():
         return cancel is not None and cancel.is_set()
@@ -643,6 +644,7 @@ def read_scene(image, cancel=None):
 
     def _environment():
         """Rivers, melds, dora panel and riichi: independent of the hand read."""
+        split._FRAME_CACHE.clear()  # thread-local: clear this worker's stale frame
         env = {'rivers': {}, 'melds': {}, 'dora_indicators': [], 'riichi': {}, 'warnings': []}
         try:
             full_box = (0, 0, 1280, 720)

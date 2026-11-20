@@ -36,6 +36,9 @@ def log_event(message, level='INFO'):
     text = str(message)[:400]
     text = re.sub(r'Bearer\s+\S+', 'Bearer [redacted]', text, flags=re.IGNORECASE)
     text = re.sub(r'(?i)(api[_-]?key\s*[=:]\s*)\S+', r'\1[redacted]', text)
+    # 本地绝对路径（Windows 盘符/UNC）属于隐私，不应写入诊断日志
+    text = re.sub(r'[A-Za-z]:\\[^\s\'"]+', '[local-path]', text)
+    text = re.sub(r'\\\\[^\s\'"]+', '[unc-path]', text)
     try:
         target = user_directory() / LOG_NAME
         stamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -100,7 +103,7 @@ def _crypt(value, decrypt=False):
 
 @dataclass
 class Settings:
-    base_url: str = 'http://10.201.137.10:8080/v1'
+    base_url: str = ''  # 不预置任何内网/明文地址；首次运行必须在设置里显式填写
     model: str = 'qwen3.8-flash-next-iq3_s'
     api_key: str = ''
     reasoning_effort: str = 'medium'
@@ -113,9 +116,11 @@ class Settings:
 
     def validate(self):
         from urllib.parse import urlsplit
-        parsed = urlsplit(self.base_url)
-        if parsed.scheme not in ('http', 'https') or not parsed.hostname or parsed.username or parsed.password:
-            raise ValueError('模型地址应为有效的 http/https Base URL，不能包含用户名或密码')
+        url = self.base_url.strip()
+        if url:  # 空串 = 尚未配置，由调用方给出明确提示，不视为合法地址
+            parsed = urlsplit(url)
+            if parsed.scheme not in ('http', 'https') or not parsed.hostname or parsed.username or parsed.password:
+                raise ValueError('模型地址应为有效的 http/https Base URL，不能包含用户名或密码')
         if not self.model.strip():
             raise ValueError('请填写模型名称')
         if self.reasoning_effort not in ('low', 'medium', 'high'):
@@ -407,7 +412,11 @@ class ExactSolver:
         with self._lock:
             if self._context is None:
                 from py_mini_racer import MiniRacer
-                core = re.search(r'<script id="mj-core">([\s\S]*?)</script>', (ROOT / '雀魂友人场助手.html').read_text(encoding='utf-8')).group(1)
+                core_html = (ROOT / '雀魂友人场助手.html').read_text(encoding='utf-8')
+                match = re.search(r'<script id="mj-core">([\s\S]*?)</script>', core_html)
+                if not match:
+                    raise ValueError('本地核算核心脚本缺失：雀魂友人场助手.html 缺少 mj-core 段，请检查安装完整性')
+                core = match.group(1)
                 self._context = MiniRacer()
                 self._context.eval(core)
                 self._context.eval('function desktopSolve(hand, seen) { return JSON.stringify(MJ.analyze(MJ.parseTiles(hand), {seen: MJ.parseTiles(seen || "")})); }')
