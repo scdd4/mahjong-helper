@@ -735,7 +735,11 @@ def read_scene(image, cancel=None):
         total = effective_hand_total(own['tiles'],own_meld_groups)
         concealed_clear=all(t.get('name') and (t.get('cross_checked') or (t.get('score',0)>=.60 and
                             (t.get('margin') is None or t.get('margin')>=.02 or t.get('secondary_margin',0)>=.03))) for t in own['tiles'])
-        melds_clear=all(len(g) in (3,4) and all(t.get('name') for t in g) for g in own_meld_groups)
+        # 低置信/推断补全的副露不能把整手标成可靠，否则污染本地核算与事实注入
+        melds_clear=all(len(g) in (3,4) and all(t.get('name') for t in g)
+                        and not any(t.get('inferred') for t in g)
+                        and (g[0].get('group_confidence') if isinstance(g[0],dict) else None)!='low'
+                        for g in own_meld_groups)
         if own['count'] not in (13, 14) and total in (13, 14) and own_meld_groups and concealed_clear and melds_clear:
             # Open hand: concealed tiles plus called melds make a full hand.
             # Local template scores already gated the meld names above.

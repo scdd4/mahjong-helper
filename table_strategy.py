@@ -13,8 +13,8 @@ QUICK_SYSTEM = '''你是四人立直麻将教练。先快速核对全桌并给�
 结合各家牌河、副露、宝牌、立直威胁和图中局数点差判断，不只看自己手牌。现物只对对应玩家成立，不能把字牌或筋当绝对安全。
 只用万、筒、条和汉字字牌，不用英文牌码；简短思考，不写内部推理。'''
 
-DETAIL_SYSTEM = '''你是四人立直麻将教练，依据本地核验事实、整张牌桌与已按座位标注的点棒放大图，补全具体攻守方案。
-本家可靠手牌必须锁定；对手低置信副露和牌河可结合整桌图复核，新增读数只能标注“图上疑似”，不能把未确认牌组当成定论。不要编造未知信息。只输出紧凑JSON，正文合计约220个中文字：
+DETAIL_SYSTEM = '''你是四人立直麻将教练，依据本地核验事实、逐家牌河/副露候选与已按座位标注的点棒放大图，补全具体攻守方案。
+本家可靠手牌必须锁定；对手牌河与副露来自初判阶段的结构化候选，低置信项已标注，只能当“图上疑似”，不能当成定论。不要编造未知信息。只输出紧凑JSON，正文合计约220个中文字：
 {"discard":"中文牌名或null","reason":"关键取舍，20字内","stance":"进攻/防守/均衡/等待/待核验","offense":"具体成役、速度打点取舍，30字内","defense":"逐家威胁与可用安全牌，40字内","next":"两种具体摸牌或对手行动后的改选，35字内","alternatives":[{"tile":"中文牌名","when":"改选条件","reason":"取舍"}],"call_plan":"鸣牌及立直条件，25字内","placement":"点差目标；未知则说明","threats":["逐家场面证据，最多3条"],"table":{"round":null,"self_wind":null,"remaining":null,"scores":{},"riichi":{}}}。
 点棒放大图已按自己/下家/对家/上家标注并旋转，分数按标签读取，风位看单独标注的本家风位；红色轮转标记不等于本家。scores/riichi座位键own/right/across/left。未知写null，不能填历史或猜测。向听和鸣牌后的数值只用程序提供的核算，不自行编写新数字。route_facts逐路线核算，不能混用普通型和七对子数字；一向听不能立直，碰白发中可得役牌。防守候选要在自己手中；没有现物须说没有，不能让用户打手里没有的牌。
 有效13张只能等待摸牌；14张才考虑弃牌。local_calculations.win=true只是和型完成，须核验自摸/荣和与役，不应强迫拆牌。牌名只用万、筒、条和汉字字牌。思考简洁，不输出内部推理。
@@ -62,9 +62,12 @@ def analyze_table(client,image,evidence,calculations=None,history=None,progress=
                  'riichi':riichi,'physical_overflow':overflow,
                  'recent_context':(history or [])[-2:],
                  'uncertainties':notes[:3]}
-        from open_efficiency import possible_pon_plans,closed_route_facts
+        from open_efficiency import possible_pon_plans,possible_chi_plans,possible_kan_plans,closed_route_facts
         seen=[code for code,n in ((calculations or {}).get('seen') or {}).get('by_tile',{}).items() for _ in range(n)]
-        context['pon_options']=possible_pon_plans(verified,(evidence.get('melds') or {}).get('own',{}).get('groups',[]),seen)
+        own_groups=(evidence.get('melds') or {}).get('own',{}).get('groups',[])
+        context['pon_options']=possible_pon_plans(verified,own_groups,seen)
+        context['chi_options']=possible_chi_plans(verified,own_groups,seen)
+        context['kan_options']=possible_kan_plans(verified,own_groups,seen)
         context['route_facts']=closed_route_facts(verified,(evidence.get('melds') or {}).get('own',{}).get('groups',[]))
         content=[{'type':'text','text':json.dumps(public_tiles(context),ensure_ascii=False,separators=(',',':'))}]
         viewport=evidence.get('viewport') or [0,0,image.width,image.height]
@@ -157,9 +160,13 @@ def analyze_table(client,image,evidence,calculations=None,history=None,progress=
         if corrections:reply['rule_corrections']=corrections
         if (calculations or {}).get('win') and total==14:
             strategy['recommendation']={'action':'和牌核验','tile':None,'reason':'已成和型，请结合自摸或荣和按钮及役种核验。'}
-        if len(observed['scores'])==4 and sum(observed['scores'].values())%1000:
-            strategy['placement']='点棒读数未通过合计核对，暂不据此判断顺位。'
-            notes.append('四家点棒合计异常，点差判断待核对。')
+        if len(observed['scores'])==4:
+            stick_count=sum(1 for v in (evidence.get('riichi') or {}).values() if v is True)
+            expected_total=100000-1000*stick_count
+            actual_total=sum(observed['scores'].values())
+            if actual_total!=expected_total:
+                strategy['placement']='点棒合计与立直棒数不符（应为%d，读得%d），暂不据此判断顺位。' % (expected_total,actual_total)
+                notes.append('四家点棒合计异常，点差判断待核对。')
         reply.update(report={'observed':observed,'strategy':strategy},hand_source='本地核验',
                      vision_uncertainties=notes,mode='structured',thinking_stages={'structured':'low'},
                      stage_seconds={'quick':quick['elapsed_seconds'],'detail':round(time.perf_counter()-detail_started,2)},

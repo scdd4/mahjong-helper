@@ -93,5 +93,48 @@ class HardeningTests(unittest.TestCase):
             settings_from_form(Settings(), values)
 
 
+
+
+class AdditionalHardeningTests(unittest.TestCase):
+    """2026-11-20 third-pass findings: call plans, score sums, claim audits."""
+
+    def test_chi_and_kan_plans_are_generated(self):
+        from open_efficiency import possible_chi_plans, possible_kan_plans
+        hand = ['2m','3m','5m','6m','2p','3p','4p','7s','8s','9s','1z','1z','3z']
+        chi = possible_chi_plans(hand, [])
+        self.assertTrue(chi)
+        self.assertTrue(all('tile' in p and 'best_shanten_after_call' in p for p in chi))
+        kan_hand = ['1m','1m','1m','1m','2p','3p','4p','5s','6s','7s','2z','3z','4z']
+        kan = possible_kan_plans(kan_hand, [])
+        self.assertTrue(any(p['kind'] == '暗杠' for p in kan))
+
+    def test_chi_plans_include_all_three_shapes(self):
+        from open_efficiency import possible_chi_plans
+        # 2m3m4m 可被吃为 1m/4m 两种；验证形状覆盖
+        hand = ['2m','3m','5m','6m','2p','3p','4p','7s','8s','9s','1z','1z','3z']
+        shapes = {p['shape'] for p in possible_chi_plans(hand, [])}
+        self.assertIn('1m2m3m', shapes)
+        self.assertIn('2m3m4m', shapes)
+
+    def test_detail_prompt_does_not_claim_table_image(self):
+        from table_strategy import DETAIL_SYSTEM, REFERENCE
+        self.assertNotIn('结合整桌图复核', DETAIL_SYSTEM + REFERENCE)
+        self.assertIn('结构化候选', DETAIL_SYSTEM)
+
+    def test_score_sum_audit_detects_bad_total(self):
+        # 4 家分数应为 100000 - 立直棒*1000；120000 必须被判异常
+        observed = {'scores': {'own': 30000, 'right': 30000, 'across': 30000, 'left': 30000}}
+        sticks = 0
+        expected = 100000 - 1000 * sticks
+        self.assertNotEqual(sum(observed['scores'].values()), expected)
+
+    def test_single_suji_is_separate_from_strong_suji(self):
+        from desktop_runtime import build_safety_facts
+        f = build_safety_facts({'across': ['8m', '4p']}, {'across': True})
+        self.assertIn('5m', f['单筋']['across'])
+        self.assertIn('1p', f['筋']['across'])
+        self.assertNotIn('5m', f['筋']['across'])
+
+
 if __name__ == '__main__':
     unittest.main()

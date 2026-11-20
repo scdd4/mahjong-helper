@@ -47,10 +47,15 @@ def audit_numeric_claims(report,exact):
     recommendation=report['strategy']['recommendation']
     choice=next((x for x in (exact or {}).get('candidates',[]) if x['tile']==recommendation.get('tile')),None)
     warnings=[]
+    text=str(recommendation.get('reason',''))
     if choice:
-        for number in re.findall(r'进张(?:为|有|共|约|：|:)?\s*(\d+)\s*种',str(recommendation.get('reason',''))):
+        for number in re.findall(r'(?:进张|有效牌|受入)(?:为|有|共|约|：|:)?\s*(\d+)\s*[种张枚面]',text):
             if int(number)!=choice.get('kinds'):
-                warnings.append('模型对进张种数的表述与本地核算不同，以本地核算面板为准。')
+                warnings.append('模型对进张数量的表述与本地核算不同，以本地核算面板为准。')
+                break
+    # 退向听属于方向性错误，即使主弃牌正确也提示
+    if re.search(r'退(?:一|1)?向听|向听(?:变|退)差',text):
+        warnings.append('模型描述退向听，与保持最优向听的核算目标冲突，请复核。')
     return warnings
 
 

@@ -82,6 +82,56 @@ def possible_pon_plans(hand,groups,seen=None):
     return plans
 
 
+def possible_chi_plans(hand,groups,seen=None):
+    """Enumerate chi (sequence call) candidates from adjacent suited tiles.
+
+    Only non-honor suits; the called tile is assumed to come from the player
+    to the left. The hand must be 13 effective tiles (one short of a full hand).
+    """
+    if effective_hand_total(hand,groups)!=13:return []
+    counts=Counter(tile_index(t) for t in hand)
+    visible=Counter(tile_index(t) for t in seen or [])
+    plans=[]
+    for suit in range(3):
+        base=suit*9
+        for low in range(7):  # low, low+1, low+2 within suit
+            trio=(base+low,base+low+1,base+low+2)
+            # Each possible called tile = one of the trio we hold 2 of (or 1 with another source)
+            for call_index in trio:
+                needed=[i for i in trio if i!=call_index]
+                if not all(counts[i]>=1 for i in needed):continue
+                if visible[call_index]>=4:continue
+                rest=hand.copy();taken=[]
+                for idx in needed:
+                    tile=next(t for t in rest if tile_index(t)==idx)
+                    rest.remove(tile);taken.append(tile)
+                name=_code(call_index)
+                meld=[{'name':t} for t in taken+[name]]
+                try:
+                    future=analyze_open(rest,list(groups)+[meld],list(seen or [])+[name])
+                except ValueError:
+                    continue
+                plans.append({'tile':name,'shape':''.join(_code(i) for i in trio),
+                              'best_shanten_after_call':future['candidates'][0]['shanten'],
+                              'discard_candidates':future['candidates'][:2],
+                              'note':'假设上家打出此牌可吃，吃后须弃牌；吃破坏门清，是否鸣牌由模型结合有役、速度与防守决定'})
+    return plans[:12]  # cap to bound payload size
+
+
+def possible_kan_plans(hand,groups,seen=None):
+    """Enumerate kan candidates: concealed kan from 4 in hand, or open kan from 3 + call."""
+    if effective_hand_total(hand,groups)!=13:return []
+    counts=Counter(tile_index(t) for t in hand)
+    visible=Counter(tile_index(t) for t in seen or [])
+    plans=[]
+    for index,n in counts.items():
+        kind='暗杠' if n>=4 else ('明杠' if n>=3 and visible[index]<4 else None)
+        if not kind:continue
+        plans.append({'tile':_code(index),'kind':kind,
+                      'note':'杠后补一张牌；暗杠不破坏门清，明杠破坏门清；杠会改变役与宝牌，是否杠由模型决定'})
+    return plans
+
+
 def closed_route_facts(hand,groups):
     """Separate regular/special forms so their shanten cannot be interchanged."""
     if groups:return {'note':'已有副露，七对子与国士路线不可用'}
