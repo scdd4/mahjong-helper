@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from desktop_runtime import ExactSolver, tile_index
+from desktop_runtime import ExactSolver, tile_index, build_safety_facts
 
 SOLVER = ExactSolver()
 
@@ -69,6 +69,16 @@ def physics_check(scenario):
     overflow = {k: v for k, v in counts.items() if v > 4}
     return overflow
 
+
+def accepted_defense_tiles(sc,hand):
+    """Expert alternatives plus genbutsu common to every confirmed threat.
+
+    Suji and honors are relative-risk annotations, never an absolute-safe union.
+    """
+    state=sc['state'];active=[s for s,v in state.get('riichi',{}).items() if v is True and s!='own']
+    common=set.intersection(*(set(state.get('rivers',{}).get(s,[])) for s in active)) if active else set()
+    return sorted((set(sc.get('safe',[]))|common)&set(hand)-set(sc.get('must_avoid',[])))
+
 SCENARIOS = [
     # ============ 牌效率 · basic ============
     dict(id='eff-001', category='efficiency', difficulty='basic',
@@ -119,7 +129,7 @@ SCENARIOS = [
          description='字牌浮子取舍：三组顺子完成后字牌价值比较（连风 vs 客风）。',
          state=dict(hand=['1m','2m','3m','4p','5p','6p','7s','8s','9s','5z','6z','6z','7z'],
                     drawn='5z', dora_indicators=[], rivers={}, melds={},
-                    round='东南局', self_wind='西', remaining=48),
+                    round='南1局', self_wind='西', remaining=48),
          kind='efficiency'),
     dict(id='eff-009', category='efficiency', difficulty='advanced',
          description='坎张与两面并存时的进张宽度比较。',
@@ -210,7 +220,7 @@ SCENARIOS = [
                     scores={'own': 27000, 'right': 24000, 'across': 26000, 'left': 23000}),
          kind='push_fold', direction='push', stance='进攻'),
     dict(id='pf-002', category='push_fold', difficulty='advanced',
-         description='两向听+无宝牌 vs 立直：进度差、价值低应防守。',
+         description='离听牌较远且无宝牌 vs 立直：进度差、价值低应防守。',
          state=dict(hand=['1m','2m','4m','6m','8m','2p','5p','9p','2s','6s','8s','3z','4z'],
                     drawn='7m', dora_indicators=[],
                     rivers={'across': ['1z','5p','8s','3m']},
@@ -243,14 +253,14 @@ SCENARIOS = [
          state=dict(hand=['4m','4m','4m','6m','7m','8m','2p','3p','4p','5p','6p','7p','9p'],
                     drawn='9m', dora_indicators=['3m'], rivers={}, melds={},
                     round='东1局', self_wind='东', remaining=44),
-         kind='value', expected='9m', alternatives=['1z'],
+         kind='value', expected='9m', alternatives=['9p'],
          rationale_keywords=['宝牌', '听牌']),
     dict(id='val-002', category='value', difficulty='advanced',
          description='宝牌对子保留：即使打宝牌相邻张能改善进张，也应保留宝牌价值。',
          state=dict(hand=['2m','3m','4m','5m','6m','7m','4p','4p','4p','6p','7p','2z','2z'],
-                    drawn='8p', dora_indicators=['3p'], rivers={}, melds={},
+                    drawn='9s', dora_indicators=['3p'], rivers={}, melds={},
                     round='东1局', self_wind='东', remaining=40),
-         kind='value', expected='2z', alternatives=['7m'],
+         kind='value', expected='9s', alternatives=[],
          rationale_keywords=['宝牌']),
 ]
 
@@ -287,7 +297,7 @@ def main():
                                  'best_shanten': calc['best_shanten'], 'max_ukeire': calc['max_ukeire']}
             entry['solver_table'] = [{'drop': t['drop'], 'shanten': t['shanten'], 'ukeire': t['total']} for t in calc['table']]
         elif sc['kind'] == 'defense':
-            entry['expected'] = {'safe': sc['safe'], 'must_avoid': sc['must_avoid']}
+            entry['expected'] = {'safe': accepted_defense_tiles(sc,hand14), 'must_avoid': sc['must_avoid']}
         elif sc['kind'] == 'push_fold':
             seen = []
             for seat in ('own', 'right', 'across', 'left'):
@@ -297,7 +307,7 @@ def main():
             seen += state.get('dora_indicators', [])
             entry['expected'] = {'direction': sc['direction'], 'stance': sc['stance']}
             if sc['direction'] == 'fold':
-                entry['expected']['safe'] = sc['safe']
+                entry['expected']['safe'] = accepted_defense_tiles(sc,hand14)
                 entry['expected']['must_avoid'] = sc['must_avoid']
             else:
                 entry['expected']['tenpai_discards'] = tenpai_keeping(hand14, seen)
@@ -306,7 +316,7 @@ def main():
                                  'rationale_keywords': sc.get('rationale_keywords', [])}
         out.append(entry)
     target = Path(__file__).parent / 'scenarios.json'
-    target.write_text(json.dumps({'version': '1.0', 'scenarios': out}, ensure_ascii=False, indent=1), encoding='utf-8')
+    target.write_text(json.dumps({'version': '1.1', 'scenarios': out}, ensure_ascii=False, indent=1), encoding='utf-8')
     print(f'写 {len(out)} 场景 → {target}')
     if problems:
         print('!! 物理校验问题:')

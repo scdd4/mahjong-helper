@@ -4,10 +4,12 @@ import math
 import time
 from concurrent.futures import ThreadPoolExecutor
 from PIL import Image
-from desktop_runtime import ROOT, tile_index  # injects .python-deps into sys.path
+from desktop_runtime import ROOT, tile_index, effective_hand_total  # injects .python-deps into sys.path
 import cv2
 import numpy as np
 from spark_strategy import Cancelled
+from table_viewport import locate_table
+from tile_recognizer import recognize as recognize_cached
 
 
 def find_viewport(image):
@@ -129,7 +131,7 @@ def _read_concealed_impl(image, cancel, scale=1.0):
                     continue
                 part = crop[inset:crop.shape[0]-inset or None, inset:crop.shape[1]-inset or None]
                 quality = {}
-                name, score = hand.recognize_tile(cv2.cvtColor(part, cv2.COLOR_RGB2BGR), quality=quality)
+                name, score = recognize_cached(hand,cv2.cvtColor(part, cv2.COLOR_RGB2BGR), quality=quality)
                 if name == '5z' and _face_ink_ratio(part) > .035:
                     continue
                 options.append((float(score), name, quality))
@@ -206,7 +208,7 @@ def _recognize_tile_variants(rgb, hand_reader, reject_blank_white=False):
                     continue
                 part = crop[inset:crop.shape[0] - inset or None, inset:crop.shape[1] - inset or None]
                 try:
-                    name, score = hand_reader.recognize_tile(cv2.cvtColor(part, cv2.COLOR_RGB2BGR))
+                    name, score = recognize_cached(hand_reader,cv2.cvtColor(part, cv2.COLOR_RGB2BGR))
                 except Exception:
                     continue
                 if reject_blank_white and name == '5z' and _face_ink_ratio(part) > .035:
@@ -291,7 +293,8 @@ def _refine_meld_tile(tile, orig_bgr, viewport, hand_reader):
             agreed = [(n, v) for n, v in by_name.items() if len(v) >= 2]
             cross_score, name = max((max(v), n) for n, v in by_name.items())
             if agreed:
-                cross_score, name = max(agreed, key=lambda item: max(item[1]))
+                name, scores = max(agreed, key=lambda item: max(item[1]))
+                cross_score = max(scores)
             face_ink = _face_ink_on_paper(rgb)
             if cross_score >= .60 and cross_score >= score:
                 merged['name'] = name
@@ -390,7 +393,7 @@ def _infer_chi_middle(group):
         first, second = sorted((tile_index(t['name']) for t in named))
     except (ValueError, TypeError):
         return
-    if first >= 27 or second >= 27 or second - first != 2:
+    if first >= 27 or second >= 27 or first//9 != second//9 or second - first != 2:
         return
     # Index 0-26 maps to 1m-9m/1p-9p/1s-9s; the middle of a gap-2 pair is
     # uniquely determined regardless of meld display direction.
@@ -626,16 +629,17 @@ def read_scene(image, cancel=None):
         return cancel is not None and cancel.is_set()
 
     started = time.perf_counter()
-    explicit=image.info.get('game_bbox')
-    valid_box = isinstance(explicit,(list,tuple)) and len(explicit)==4 and 0<=explicit[0]<explicit[2]<=image.width and 0<=explicit[1]<explicit[3]<=image.height
-    viewport = [int(v) for v in explicit] if valid_box else find_viewport(image)
-    hand_input = image.crop(viewport) if valid_box else image
+    located, viewport_source = locate_table(image)
+    viewport = located or find_viewport(image)
+    hand_input = image.crop(viewport)
     crop = image.crop(viewport).convert('RGB')
     orig_bgr = cv2.cvtColor(np.asarray(crop), cv2.COLOR_RGB2BGR)
     bgr = cv2.resize(orig_bgr, (1280, 720), interpolation=cv2.INTER_AREA)
     result = {'viewport': viewport, 'image_size': list(image.size), 'hand': None,
               'rivers': {}, 'melds': {}, 'dora_indicators': [], 'riichi': {}, 'warnings': [],
-              'metadata': {'round': None, 'scores': None, 'remaining': None, 'note': '场风、点棒与余牌由视觉模型读取'}}
+              'metadata': {'round': None, 'scores': None, 'remaining': None,
+                           'viewport_source': viewport_source,
+                           'note': '场风、点棒与余牌由视觉模型读取'}}
 
     def _environment():
         """Rivers, melds, dora panel and riichi: independent of the hand read."""
@@ -662,9 +666,16 @@ def read_scene(image, cancel=None):
             for seat, value in groups.items():
                 safe_groups = []
                 for group in value.get('groups', []):
-                    refined = [_refine_meld_tile(tile, orig_bgr, viewport, hand) for tile in group]
+                    # orig_bgr is already cropped: its origin is (0, 0), even
+                    # when the game's window sits elsewhere on the desktop.
+                    refined = [_refine_meld_tile(tile, orig_bgr, [0, 0, orig_bgr.shape[1], orig_bgr.shape[0]], hand) for tile in group]
                     _reinforce_meld_group(refined)
                     _infer_chi_middle(refined)
+                    if len(refined)==2 and all(t.get('kan') for t in refined):
+                        names=[t.get('name') for t in refined]
+                        if all(names) and tile_index(names[0])==tile_index(names[1]):
+                            refined.extend([{'name':names[0],'score':min(t.get('score',0) for t in refined),
+                                             'kan':True,'inferred':True} for _ in range(2)])
                     safe_groups.append(refined)
                 env['melds'][seat] = {'groups': safe_groups, 'unverified': True,
                                       'note': '只作候选；请模型用原图复核吃/碰/杠与牌名'}
@@ -699,9 +710,8 @@ def read_scene(image, cancel=None):
         if aborted():
             return {'viewport': viewport, 'image_size': list(image.size), 'hand': own,
                     'rivers': {}, 'melds': {}, 'dora_indicators': [], 'warnings': ['识别已取消']}
-        if valid_box:
-            for tile in own['tiles']:
-                tile['box'][0]+=viewport[0];tile['box'][1]+=viewport[1]
+        for tile in own['tiles']:
+            tile['box'][0]+=viewport[0];tile['box'][1]+=viewport[1]
         result['hand'] = own
         result['rivers'] = env['rivers']
         result['melds'] = env['melds']
@@ -713,15 +723,18 @@ def read_scene(image, cancel=None):
         # then let the region fallback recover them for open hands.
         if own['count'] in (13, 14):
             result['melds']['own'] = {'groups': []}
-        if not result['melds']['own']['groups']:
+        if own['count'] not in (13,14) and not result['melds']['own']['groups']:
             fallback = _fallback_seat_melds(orig_bgr, _OWN_MELD_RATIOS, hand)
             if fallback:
                 result['melds']['own'] = {'groups': fallback, 'unverified': True,
                                           'note': '上游副露识别为空，已用本家区域兜底识别；低置信，请模型用原图复核'}
         own_meld_groups = result['melds'].get('own', {}).get('groups', [])
         own_meld_tiles = sum(len(group) for group in own_meld_groups)
-        total = own['count'] + own_meld_tiles
-        if own['count'] not in (13, 14) and total in (13, 14) and own_meld_groups:
+        total = effective_hand_total(own['tiles'],own_meld_groups)
+        concealed_clear=all(t.get('name') and (t.get('cross_checked') or (t.get('score',0)>=.60 and
+                            (t.get('margin') is None or t.get('margin')>=.02 or t.get('secondary_margin',0)>=.03))) for t in own['tiles'])
+        melds_clear=all(len(g) in (3,4) and all(t.get('name') for t in g) for g in own_meld_groups)
+        if own['count'] not in (13, 14) and total in (13, 14) and own_meld_groups and concealed_clear and melds_clear:
             # Open hand: concealed tiles plus called melds make a full hand.
             # Local template scores already gated the meld names above.
             own['reliable'] = True

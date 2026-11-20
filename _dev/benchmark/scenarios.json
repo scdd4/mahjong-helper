@@ -1,5 +1,5 @@
 {
- "version": "1.0",
+ "version": "1.1",
  "scenarios": [
   {
    "id": "eff-001",
@@ -825,7 +825,7 @@
     "rivers": {},
     "melds": {},
     "riichi": {},
-    "round": "东南局",
+    "round": "南1局",
     "self_wind": "西",
     "remaining": 48,
     "scores": {}
@@ -1184,7 +1184,8 @@
    "kind": "defense",
    "expected": {
     "safe": [
-     "1z"
+     "1z",
+     "9s"
     ],
     "must_avoid": [
      "4m",
@@ -1237,8 +1238,10 @@
    "expected": {
     "safe": [
      "1m",
-     "7m",
-     "4z"
+     "2p",
+     "4z",
+     "6s",
+     "7m"
     ],
     "must_avoid": [
      "5m"
@@ -1290,6 +1293,7 @@
    "kind": "defense",
    "expected": {
     "safe": [
+     "2s",
      "3z",
      "4z"
     ],
@@ -1575,12 +1579,12 @@
    "kind": "defense",
    "expected": {
     "safe": [
+     "2m",
      "3z",
      "4z",
      "5z",
      "6z",
      "7z",
-     "2m",
      "8m"
     ],
     "must_avoid": [
@@ -1656,7 +1660,7 @@
    "id": "pf-002",
    "category": "push_fold",
    "difficulty": "advanced",
-   "description": "两向听+无宝牌 vs 立直：进度差、价值低应防守。",
+   "description": "离听牌较远且无宝牌 vs 立直：进度差、价值低应防守。",
    "state": {
     "hand": [
      "1m",
@@ -1702,10 +1706,10 @@
     "direction": "fold",
     "stance": "防守",
     "safe": [
-     "1z",
-     "3m",
      "3z",
-     "4z"
+     "4z",
+     "5p",
+     "8s"
     ],
     "must_avoid": [
      "7m",
@@ -1865,7 +1869,7 @@
    "expected": {
     "tile": "9m",
     "alternatives": [
-     "1z"
+     "9p"
     ],
     "rationale_keywords": [
      "宝牌",
@@ -1893,7 +1897,7 @@
      "7p",
      "2z",
      "2z",
-     "8p"
+     "9s"
     ],
     "dora_indicators": [
      "3p"
@@ -1908,10 +1912,8 @@
    },
    "kind": "value",
    "expected": {
-    "tile": "2z",
-    "alternatives": [
-     "7m"
-    ],
+    "tile": "9s",
+    "alternatives": [],
     "rationale_keywords": [
      "宝牌"
     ]

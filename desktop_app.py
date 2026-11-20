@@ -10,15 +10,16 @@ import threading
 import time
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
-from desktop_runtime import (ROOT, ExactSolver, Settings, acquire_single_instance, build_seen,
+from desktop_runtime import (ROOT, ExactSolver, Settings, acquire_single_instance, build_seen,humanize_tiles,
                              load_settings, log_event, save_settings, tile_name)
 from spark_strategy import Cancelled, SparkClient, validate_report
 
-APP_VERSION = '1.6.2'
+APP_VERSION = '1.8.0'
 PHASE_LABELS = {'local':'正在识别手牌与整张牌桌','vision_ready':'识牌完成，本地规则核算就绪',
                 'structured':'结构化局面已生成，模型正在推理决策',
                 'vision':'Spark 正在读取牌河、副露与场况','thinking':'Spark 正在思考攻守',
-                'writing':'Spark 正在生成策略','retry':'连接中断，2秒后自动重试一次'}
+                'writing':'Spark 正在生成策略','retry':'连接中断，2秒后自动重试一次',
+                'advice':'已给出初步建议，正在补全场面分析'}
 
 # Windowed executables have no console streams; some native libraries still log.
 if sys.stdout is None:
@@ -35,6 +36,7 @@ def compact_calculations(result):
             return str(index % 9 + 1) + 'mps'[index // 9]
         return str(index - 26) + 'z'
     return {'shanten':result['shanten'],'win':result['win'],
+            'forms':{'普通型':result.get('forms',{}).get('std'),'七对子':result.get('forms',{}).get('chiitoi'),'国士':result.get('forms',{}).get('kokushi')},
             'candidates':[{'tile':code(item['tile']),'shanten':item['shanten'],
                            'ukeire':item.get('ukeireTotal'),'kinds':item.get('ukeireKinds')} for item in result['discards'][:8]],
             'waits':[{'tile':code(item['tile']),'remaining':item['remaining']} for item in result.get('waits',[])],
@@ -66,6 +68,12 @@ class AnalysisPipeline:
     def analyze(self, image, settings, progress=None, history=None):
         from scene_recognize import read_scene
         started = time.perf_counter()
+        first_advice_at=None
+        def track_progress(event):
+            nonlocal first_advice_at
+            if event.get('phase')=='advice' and first_advice_at is None:
+                first_advice_at=round(time.perf_counter()-started,2)
+            if progress:progress(event)
         if progress:
             progress({'phase':'local'})
         local = read_scene(image, self.cancelled)
@@ -75,9 +83,9 @@ class AnalysisPipeline:
         exact = None
         codes = [tile['name'] for tile in local['hand']['tiles']]
         if local['hand'].get('open_hand'):
-            # The JS core only computes closed 13/14 shanten; open hands rely on
-            # the model with the structured meld evidence instead.
-            exact = {'seen': {**seen_audit, 'count': len(seen)}, 'scope': '副露手牌：本地无门清向听核算，向听与打牌由模型结合副露推理'}
+            from open_efficiency import analyze_open
+            exact=analyze_open(codes,local['melds']['own']['groups'],seen)
+            exact['seen']=seen_audit
         elif local['hand']['reliable']:
             if len(codes) in (13, 14):
                 try:
@@ -94,11 +102,11 @@ class AnalysisPipeline:
         self.client = SparkClient(replace(settings))
         try:
             if getattr(settings, 'analysis_mode', 'structured') == 'structured':
-                result = self.client.analyze_structured(image, local, exact, history, progress)
+                result = self.client.analyze_structured(image, local, exact, history, track_progress)
             elif getattr(settings, 'analysis_mode', 'structured') == 'fast':
-                result = self.client.analyze_fast(image, local, exact, history, progress)
+                result = self.client.analyze_fast(image, local, exact, history, track_progress)
             else:
-                result = self.client.analyze(image, local, exact, history, progress)
+                result = self.client.analyze(image, local, exact, history, track_progress)
         finally:
             self.client = None
         result['local_evidence'] = local
@@ -107,6 +115,8 @@ class AnalysisPipeline:
         result['validation_warnings'] = validate_report(result['report'], local, exact)
         result['numeric_warnings']=audit_numeric_claims(result['report'],exact)
         result['total_seconds'] = round(time.perf_counter()-started,2)
+        if first_advice_at is not None:
+            result['first_advice_total_seconds']=first_advice_at
         result['stage_seconds'] = {'local': round(local.get('elapsed_ms',0)/1000,2),
                                    **result.get('stage_seconds',{})}
         result['stage_seconds']['pipeline_other'] = round(max(0,result['total_seconds']-sum(result['stage_seconds'].values())),2)
@@ -117,11 +127,12 @@ def _text(value):
     if value is None:
         return '未确认'
     if isinstance(value,str):
-        return value
+        return humanize_tiles(value)
     if isinstance(value,list):
         return '\n'.join('• '+_text(item) for item in value) or '暂无'
     if isinstance(value,dict):
-        return '；'.join('%s：%s' % (k,_text(v)) for k,v in value.items())
+        labels={'tile':'牌','when':'改选条件','reason':'理由','type':'类型','confidence':'置信度'}
+        return '；'.join('%s：%s' % (labels.get(k,k),_text(v)) for k,v in value.items())
     return str(value)
 
 
@@ -156,7 +167,10 @@ def report_sections(result):
                 kind='副露候选';cards=group
             descriptions.append(kind+' '+' '.join(tile_name(t) for t in cards))
         meld_lines.append(seat_name+'：'+('；'.join(descriptions) or '未见副露'))
-    observed_text += '\n各家副露（模型读图）：\n'+'\n'.join(meld_lines)
+    observed_text += '\n各家副露（识别候选）：\n'+'\n'.join(meld_lines)
+    seats={'own':'自己','right':'下家','across':'对家','left':'上家'}
+    observed_text += '\n各家牌河（可见候选）：\n'+'\n'.join(seats.get(s,s)+'：'+(' '.join(tile_name(t) for t in tiles) or '未读到') for s,tiles in (observed.get('rivers') or {}).items())
+    observed_text += '\n立直状态：'+'；'.join(seats.get(s,s)+' '+('已立直' if value is True else ('未立直' if value is False else '未确认')) for s,value in (observed.get('riichi') or {}).items())
     sections = []
     if warnings:
         sections.append(('识别核验', '\n'.join(warnings)))
@@ -164,9 +178,14 @@ def report_sections(result):
         sections.append(('数字核对', '\n'.join(result['numeric_warnings'])))
     if result.get('format_repaired'):
         sections.append(('输出格式','模型的JSON语法已由本地解析器修复，未增补局面事实；请核对策略内容。'))
+    if result.get('rule_corrections'):
+        sections.append(('规则核对',_text(result['rule_corrections'])))
+    if result.get('detail_incomplete'):
+        sections.append(('详解未完成','以下保留本次初步建议；可在牌面稳定后重新截图。'))
     if result.get('vision_uncertainties'):
         sections.append(('画面不确定信息',_text(result['vision_uncertainties'])))
     sections.extend([
+        ('场上威胁',_text(strategy.get('table_threats',[]))),
         ('当前取舍 · '+_text(strategy.get('stance')), _text(action.get('reason'))),
         ('进攻路线',_text(strategy.get('offense'))),
         ('防守与风险',_text(strategy.get('defense'))),
@@ -191,7 +210,7 @@ class StrategyApp:
 
     def __init__(self, root):
         self.root=root
-        self.root.title('雀魂策略助手')
+        self.root.title('雀魂策略助手 v' + APP_VERSION)
         self.root.geometry('1220x840')
         self.root.minsize(950,650)
         self.root.configure(bg=self.BG)
@@ -207,8 +226,11 @@ class StrategyApp:
         self.busy=False;self.closed=False;self.generation=0
         self.image=None;self.preview=None;self.result=None;self.history=[]
         self.started=0;self.last_phase=''
-        self.auto_enabled=False;self.watcher=None
+        self.auto_enabled=False;self.watcher=None;self.pending_capture=False;self.initial_advice=None
+        self.mini_mode=False;self.normal_geometry='1220x840'
+        self.root.report_callback_exception=self._ui_exception
         self._build()
+        self.set_mini_mode(self.settings.mini_mode, persist=False)
         self.root.after(100,self._poll)
         self.root.protocol('WM_DELETE_WINDOW',self.close)
 
@@ -225,26 +247,34 @@ class StrategyApp:
         file_menu.add_command(label='导出当前报告…',command=self.export_report)
         file_menu.add_separator();file_menu.add_command(label='退出',command=self.close)
         menu.add_cascade(label='文件',menu=file_menu)
-        menu.add_command(label='模型与截图设置',command=self.show_settings)
+        menu.add_command(label='模型与截图设置',command=self.show_settings,accelerator='F6')
         self.auto_var=tk.BooleanVar(value=False)
         menu.add_checkbutton(label='自动分析牌面变化',variable=self.auto_var,command=self.toggle_auto)
+        view=tk.Menu(menu,tearoff=False)
+        self.mini_var=tk.BooleanVar(value=self.settings.mini_mode)
+        self.topmost_var=tk.BooleanVar(value=self.settings.mini_topmost)
+        view.add_checkbutton(label='迷你模式',variable=self.mini_var,command=lambda:self.set_mini_mode(self.mini_var.get()),accelerator='F8')
+        view.add_checkbutton(label='迷你窗口置顶',variable=self.topmost_var,command=self.set_mini_topmost)
+        menu.add_cascade(label='视图',menu=view)
         menu.add_separator()
         menu.add_command(label='关于',command=self.show_about)
-        menu.add_command(label='使用说明',command=lambda:messagebox.showinfo('使用说明','打开雀魂后点“截图并分析策略”。\n\n默认结构化模式：本地程序识别牌面并核算规则，模型只看结构化局面做推理决策、不识图，约7–9秒，仍开启思考。完整模式约85–148秒。\n\n菜单“自动分析牌面变化”开启后，程序只通过截图监测牌面是否稳定变化，变化后自动给出建议；可随时关闭。全程不读游戏内存、不拦截网络、不操作游戏。\n\n模型可能看错牌。高亮警告表示核验未通过。',parent=self.root))
+        menu.add_command(label='使用说明',command=lambda:messagebox.showinfo('使用说明','打开雀魂后点“截图并分析策略”。\n\n默认结构化模式：本地识别并核算事实，模型结合整桌图、分座位点棒图与各家牌河、副露给出攻守建议。先显示初判，再自动补全详解；可以重新截图停止旧分析。三种模式均开启思考，速度取决于画面复杂度和模型服务。\n\nF6 打开设置，Ctrl+S 保存；F8 切换迷你模式。菜单可选自动分析稳定的牌面变化。全程只读取截图。\n\n模型仍可能误判。高亮警告表示核验未通过。',parent=self.root))
         self.root.config(menu=menu)
-        header=tk.Frame(self.root,bg=self.BG)
+        self.full_frame=tk.Frame(self.root,bg=self.BG)
+        self.full_frame.pack(fill='both',expand=True)
+        header=tk.Frame(self.full_frame,bg=self.BG)
         header.pack(fill='x',padx=24,pady=(20,12))
         tk.Label(header,text='雀魂策略助手',font=('Microsoft YaHei UI',23,'bold'),bg=self.BG,fg=self.GOLD).pack(side='left')
         self.badge=tk.Label(header,text='',font=('Microsoft YaHei UI',10),bg=self.BG,fg=self.MUTED)
         self.badge.pack(side='right')
-        toolbar=tk.Frame(self.root,bg=self.BG)
+        toolbar=tk.Frame(self.full_frame,bg=self.BG)
         toolbar.pack(fill='x',padx=24,pady=(0,12))
         self.button=ttk.Button(toolbar,text='截图并分析策略',style='Primary.TButton',command=self.capture)
         self.button.pack(side='left')
         self.cancel_button=ttk.Button(toolbar,text='取消分析',command=self.cancel)
         self.status=tk.Label(toolbar,text='准备就绪',bg=self.BG,fg=self.MUTED,font=('Microsoft YaHei UI',10),anchor='w')
         self.status.pack(side='left',padx=18)
-        body=tk.PanedWindow(self.root,orient='horizontal',bg=self.BG,sashwidth=8,bd=0)
+        body=tk.PanedWindow(self.full_frame,orient='horizontal',bg=self.BG,sashwidth=8,bd=0)
         body.pack(fill='both',expand=True,padx=24,pady=(0,12))
         left=tk.Frame(body,bg=self.PANEL)
         body.add(left,minsize=280,width=360)
@@ -265,15 +295,98 @@ class StrategyApp:
         self.text.pack(side='left',fill='both',expand=True);scrollbar.pack(side='right',fill='y')
         self.text.tag_configure('heading',foreground=self.GOLD,font=('Microsoft YaHei UI',12,'bold'),spacing1=15,spacing3=6)
         self.text.tag_configure('warning',foreground=self.RED)
-        self._set_text([('完整策略分析','点击后由视觉模型读取整局，给出进攻、防守、备选打法和后续计划。\n\n本地算法负责识牌候选与数值核对，策略结论来自启用思考的 Spark 模型。')])
-        tk.Label(self.root,text='仅提供可见信息下的策略参考；不读取游戏内存、不操作游戏。截图将发送至所配置的模型服务。',bg=self.BG,fg='#7f8da2',font=('Microsoft YaHei UI',9)).pack(anchor='w',padx=26,pady=(0,12))
+        tk.Label(self.full_frame,text='仅提供可见信息下的策略参考；不读取游戏内存、不操作游戏。游戏画面将发送至所配置的模型服务。',bg=self.BG,fg='#7f8da2',font=('Microsoft YaHei UI',9)).pack(anchor='w',padx=26,pady=(0,12))
+        self._build_mini()
+        self._set_text([('完整策略分析','点击后读取牌桌并分析策略。\n\n本地算法负责识牌候选与数值核对，策略结论来自启用思考的 Spark 模型。')])
+        self.root.bind('<F8>',lambda event:self.set_mini_mode(not self.mini_mode))
+        self.root.bind('<Control-comma>',lambda event:self.show_settings())
+        self.root.bind('<F6>',lambda event:self.show_settings())
         self._update_badge()
+
+    def _build_mini(self):
+        self.mini_frame=tk.Frame(self.root,bg=self.BG,padx=14,pady=10)
+        controls=tk.Frame(self.mini_frame,bg=self.BG)
+        controls.pack(fill='x',side='top')
+        self.mini_button=ttk.Button(controls,text='截图分析',command=self.capture)
+        self.mini_button.pack(side='left')
+        self.mini_cancel=ttk.Button(controls,text='取消',command=self.cancel,state='disabled')
+        self.mini_cancel.pack(side='left',padx=5)
+        ttk.Button(controls,text='展开',command=lambda:self.set_mini_mode(False)).pack(side='right')
+        ttk.Button(controls,text='设置',command=self.show_settings).pack(side='right',padx=5)
+        self.mini_status=tk.Label(self.mini_frame,text='准备就绪',bg=self.BG,fg=self.MUTED,
+                                  font=('Microsoft YaHei UI',9),anchor='w',justify='left',wraplength=425)
+        self.mini_status.pack(fill='x',pady=(8,2))
+        self.mini_title=tk.Label(self.mini_frame,text='等待分析',bg=self.BG,fg=self.GOLD,
+                                 font=('Microsoft YaHei UI',22,'bold'),anchor='w',wraplength=425)
+        self.mini_title.pack(fill='x',pady=(3,5))
+        self.mini_hand=tk.Label(self.mini_frame,text='',bg=self.BG,fg=self.MUTED,
+                                font=('Microsoft YaHei UI',9),justify='left',anchor='w',wraplength=425)
+        self.mini_hand.pack(fill='x',pady=(0,5))
+        content=tk.Frame(self.mini_frame,bg=self.PANEL)
+        content.pack(fill='both',expand=True)
+        self.mini_text=tk.Text(content,bg=self.PANEL,fg=self.TEXT,font=('Microsoft YaHei UI',10),
+                               wrap='word',height=5,relief='flat',padx=8,pady=6)
+        scroll=ttk.Scrollbar(content,command=self.mini_text.yview)
+        self.mini_text.configure(yscrollcommand=scroll.set)
+        scroll.pack(side='right',fill='y');self.mini_text.pack(fill='both',expand=True)
+        self.mini_frame.bind('<Configure>',lambda event:[label.configure(wraplength=max(280,event.width-30))
+                                                        for label in (self.mini_title,self.mini_status,self.mini_hand)])
+
+    def _persist_window_preferences(self):
+        self.settings=replace(self.settings,mini_mode=self.mini_mode,mini_topmost=self.topmost_var.get())
+        if not self.settings_warning:
+            try:
+                save_settings(self.settings)
+            except Exception as error:
+                log_event('window preferences save failed: '+type(error).__name__,'ERROR')
+                self._set_status('窗口模式已切换，偏好保存失败',self.RED)
+
+    def set_mini_topmost(self):
+        self.root.attributes('-topmost',bool(self.mini_mode and self.topmost_var.get()))
+        self._persist_window_preferences()
+
+    def set_mini_mode(self,enabled,persist=True):
+        enabled=bool(enabled)
+        if enabled != self.mini_mode:
+            if enabled:
+                if self.root.winfo_width()>100:
+                    self.normal_geometry=self.root.geometry()
+                self.full_frame.pack_forget()
+                self.root.minsize(360,260)
+                self.root.geometry('470x390')
+                self.mini_frame.pack(fill='both',expand=True)
+            else:
+                self.mini_frame.pack_forget()
+                self.root.minsize(950,650)
+                self.root.geometry(self.normal_geometry)
+                self.full_frame.pack(fill='both',expand=True)
+        self.mini_mode=enabled;self.mini_var.set(enabled)
+        self.root.title('雀魂策略助手 v'+APP_VERSION+(' · 迷你' if enabled else ''))
+        self.root.attributes('-topmost',bool(enabled and self.topmost_var.get()))
+        if persist:
+            self._persist_window_preferences()
+
+    def _set_status(self,text,fg=None):
+        options={'text':text}
+        if fg is not None:options['fg']=fg
+        self.status.config(**options)
+        self.mini_status.config(**options)
+
+    def _set_heading(self,text,fg):
+        self.title.config(text=text,fg=fg)
+        self.mini_title.config(text=text,fg=fg)
+
+    def _ui_exception(self,kind,error,trace):
+        import traceback
+        frames='; '.join('%s:%s' % (frame.name,frame.lineno) for frame in traceback.extract_tb(trace))
+        log_event('UI callback '+kind.__name__+' at '+frames,'ERROR')
+        messagebox.showerror('界面操作未完成','操作未完成（%s），诊断信息已记录。' % kind.__name__,parent=self.root)
 
     def _update_badge(self):
         source='雀魂窗口' if self.settings.capture_source=='window' else '全屏'
         current = getattr(self.settings,'analysis_mode','structured')
         mode='结构化' if current=='structured' else ('快速' if current=='fast' else '完整')
-        badge = 'Spark · 思考 low' if current!='full' else 'Spark · 思考 '+self.settings.reasoning_effort
+        badge = 'Spark · 快速思考' if current!='full' else 'Spark · '+{'low':'快速思考','medium':'标准思考','high':'深入思考'}[self.settings.reasoning_effort]
         badge += ' · '+source+' · '+mode+'模式'
         if self.settings_warning:
             badge = '配置异常 · ' + badge
@@ -285,8 +398,13 @@ class StrategyApp:
         self.text.config(state='normal');self.text.delete('1.0','end')
         for heading,body in sections:
             self.text.insert('end',heading+'\n','heading')
-            self.text.insert('end',body+'\n\n','warning' if heading=='识别核验' else '')
+            self.text.insert('end',humanize_tiles(body)+'\n\n','warning' if heading=='识别核验' else '')
         self.text.config(state='disabled');self.text.yview_moveto(0)
+        self.mini_text.config(state='normal');self.mini_text.delete('1.0','end')
+        selected=[(h,b) for h,b in sections if h.startswith(('识别核验','当前取舍','进攻路线','防守与风险','后续几巡','原因','正在处理','配置需要检查'))]
+        for heading,body in (selected or sections[:1]):
+            self.mini_text.insert('end',heading+'\n'+humanize_tiles(body[:260])+'\n\n')
+        self.mini_text.config(state='disabled');self.mini_text.yview_moveto(0)
 
     def _begin(self):
         if self.busy:
@@ -301,17 +419,26 @@ class StrategyApp:
             if not self.settings.api_key:
                 return False
         self.busy=True;self.generation+=1;self.started=time.perf_counter();self.result=None
+        self.initial_advice=None
         self.pipeline.cancelled.clear()
+        if self.watcher:self.watcher.reset()
         self.last_phase='正在获取画面'
         if self.image:self.image.close();self.image=None
         self.preview=None;self.image_label.config(image='',text='正在获取新画面…')
         self.button.config(state='disabled');self.cancel_button.pack(side='left',padx=(12,0))
-        self.title.config(text='正在分析…',fg=self.GOLD)
+        self.mini_button.config(state='disabled');self.mini_cancel.config(state='normal')
+        self.mini_hand.config(text='')
+        self._set_heading('正在分析…',self.GOLD)
         self._set_text([('正在处理','正在获取新画面，旧策略已清除。')])
-        self.status.config(text='正在获取画面…',fg=self.MUTED)
+        self._set_status('正在获取画面…',self.MUTED)
         return True
 
     def capture(self):
+        if self.busy:
+            self.pending_capture=True
+            self.cancel()
+            self._set_status('正在停止旧分析，随后抓取新牌面…',self.MUTED)
+            return
         if not self._begin():
             return
         generation=self.generation;settings=replace(self.settings)
@@ -327,7 +454,9 @@ class StrategyApp:
         def hide():
             try:
                 self.root.withdraw()
-            finally:
+                # Let the Windows compositor remove the helper before grabbing.
+                self.root.after(180,done.set)
+            except Exception:
                 done.set()
         self.root.after(0,hide)
         done.wait(2.0)
@@ -342,12 +471,17 @@ class StrategyApp:
             backend=Win32Backend()
             with backend.dpi_context():
                 game=_select_window(backend.list_windows())
-            origin_x=ctypes.windll.user32.GetSystemMetrics(76)
-            origin_y=ctypes.windll.user32.GetSystemMetrics(77)
+                origin_x=ctypes.windll.user32.GetSystemMetrics(76)
+                origin_y=ctypes.windll.user32.GetSystemMetrics(77)
             image.info['game_bbox']=[game.client_left-origin_x,game.client_top-origin_y,
                                     game.client_left-origin_x+game.client_width,game.client_top-origin_y+game.client_height]
         except Exception:
             pass
+        from table_viewport import locate_table
+        box,source=locate_table(image)
+        if box:
+            image.info['game_bbox']=box
+            image.info['viewport_source']=source
         return image
 
     def _spawn_capture(self,generation,settings):
@@ -405,6 +539,10 @@ class StrategyApp:
         threading.Thread(target=work,daemon=True).start()
 
     def _work_image(self,image,settings,generation):
+        from table_viewport import prepare_table_image
+        source=image
+        image=prepare_table_image(source)
+        source.close()
         preview=image.copy();preview.info=dict(image.info)
         self.messages.put((generation,'image',preview))
         try:
@@ -421,13 +559,13 @@ class StrategyApp:
         messagebox.showinfo('关于','雀魂策略助手 v%s\n\n'
             '输入仅为程序截图：本地识别牌面与规则核算，结构化局面交给模型推理决策。\n'
             '不读游戏内存、不拦截网络、不操作游戏。截图会发送到所配置的模型服务。\n\n'
-            '模式：结构化（约8秒，推荐）／快速识图（约9秒）／完整（85秒以上）。'
+            '模式：结构化（初判后自动补全详解，推荐）／快速识图／完整分析。'
             % APP_VERSION,parent=self.root)
 
     def _grab_for_watch(self):
         """Screenshot only. Returns a fresh image or None; never touches the game."""
         try:
-            if self.busy or self.closed or self.settings.capture_source!='window':
+            if self.closed or self.settings.capture_source!='window':
                 return None
             from window_capture import capture_mahjong_window
             image,_=capture_mahjong_window()
@@ -446,18 +584,18 @@ class StrategyApp:
             self.watcher=TableWatcher(self._grab_for_watch,self._auto_trigger)
             self.watcher.start()
             self.watcher.reset()
-            self.status.config(text='自动分析已开启：牌面稳定变化后自动给出建议',fg='#8bcdb1')
+            self._set_status('自动分析已开启：牌面稳定变化后自动给出建议','#8bcdb1')
             log_event('auto analysis on')
         else:
             self.auto_enabled=False
             if self.watcher:
                 self.watcher.stop();self.watcher=None
-            self.status.config(text='准备就绪',fg=self.MUTED)
+            self._set_status('准备就绪',self.MUTED)
             log_event('auto analysis off')
 
     def _auto_trigger(self):
         """Called from watcher thread; hop to Tk thread and reuse manual capture."""
-        if self.closed or self.busy or not self.auto_enabled:
+        if self.closed or not self.auto_enabled:
             return
         self.root.after(0,self.capture)
 
@@ -473,16 +611,19 @@ class StrategyApp:
     def show_result(self,result):
         self.result=result
         title,sections=report_sections(result)
-        self.title.config(text=title,fg=self.RED if result.get('validation_warnings') else self.GOLD)
+        self._set_heading(title,self.RED if result.get('validation_warnings') else self.GOLD)
         self._set_text(sections)
         local=result.get('local_evidence',{}).get('hand',{})
         self.local_label.config(text='本地手牌：'+ ' '.join(tile_name(t.get('name') or '?') for t in local.get('tiles',[]))+'\n'+('本地手牌核验通过' if local.get('reliable') else '本地手牌尚待核验'))
+        self.mini_hand.config(text=' '.join(tile_name(t.get('name') or '?') for t in local.get('tiles',[])))
         elapsed=result.get('total_seconds',result.get('elapsed_seconds',0))
         stages=result.get('stage_seconds',{})
-        detail=' · '.join('%s %.1fs' % (name,value) for name,value in stages.items() if isinstance(value,(int,float)))
+        stage_names={'local':'识牌','structured':'策略','fast':'策略','quick':'初判','detail':'详解','vision':'读图','strategy':'策略','pipeline_other':'其他'}
+        detail=' · '.join('%s %.1f秒' % (stage_names.get(name,'处理'),value) for name,value in stages.items() if isinstance(value,(int,float)))
         effort = 'low' if result.get('mode') in ('fast','structured') else result.get('reasoning_effort','medium')
+        effort = {'low':'快速','medium':'标准','high':'深入'}.get(effort,'标准')
         prefix={'fast':'快速','structured':'结构化'}.get(result.get('mode'),'完整')
-        self.status.config(text=prefix+' · 分析完成 · %.1f 秒 · 思考 %s%s' % (elapsed,effort,(' · '+detail) if detail else ''),fg='#8bcdb1')
+        self._set_status(prefix+' · 分析完成 · %.1f 秒 · 思考 %s%s' % (elapsed,effort,(' · '+detail) if detail else ''),'#8bcdb1')
         observed=result['report']['observed'];strategy=result['report']['strategy']
         round_label=_text(observed.get('round')); self_wind=_text(observed.get('self_wind'))
         remaining=observed.get('remaining')
@@ -507,8 +648,12 @@ class StrategyApp:
 
     def _finish(self):
         self.busy=False;self.button.config(state='normal');self.cancel_button.pack_forget()
-        if self.watcher:
-            self.watcher.reset()  # re-baseline so the just-analysed state doesn't retrigger
+        self.button.config(text='截图并分析策略')
+        self.mini_button.config(state='normal');self.mini_cancel.config(state='disabled')
+        self.mini_button.config(text='截图分析')
+        if self.pending_capture and not self.closed:
+            self.pending_capture=False
+            self.root.after(100,self.capture)
 
     def _poll(self):
         if self.closed:
@@ -527,24 +672,35 @@ class StrategyApp:
             elif kind=='image':
                 self.show_image(value);value.close()
             elif kind=='notice':
-                self.status.config(text=value,fg=self.GOLD)
+                self._set_status(value,self.GOLD)
             elif kind=='progress':
+                if self.pipeline.cancelled.is_set():continue
                 self.last_phase=PHASE_LABELS.get(value.get('phase'),'正在分析')
+                if value.get('phase')=='advice':
+                    self.initial_advice=dict(value)
+                    self._set_heading(value['title'],self.GOLD)
+                    self._set_text([('初步建议',value.get('reason','')),('场面分析','正在补全各家威胁、备选与后续计划，最终结果仍需核验。')])
+                    self.button.config(state='normal',text='重新截图')
+                    self.mini_button.config(state='normal',text='重新截图')
             elif kind=='result':
                 self.show_result(value)
                 log_event('analysis completed in %ss' % value.get('total_seconds','?'))
             elif kind=='error':
                 log_event('analysis failed: ' + str(value)[:120].replace('\n',' '), 'ERROR')
-                self.title.config(text='本次分析未完成',fg=self.RED)
+                if value=='分析已取消' and self.initial_advice and not self.pending_capture:
+                    self._set_heading(self.initial_advice['title'],self.GOLD)
+                    self._set_text([('本轮初步建议',self.initial_advice.get('reason','')),('详解已停止','这条建议对应刚才的截图；牌面变化后请重新截图。')])
+                    self._set_status('已停止后续详解',self.MUTED);self._finish();continue
+                self._set_heading('本次分析未完成',self.RED)
                 self._set_text([('原因',value),('下一步','可在模型与截图设置中检查连接，或等待牌面稳定后重试。')])
-                self.status.config(text=value[:90],fg=self.RED);self._finish()
+                self._set_status(value[:90],self.RED);self._finish()
         if self.busy:
-            self.status.config(text=self.last_phase+' · 已等待 %d 秒' % (time.perf_counter()-self.started))
+            self._set_status(self.last_phase+' · 已等待 %d 秒' % (time.perf_counter()-self.started))
         self.root.after(100,self._poll)
 
     def cancel(self):
         self.pipeline.cancel()
-        self.status.config(text='正在取消…')
+        self._set_status('正在取消…')
 
     def export_report(self):
         if not self.result:
@@ -557,47 +713,19 @@ class StrategyApp:
         else:
             title,sections=report_sections(self.result)
             text=title+'\n\n'+'\n\n'.join(h+'\n'+b for h,b in sections)
-        Path(path).write_text(text,encoding='utf-8')
+        try:Path(path).write_text(text,encoding='utf-8')
+        except OSError:
+            messagebox.showerror('报告未保存','当前目录无法写入，请选择其他保存位置。',parent=self.root)
 
     def show_settings(self):
         if self.busy:
             messagebox.showinfo('正在分析','请先等待或取消当前分析，再修改模型和截图设置。',parent=self.root);return
-        dialog=tk.Toplevel(self.root);dialog.title('模型与截图设置');dialog.geometry('600x640');dialog.resizable(False,False)
-        dialog.transient(self.root);dialog.grab_set()
-        frame=ttk.Frame(dialog,padding=22);frame.pack(fill='both',expand=True)
-        entries={}
-        for row,(field,label) in enumerate([('base_url','Base URL'),('model','模型名称'),('api_key','API 密钥')]):
-            ttk.Label(frame,text=label).grid(row=row*2,column=0,sticky='w',pady=(5,3))
-            variable=tk.StringVar(value=getattr(self.settings,field));entries[field]=variable
-            ttk.Entry(frame,textvariable=variable,width=65,show='•' if field=='api_key' else '').grid(row=row*2+1,column=0,columnspan=2,sticky='ew',pady=(0,9))
-        values={}
-        for row,(field,label,options) in enumerate([('reasoning_effort','思考强度',('low','medium','high')),('max_tokens','输出上限',('8192','16384','32768')),('timeout','超时（秒）',('600','900','1200'))],start=6):
-            ttk.Label(frame,text=label).grid(row=row,column=0,sticky='w',pady=7)
-            variable=tk.StringVar(value=str(getattr(self.settings,field)));values[field]=variable
-            ttk.Combobox(frame,textvariable=variable,values=options,state='readonly',width=16).grid(row=row,column=1,sticky='e')
-        source=tk.StringVar(value='雀魂窗口' if self.settings.capture_source=='window' else '全屏')
-        ttk.Label(frame,text='截图来源').grid(row=9,column=0,sticky='w',pady=8)
-        ttk.Combobox(frame,textvariable=source,values=('雀魂窗口','全屏'),state='readonly',width=16).grid(row=9,column=1,sticky='e')
-        current_mode = getattr(self.settings,'analysis_mode','structured')
-        mode_labels={'structured':'结构化（约7秒，推荐）','fast':'快速识图（约9秒）','full':'完整（85秒以上）'}
-        mode_var=tk.StringVar(value=mode_labels.get(current_mode,mode_labels['structured']))
-        ttk.Label(frame,text='分析模式').grid(row=10,column=0,sticky='w',pady=8)
-        ttk.Combobox(frame,textvariable=mode_var,values=tuple(mode_labels.values()),state='readonly',width=20).grid(row=10,column=1,sticky='e')
-        ttk.Label(frame,text='结构化：本地程序识别+规则核算，模型只看结构化局面做决策，约7秒。\n快速识图：模型看一张压缩图辅助判断，约9秒。完整：两阶段深度分析，85秒以上。\n三种模式都开启思考；不读游戏内存、不拦截网络。',wraplength=540).grid(row=11,column=0,columnspan=2,sticky='w',pady=(2,8))
-        ttk.Label(frame,text='密钥仅保存在当前 Windows 用户的加密配置中。\n截图会发送到以上模型地址；全屏模式包含其他可见窗口。',wraplength=540).grid(row=12,column=0,columnspan=2,sticky='w',pady=(14,10))
-        def save():
-            try:
-                reverse_mode={v:k for k,v in mode_labels.items()}
-                settings=Settings(**{k:v.get().strip() for k,v in entries.items()},reasoning_effort=values['reasoning_effort'].get(),
-                                  max_tokens=int(values['max_tokens'].get()),timeout=int(values['timeout'].get()),
-                                  capture_source='window' if source.get()=='雀魂窗口' else 'screen',
-                                  analysis_mode=reverse_mode.get(mode_var.get(),'structured'))
-                save_settings(settings);self.settings=settings;self.settings_warning=''
-                self._update_badge();log_event('settings saved');dialog.destroy()
-            except Exception as error:
-                messagebox.showerror('设置未保存',str(error),parent=dialog)
-        ttk.Button(frame,text='保存设置',command=save).grid(row=13,column=1,sticky='e',pady=8)
-        frame.columnconfigure(0,weight=1)
+        from desktop_widgets import SettingsDialog
+        def apply(settings):
+            save_settings(settings)
+            self.settings=settings;self.settings_warning=''
+            self._update_badge();self._set_status('设置已加密保存，重新截图即可使用',self.MUTED);log_event('settings saved')
+        dialog=SettingsDialog(self.root,self.settings,apply)
         self.root.wait_window(dialog)
 
     def close(self):
@@ -615,16 +743,31 @@ def main():
     parser.add_argument('--show-report')
     parser.add_argument('--self-check',action='store_true')
     parser.add_argument('--check-output')
+    parser.add_argument('--check-settings-write',action='store_true')
     parser.add_argument('--single-instance-check',action='store_true')
     args=parser.parse_args()
+    if args.check_settings_write:
+        try:
+            save_settings(load_settings())
+            return 0
+        except (OSError,ValueError):
+            return 2
     if args.self_check:
         from PIL import Image
         import cv2
+        from desktop_widgets import SettingsDialog
+        from table_viewport import prepare_table_image
+        from open_efficiency import analyze_open
         settings=load_settings()
         solver=ExactSolver();result=solver.analyze(['1m','2m','3m','4m','5m','6m','7m','8m','9m','2p','3p','4p','5p','4z']);solver.close()
-        text=json.dumps({'ok':result['total']==14,'model_configured':bool(settings.api_key),'thinking':settings.reasoning_effort,'opencv':cv2.__version__})
+        opened=analyze_open(['1m','2m','3m','4m','5m','6m','7m','8m','9m','1p'],[[{'name':'7z'}]*3])
+        text=json.dumps({'ok':result['total']==14 and opened['shanten']==0,'version':APP_VERSION,'widgets_loaded':True,'open_hand_ok':opened['shanten']==0,'model_configured':bool(settings.api_key),'thinking':settings.reasoning_effort,'opencv':cv2.__version__})
         if args.check_output:
-            Path(args.check_output).write_text(text,encoding='utf-8')
+            try:Path(args.check_output).write_text(text,encoding='utf-8')
+            except OSError:
+                log_event('selfcheck passed; report destination is not writable','WARNING')
+                if sys.stderr:print('自检完成，但报告目录没有写入权限。',file=sys.stderr)
+                return 2
         elif sys.stdout:
             print(text)
         return
@@ -659,4 +802,10 @@ def main():
 
 
 if __name__=='__main__':
-    main()
+    try:
+        sys.exit(main() or 0)
+    except Exception as error:
+        log_event('application error: '+type(error).__name__,'ERROR')
+        if '--self-check' not in sys.argv:
+            messagebox.showerror('助手未能完成操作','操作未完成，请重新打开助手后重试。')
+        sys.exit(1)

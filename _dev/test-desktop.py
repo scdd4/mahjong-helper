@@ -369,7 +369,7 @@ class DesktopTests(unittest.TestCase):
             calc={'shanten':0,'candidates':[{'tile':'4z','shanten':0,'ukeire':8}]}
             with Image.new('RGB',(2560,1400),'navy') as image:
                 result=SparkClient(settings).analyze_structured(image,local,calc)
-            self.assertEqual(len(received),1)
+            self.assertEqual(len(received),2)
             request=received[0]
             self.assertEqual(request['reasoning_effort'],'low')
             self.assertTrue(request['chat_template_kwargs']['enable_thinking'])
@@ -378,7 +378,7 @@ class DesktopTests(unittest.TestCase):
             # verified facts JSON still in the same message.
             self.assertIn('image_url',user_text)
             self.assertIn('hand_total',user_text)  # program facts JSON
-            self.assertIn('5p',user_text)      # program dora conversion
+            self.assertIn('五筒',user_text)      # user-facing input uses Chinese tile names
             self.assertIn('shanten',user_text) # program calculation
             self.assertIn('测试警告',user_text)
             self.assertEqual(result['mode'],'structured')
@@ -478,11 +478,15 @@ class UserScreenshotTests(unittest.TestCase):
             self.assertIn('13',user_text)
         finally:server.shutdown();server.server_close();thread.join(timeout=2)
 
-    def test_validate_report_accepts_open_hand_discard(self):
+    def test_validate_report_rejects_discard_before_open_hand_draw(self):
         open_hand=['2p','5p','6p','9p','6s','7s','9s','5z','6z','6z']
         local={'hand':{'reliable':True,'tiles':[{'name':t} for t in open_hand]}}
         value=report(hand=open_hand,tile='2p')
         value['observed']['melds']={'own':[{'type':'pon','tiles':['3z','3z','3z']}]}
+        self.assertTrue(validate_report(value,local))
+        open_hand=open_hand+['1m']
+        local={'hand':{'reliable':True,'tiles':[{'name':t} for t in open_hand]}}
+        value['observed']['hand']=open_hand
         self.assertEqual(validate_report(value,local),[])
 
     def test_custom_window_resolutions_are_normalized(self):

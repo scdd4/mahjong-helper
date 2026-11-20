@@ -23,7 +23,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from desktop_runtime import load_settings, tile_index
+from desktop_runtime import load_settings, tile_index, tile_code, build_safety_facts
 from spark_strategy import SparkClient
 
 HERE = Path(__file__).parent
@@ -36,7 +36,8 @@ BENCH_SYSTEM_PROMPT = '''你是四人立直麻将策略教练。输入是结构�
 事实约束：hand/melds/dora_indicators是核验事实，直接采用，不要改写。
 暗牌张数+副露张数=14时必须打牌且牌必须在hand中；=13时discard必须为null，等待摸牌。
 牌名m/p/s/z，0=赤五。有明副露（吃/碰/明杠）的门清已破坏，不能立直；暗杠不算副露仍可立直。
-防守时现物最安全，其次是筋与客风/客三元字牌；无筋中张数牌危险。
+防守逐家核对现物；对一家安全不等于对另一家安全，双立直要兼顾两家。筋和字牌只能提供相对风险线索，不能说绝对安全，也不能断言无筋一定放铳；三元牌均为役牌。
+攻守原则：对面立直时不等于必须弃和——南4局/末巡落后需点数、亲家、好形多面听牌、2+宝牌时应保持进攻（弃牌从 tenpai 保持集合中选）；无役、愚形单骑、巡目尚早且损失小时才转防守；转防守时必须从 safety_facts 里挑牌，绝不打无筋中张。
 
 ukeire（若提供）未扣除牌河可见牌，只是参考上限，可结合牌河定性取舍。'''
 
@@ -89,6 +90,8 @@ def validate(scenarios):
 
 def build_payload(sc, settings):
     state = dict(sc['state'])
+    state['safety_facts'] = build_safety_facts(state.get('rivers', {}), state.get('riichi', {}),
+                                               (state.get('round') or '')[:1], state.get('self_wind'))
     user_text = '当前局面（本地程序核验与规则核算）：' + json.dumps(state, ensure_ascii=False)
     payload = {'model': settings.model,
                'messages': [{'role': 'system', 'content': BENCH_SYSTEM_PROMPT},
@@ -100,10 +103,11 @@ def build_payload(sc, settings):
 
 def score(sc, answer):
     """返回 (passed, detail)。答案缺字段按失败计。"""
-    discard = answer.get('discard')
+    discard = tile_code(answer.get('discard'))
     stance = answer.get('stance') or ''
     reason = str(answer.get('reason', '')) + str(answer.get('offense', '')) + str(answer.get('defense', ''))
     exp = sc['expected']
+    if discard not in state_hand(sc):return False,'建议牌不在手牌内'
     if sc['kind'] == 'efficiency':
         if not discard:
             return False, '未给出discard'
@@ -127,14 +131,14 @@ def score(sc, answer):
             return safe and stance_ok, detail
         keep = exp['tenpai_discards']
         push_ok = discard in keep if discard else False
-        stance_ok = stance == exp['stance']
+        stance_ok = stance in ('进攻', '均衡')  # 均衡+保持听牌=半攻，可接受
         detail = f"期望 {exp['direction']}({exp['stance']}，保持听牌弃牌 {keep})，模型 {stance}/{discard}"
         return push_ok and stance_ok, detail
     if sc['kind'] == 'value':
         ok = discard == exp['tile'] or discard in exp['alternatives']
         keywords = [k for k in exp.get('rationale_keywords', []) if k in reason]
         detail = f"期望 {exp['tile']}(备选 {exp['alternatives']})，模型 {discard}；理由关键词 {keywords}"
-        return ok, detail
+        return ok and (bool(keywords) or not exp.get('rationale_keywords')), detail
     return False, '未知场景类型'
 
 

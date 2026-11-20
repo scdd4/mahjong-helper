@@ -8,7 +8,8 @@ import socket
 import threading
 import time
 from urllib.parse import urlsplit
-from desktop_runtime import tile_index,tile_name,dora_from_indicator
+from desktop_runtime import (tile_index,tile_name,tile_code,humanize_tiles,dora_from_indicator,
+                             effective_hand_total,group_tiles,build_safety_facts)
 
 SYSTEM_PROMPT = '''你是谨慎的四人立直麻将教练，依据截图中的可见证据提供完整攻守策略。
 必须自行看整张牌桌，并复核手牌、四家牌河、各家吃碰杠、宝牌指示牌、立直标记、场风/自风、点棒和余牌。
@@ -45,7 +46,7 @@ REASON_PROMPT = '''你是谨慎的四人立直麻将策略教练。你将收到�
 精确计算器只提供向听和进张，你必须结合局数、点差、对手副露/立直及不确定性作出策略取舍，不能机械抄第一候选。
 进张种数/张数等数字由程序单独展示，正文尽量不复述，以免把“枚”说成“种”。实际宝牌以observed.dora_tiles为准，指示牌不是宝牌本身。
 不能知道对手暗牌或未来牌山；未知的局面字段不可填补成确定事实。现物只对相应对手安全，筋、壁、字牌、幺九不保证安全。
-13张时recommendation.action必须为“等待摸牌”，tile必须为null；弃牌只能写成摸到某牌后的条件计划。14张才给当前弃牌，且必须在verified_hand中。
+有效张数（暗牌数+每组面子3张，杠也算3）为13时recommendation.action必须为“等待摸牌”，tile必须为null；弃牌只能写成摸到某牌后的条件计划。有效张数为14时才给当前弃牌，且必须在verified_hand中；有效张数以effective_total为准。
 如果局面矛盾，stance写“待核验”，说明哪些策略只能暂作条件参考。不能把他家副露当本家的副露。
 只输出JSON：{"strategy":{"stance":"进攻/均衡/防守/等待/待核验","recommendation":{"action":"打牌/等待摸牌/鸣牌判断/和牌判断","tile":"1m或null","reason":"简明理由"},"offense":"进攻路线、候选役、速度与打点取舍","defense":"主要威胁和对谁安全、风险依据","alternatives":[{"tile":"2m","when":"何时改选","reason":"原因"}],"next_turn_plan":["条件→行动"],"call_plan":"吃碰杠和立直等条件","placement":"顺位与点差目标","uncertainties":["不确定信息"],"confidence":"low/medium/high"}}。
 用自然中文，理由清楚，约1500中文字以内；不要输出内部思维过程。'''
@@ -70,11 +71,8 @@ riichi字段非空时是本地检测到的立直事实，直接采用；为空�
 
 
 def hand_tile_total(verified, evidence):
-    """Concealed tiles plus own meld tiles; 13 means waiting, 14 means discard."""
-    own_meld_tiles = 0
-    for group in (evidence.get('melds') or {}).get('own', {}).get('groups', []) or []:
-        own_meld_tiles += len(group)
-    return len(verified) + own_meld_tiles
+    """A meld counts as three effective tiles, including a four-tile kan."""
+    return effective_hand_total(verified,(evidence.get('melds') or {}).get('own',{}).get('groups',[]))
 
 
 class Cancelled(RuntimeError):
@@ -83,6 +81,27 @@ class Cancelled(RuntimeError):
 
 class TransientError(RuntimeError):
     """A server-side condition that a single immediate retry may resolve."""
+
+
+def complete_object(text):
+    start=text.find('{')
+    if start<0:return None
+    depth=0;quoted=False;escaped=False
+    for index in range(start,len(text)):
+        char=text[index]
+        if quoted:
+            if escaped:escaped=False
+            elif char=='\\':escaped=True
+            elif char=='"':quoted=False
+        elif char=='"':quoted=True
+        elif char=='{':depth+=1
+        elif char=='}':
+            depth-=1
+            if depth==0:
+                try:value=json.loads(text[start:index+1])
+                except ValueError:return None
+                return value if isinstance(value,dict) else None
+    return None
 
 
 class SparkClient:
@@ -179,6 +198,7 @@ class SparkClient:
             if self._cancel.is_set():
                 raise Cancelled('分析已取消')
             reason_input = {'observed':observed,'verified_hand':verified,'hand_source':hand_source,
+                            'effective_total':hand_tile_total(verified,evidence),
                             'exact_calculations':calculations,'vision_uncertainties':notes,'recent_context':history or []}
             reason_input['dora_note'] = 'dora_indicators是指示牌；dora_tiles才是程序已换算的实际宝牌，不要混用。'
             payload = {'model':self.settings.model,'messages':[{'role':'system','content':REASON_PROMPT},
@@ -187,6 +207,9 @@ class SparkClient:
                        'chat_template_kwargs':{'enable_thinking':True},'strata_checkpoint':False}
             strategy = self._request_with_retry(payload,progress,parse_mode='strategy')
             strategy['report'] = {'observed':observed,'strategy':strategy['report']['strategy']}
+            if hand_tile_total(verified,evidence)==13:
+                strategy['report']['strategy']['recommendation']['action']='等待摸牌'
+                strategy['report']['strategy']['recommendation']['tile']=None
             strategy['vision_uncertainties'] = notes
             strategy['hand_source'] = hand_source
             strategy['elapsed_seconds'] = round(vision['elapsed_seconds']+strategy['elapsed_seconds'],2)
@@ -202,155 +225,8 @@ class SparkClient:
             self._lock.release()
 
     def analyze_structured(self, image, evidence, calculations=None, history=None, progress=None):
-        """Model receives structured local facts only, never the image.
-
-        Local code owns recognition and rule facts; the model only reasons.
-        Returns the same report shape as the full pipeline.
-        """
-        if not self.settings.api_key:
-            raise ValueError('尚未配置 Spark API 密钥，请在模型设置里填写')
-        if not self._lock.acquire(blocking=False):
-            raise RuntimeError('模型为单并发，请等待上一次分析结束')
-        self._cancel.clear()
-        try:
-            hand_evidence = evidence.get('hand', {})
-            if hand_evidence.get('reliable'):
-                verified = [tile['name'] for tile in hand_evidence['tiles']]
-                hand_source = '本地核验'
-            else:
-                guess = [tile['name'] for tile in hand_evidence.get('tiles', []) if tile.get('name')]
-                try:
-                    values = [tile_index(code) for code in guess]
-                    valid = len(guess) in (13, 14) and all(values.count(v) <= 4 for v in values)
-                except (ValueError, TypeError):
-                    valid = False
-                verified = guess if valid else []
-                hand_source = '本地候选，未核验' if valid else '手牌未核验'
-
-            notes = list(evidence.get('warnings') or [])
-            if not hand_evidence.get('reliable'):
-                notes.append('自家手牌尚未通过本地核验，策略仅可作条件参考')
-
-            indicators = [v for v in (evidence.get('dora_indicators') or []) if isinstance(v, str)]
-            try:
-                dora_tiles = [dora_from_indicator(code) for code in indicators]
-            except (ValueError, TypeError):
-                dora_tiles = []
-                notes.append('宝牌指示牌含无效牌名，实际宝牌无法核对')
-
-            # River reads below the same confidence floor build_seen uses are
-            # template noise (blank dragon faces match anything); they would
-            # both distract the model and trip the physical overflow check on
-            # false grounds, so they are dropped here as well.
-            rivers = {seat: [v['name'] for v in items if isinstance(v, dict)
-                             and v.get('name') and (v.get('score') or 0) >= .65]
-                      for seat, items in (evidence.get('rivers') or {}).items()}
-            melds = {}
-            for seat, meld in (evidence.get('melds') or {}).items():
-                groups = []
-                for group in (meld or {}).get('groups', []) or []:
-                    tiles = [t.get('name') for t in group if isinstance(t, dict) and t.get('name')]
-                    if tiles:
-                        groups.append({'type':'unknown','tiles':tiles,'confidence':'low'})
-                melds[seat] = groups
-
-            # Physical plausibility is a program fact, not a model claim.
-            physical = Counter(verified)
-            for items in rivers.values():
-                physical.update(items)
-            for groups in melds.values():
-                for group in groups:
-                    physical.update(group['tiles'])
-            physical.update(indicators)
-            overflow = [tile_name(t) for t, n in physical.items() if n > 4]
-            own_meld_tiles = sum(len(g['tiles']) for g in melds.get('own', []))
-            hand_total = len(verified) + own_meld_tiles
-
-            # Local riichi-stick detection only reports positives; an empty
-            # dict leaves the call to the model's own image reading.
-            riichi = {seat: True for seat in ((evidence.get('riichi') or {}).keys()
-                      if isinstance(evidence.get('riichi'), dict) else [])
-                      if seat in ('own', 'right', 'across', 'left')}
-            if riichi:
-                notes.append('本地检测到立直棒：' + '、'.join({'own':'自己','right':'下家','across':'对家','left':'上家'}.get(s,s) for s in sorted(riichi)))
-
-            state = {
-                'hand': verified, 'hand_count': len(verified), 'hand_total': hand_total,
-                'hand_source': hand_source,
-                'round': None, 'self_wind': None, 'remaining': None,
-                'scores': {}, 'riichi': riichi, 'dora_indicators': indicators, 'dora_tiles': dora_tiles,
-                'rivers': rivers, 'melds': melds,
-                'local_calculations': calculations,
-                'physical_overflow': overflow,
-                'vision_uncertainties': notes,
-            }
-            if progress:
-                progress({'phase':'structured'})
-            # Hybrid mode: the JSON stays authoritative for hand/melds/dora
-            # (local verification beats model tile reading), while a small
-            # screenshot gives the model the environment context that local
-            # template matching cannot resolve: rivers, riichi sticks, score
-            # sticks, round and wind indicators.
-            picture = image
-            viewport = evidence.get('viewport')
-            try:
-                if (isinstance(viewport,(list,tuple)) and len(viewport)==4
-                        and (viewport[2]-viewport[0])*(viewport[3]-viewport[1]) < image.width*image.height*.98):
-                    picture = image.crop(tuple(int(v) for v in viewport))
-            except Exception:
-                picture = image
-            content = [{'type':'text','text':'当前局面（本地程序核验与规则核算；hand/melds/dora_indicators以此JSON为准）：'+json.dumps(state,ensure_ascii=False)},
-                       self._image_part(picture,max_width=1100)]
-            if picture is not image:
-                picture.close()
-            payload = {'model':self.settings.model,
-                       'messages':[{'role':'system','content':STRUCT_SYSTEM_PROMPT},{'role':'user','content':content}],
-                       'stream':True,'max_tokens':280,'reasoning_effort':'low',
-                       'chat_template_kwargs':{'enable_thinking':True},'strata_checkpoint':False}
-            reply = self._request_with_retry(payload, progress, parse_mode='fast')
-            if self._cancel.is_set():
-                raise Cancelled('分析已取消')
-            fast = reply['report']
-
-            discard = fast.get('discard')
-            if discard in ('null', 'none', '无', ''):
-                discard = None
-            if verified and hand_tile_total(verified, evidence) == 13:
-                discard = None
-            stance = fast.get('stance') or '待核验'
-            if overflow and stance not in ('待核验',):
-                stance = '待核验'
-                notes = list(notes) + ['识别结果存在物理牌数矛盾，建议已降级为条件参考']
-            if discard and verified and discard not in verified:
-                notes = list(notes) + ['模型建议打出的牌不在已核验手牌中，已隐藏该行动']
-                discard = None
-            action = '等待摸牌' if not discard else '打牌'
-            strategy = {
-                'stance': stance,
-                'recommendation': {'action':action,'tile':discard,'reason':fast.get('reason') or ''},
-                'offense': fast.get('offense') or '',
-                'defense': fast.get('defense') or '',
-                'alternatives': [],
-                'next_turn_plan': [fast.get('next')] if fast.get('next') else [],
-                'call_plan': '结构化模式未单独展开，详见完整模式',
-                'placement': '结构化模式未单独展开，详见完整模式',
-                'uncertainties': notes + (['宝牌口述：'+str(fast['dora'])] if fast.get('dora') else []),
-                'confidence': 'medium' if hand_evidence.get('reliable') and not overflow else 'low',
-            }
-            observed = {'hand':verified,'round':None,'self_wind':None,'remaining':None,'scores':{},
-                        'dora_indicators':indicators,'dora_tiles':dora_tiles,'riichi':{},
-                        'rivers':rivers,'melds':melds}
-            reply['report'] = {'observed':observed,'strategy':strategy}
-            reply['hand_source'] = hand_source
-            reply['vision_uncertainties'] = notes
-            reply['thinking_stages'] = {'structured':'low'}
-            reply['stage_seconds'] = {'structured':reply['elapsed_seconds']}
-            reply['stage_usage'] = {'structured':reply['usage']}
-            reply['mode'] = 'structured'
-            return reply
-        finally:
-            self._socket = None
-            self._lock.release()
+        from table_strategy import analyze_table
+        return analyze_table(self,image,evidence,calculations,history,progress)
 
     def analyze_fast(self, image, evidence, calculations=None, history=None, progress=None):
         """Single compact model call: one small image, low thinking, short JSON.
@@ -482,6 +358,7 @@ class SparkClient:
                     raise TransientError('模型服务暂时不可用（HTTP %s）' % response.status)
                 raise RuntimeError('%s（HTTP %s）' % (explanation,response.status))
             answer, reasoning_chars, usage, finish = [], 0, {}, None
+            object_complete=False
             if 'text/event-stream' not in response.getheader('Content-Type',''):
                 result = json.loads(response.read().decode('utf-8'))
                 message = result.get('choices',[{}])[0].get('message',{})
@@ -514,10 +391,18 @@ class SparkClient:
                         finish = choice.get('finish_reason') or finish
                     if progress:
                         progress({'phase':'thinking' if not answer else 'writing','seconds':round(time.perf_counter()-started),
-                                  'reasoning_chars':reasoning_chars,'answer_chars':sum(map(len,answer))})
+                                  'reasoning_chars':reasoning_chars,'answer_chars':sum(map(len,answer)),
+                                  'partial_text':''.join(answer)})
+                    if parse_mode in ('quick','fast'):
+                        value=complete_object(''.join(answer))
+                        required=('discard','reason','stance') if parse_mode=='quick' else ('discard','reason','stance','offense','defense','next')
+                        if value is not None and all(key in value for key in required):
+                            object_complete=True
+                            break
             if self._cancel.is_set():
                 raise Cancelled('分析已取消')
-            if finish == 'length':
+            self.last_output_text=''.join(answer).strip()
+            if finish == 'length' and not object_complete:
                 raise RuntimeError('模型输出达到上限，请在模型设置中提高输出上限后重试')
             text = ''.join(answer).strip()
             self.last_output_text = text
@@ -528,7 +413,10 @@ class SparkClient:
                 repaired = False
             else:
                 parsed,repaired = parse_json_object(text)
-                if parse_mode=='fast':
+                if parse_mode=='quick':
+                    if any(key not in parsed for key in ('discard','reason','stance')):
+                        raise ValueError('初步建议缺少必要字段，请重试')
+                elif parse_mode=='fast':
                     for key in ('stance','discard','reason','offense','defense','next'):
                         if key not in parsed:
                             raise ValueError('快速分析缺少 %s 字段，请重试' % key)
@@ -541,7 +429,7 @@ class SparkClient:
                 if parse_mode=='strategy' and any(not parsed['strategy'].get(key) for key in ('offense','defense','next_turn_plan')):
                     raise ValueError('模型没有完整生成进攻、防守与后续计划，请重试')
             return {'report':parsed,'text':text,'elapsed_seconds':round(time.perf_counter()-started,2),
-                    'reasoning_used':reasoning_chars>0,'reasoning_effort':self.settings.reasoning_effort,'usage':usage,'model':self.settings.model,'format_repaired':repaired}
+                    'reasoning_used':reasoning_chars>0,'reasoning_effort':payload.get('reasoning_effort',self.settings.reasoning_effort),'usage':usage,'model':self.settings.model,'format_repaired':repaired}
         except (OSError,http.client.HTTPException) as error:
             if self._cancel.is_set():
                 raise Cancelled('分析已取消') from None
@@ -659,14 +547,16 @@ def validate_report(report, local, exact=None):
                     physical[tile_index(code)] += 1
                 except (TypeError,ValueError):
                     warnings.append('副露中出现无效牌名')
+    for code in observed.get('dora_indicators') or []:
+        try:physical[tile_index(code)]+=1
+        except (TypeError,ValueError):warnings.append('宝牌指示牌含无效牌名')
     over = [tile_name(code) for index,count in physical.items() if count>4 for code in [index_to_code(index)]]
     if over:
         warnings.append('全场同种牌超过4张：%s；观察数据必有一处误读' % '、'.join(sorted(set(over))))
 
     # Action feasibility: 13 total tiles (concealed + own melds) means waiting.
-    own_meld_tiles = sum(len(g) for g in ((observed.get('melds') or {}).get('own') or [])
-                         if isinstance(g, dict))
-    if evidence.get('reliable') and len(local_codes) + own_meld_tiles == 13 and tile:
+    total=effective_hand_total(local_codes,(observed.get('melds') or {}).get('own') or [])
+    if evidence.get('reliable') and total == 13 and tile:
         warnings.append('当前手牌共13张（含副露），模型提出的打牌行动不能直接执行，应等待摸牌')
     if tile and tile not in ('null','unknown','无'):
         try:

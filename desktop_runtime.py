@@ -10,6 +10,8 @@ from pathlib import Path
 import re
 import sys
 import threading
+import uuid
+import time
 from datetime import datetime
 
 ROOT = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parent))
@@ -19,6 +21,7 @@ if (ROOT / '.python-deps').is_dir():
     sys.path.insert(0, str(ROOT / '.python-deps'))
 
 APP_NAME = 'MahjongStrategyAssistant'
+REGISTRY_SETTINGS_KEY = r'Software\MahjongStrategyAssistant'
 TILE_RE = re.compile(r'^(?:[0-9][mps]|[1-7]z)$')
 
 
@@ -39,7 +42,12 @@ def log_event(message, level='INFO'):
         with target.open('a', encoding='utf-8') as stream:
             stream.write('%s [%s] %s\n' % (stamp, level, text))
     except Exception:
-        pass
+        if os.name=='nt':
+            try:
+                import winreg
+                with winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER,REGISTRY_SETTINGS_KEY,0,winreg.KEY_SET_VALUE) as key:
+                    winreg.SetValueEx(key,'LastDiagnostic',0,winreg.REG_SZ,level+' '+text)
+            except OSError:pass
 
 
 def acquire_single_instance(name='Local\\MahjongStrategyAssistant_Instance'):
@@ -100,6 +108,8 @@ class Settings:
     timeout: int = 600
     capture_source: str = 'window'
     analysis_mode: str = 'structured'
+    mini_mode: bool = False
+    mini_topmost: bool = True
 
     def validate(self):
         from urllib.parse import urlsplit
@@ -118,6 +128,8 @@ class Settings:
             raise ValueError('截图来源无效')
         if self.analysis_mode not in ('fast', 'structured', 'full'):
             raise ValueError('分析模式无效')
+        if not isinstance(self.mini_mode, bool) or not isinstance(self.mini_topmost, bool):
+            raise ValueError('窗口模式设置无效')
         return self
 
     @property
@@ -126,23 +138,88 @@ class Settings:
         return value if value.endswith('/chat/completions') else value + '/chat/completions'
 
 
+def _registry_settings(value=None):
+    if os.name!='nt':return None
+    import winreg
+    if value is None:
+        try:
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER,REGISTRY_SETTINGS_KEY) as key:
+                return json.loads(winreg.QueryValueEx(key,'EncryptedSettings')[0])
+        except FileNotFoundError:return None
+    with winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER,REGISTRY_SETTINGS_KEY,0,winreg.KEY_SET_VALUE) as key:
+        winreg.SetValueEx(key,'EncryptedSettings',0,winreg.REG_SZ,json.dumps(value,ensure_ascii=False))
+    return '当前用户配置存储'
+
+
+def portable_settings_path():
+    return Path(sys.executable).parent/'user-data'/'settings.json' if getattr(sys,'frozen',False) else None
+
+
+def _write_settings_file(value,target):
+    temporary = None
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        # tempfile retries PermissionError on Windows when os.access claims
+        # the directory is writable. Per-process denials can then loop for
+        # hundreds of thousands of names instead of reaching our fallback.
+        for attempt in range(3):
+            candidate=target.parent/('settings-'+uuid.uuid4().hex+'.tmp')
+            try:
+                stream=candidate.open('x',encoding='utf-8')
+                temporary=candidate
+                break
+            except FileExistsError:
+                if attempt==2:raise
+        with stream:
+            json.dump(value,stream,ensure_ascii=False,indent=2)
+        os.replace(temporary, target)
+    finally:
+        if temporary and temporary.exists():
+            try:temporary.unlink()
+            except OSError:pass
+    return str(target)
+
+
 def save_settings(settings, path=None):
     settings.validate()
-    target = Path(path) if path else user_directory() / 'settings.json'
-    target.parent.mkdir(parents=True, exist_ok=True)
+    target=Path(path) if path else Path(os.environ.get('LOCALAPPDATA',Path.home()/'AppData'/'Local'))/APP_NAME/'settings.json'
     value = asdict(settings)
     key = value.pop('api_key')
     value['api_key_dpapi'] = base64.b64encode(_crypt(key.encode('utf-8'))).decode('ascii') if key else ''
-    temporary = target.with_suffix('.tmp')
-    temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding='utf-8')
-    os.replace(temporary, target)
+    value['saved_at_ns']=time.time_ns()
+    try:
+        return _write_settings_file(value,target)
+    except PermissionError as error:
+        if path is None:
+            try:return _registry_settings(value)
+            except OSError:pass
+            portable=portable_settings_path()
+            if portable is not None:
+                try:return _write_settings_file(value,portable)
+                except OSError:pass
+        raise PermissionError('当前会话不能保存设置，原设置已保留。默认目录、当前账户配置和应用目录均无法写入，请从有写入权限的位置打开助手。') from error
 
 
 def load_settings(path=None):
-    target = Path(path) if path else user_directory() / 'settings.json'
-    if not target.is_file():
+    target=Path(path) if path else Path(os.environ.get('LOCALAPPDATA',Path.home()/'AppData'/'Local'))/APP_NAME/'settings.json'
+    options=[];failure=None
+    files=[target]
+    if path is None and portable_settings_path() is not None:files.append(portable_settings_path())
+    for candidate in files:
+        if candidate.is_file():
+            try:
+                value=json.loads(candidate.read_text(encoding='utf-8-sig'))
+                options.append((value.get('saved_at_ns',candidate.stat().st_mtime_ns),value))
+            except (ValueError,OSError) as error:failure=error
+    if path is None:
+        try:
+            value=_registry_settings()
+            if value:options.append((value.get('saved_at_ns',0),value))
+        except (ValueError,OSError) as error:failure=failure or error
+    if not options:
+        if failure:raise failure
         return Settings()
-    value = json.loads(target.read_text(encoding='utf-8-sig'))
+    value=dict(max(options,key=lambda entry:entry[0])[1])
     encrypted = value.pop('api_key_dpapi', '')
     allowed = Settings.__dataclass_fields__
     result = Settings(**{k: v for k, v in value.items() if k in allowed and k != 'api_key'})
@@ -162,7 +239,45 @@ def tile_name(code):
         return str(code)
     if code[1] == 'z':
         return ['东', '南', '西', '北', '白', '发', '中'][int(code[0]) - 1]
-    return ('赤' if code[0] == '0' else '') + ('5' if code[0] == '0' else code[0]) + {'m': '万', 'p': '筒', 's': '索'}[code[1]]
+    return ('赤' if code[0] == '0' else '') + '零一二三四五六七八九'[5 if code[0]=='0' else int(code[0])] + {'m': '万', 'p': '筒', 's': '条'}[code[1]]
+
+
+def tile_code(value):
+    if not isinstance(value,str):return None
+    value=value.strip()
+    if TILE_RE.fullmatch(value):return value
+    honors={'东':'1z','南':'2z','西':'3z','北':'4z','白':'5z','发':'6z','發':'6z','中':'7z'}
+    if value in honors:return honors[value]
+    match=re.fullmatch(r'(赤|红)?([一二三四五六七八九1-9])([万萬筒饼餅条條索])',value)
+    if not match:return None
+    red,number,suit=match.groups()
+    number=int(number) if number.isdigit() else '零一二三四五六七八九'.index(number)
+    if red and number!=5:return None
+    return ('0' if red else str(number))+({'万':'m','萬':'m','筒':'p','饼':'p','餅':'p','条':'s','條':'s','索':'s'}[suit])
+
+
+def resolve_tile_choice(value,hand):
+    code=tile_code(value)
+    if code in hand:return code
+    if code and code[0]=='5' and '0'+code[1] in hand:return '0'+code[1]
+    return code
+
+
+def humanize_tiles(value):
+    text=str(value)
+    def convert(match):
+        numbers,suit=match.groups()
+        return '、'.join(tile_name(n+suit) for n in numbers)
+    text=re.sub(r'(?<![A-Za-z0-9])([0-9]+)([mps]|z)(?![A-Za-z0-9])',convert,text)
+    return re.sub(r'([一二三四五六七八九1-9])[索條]',r'\1条',text)
+
+
+def group_tiles(group):
+    return group.get('tiles',[]) if isinstance(group,dict) else (group or [])
+
+
+def effective_hand_total(hand, groups):
+    return len(hand)+3*len(groups or [])
 
 
 def dora_from_indicator(code):
@@ -175,6 +290,49 @@ def dora_from_indicator(code):
     # winds 東→南→西→北→東, dragons 白→發→中→白. (The 東南西北白發中 order
     # is only the tile-numbering convention, not a dora cycle.)
     return str({1:2,2:3,3:4,4:1,5:6,6:7,7:5}[number])+'z'
+
+
+WIND_CODE = {'东': '1z', '南': '2z', '西': '3z', '北': '4z'}
+# 立直者切中间张（4/5/6）才产生两侧筋；切端张（1/7/2/8/3/9）不产生筋
+# （对面持有相邻搭子时切端张不损失听牌形状）。
+SUJI_FROM_MIDDLE = {4: (1, 7), 5: (2, 8), 6: (3, 9)}
+
+
+def build_safety_facts(rivers, riichi, round_wind=None, self_wind=None):
+    """Per-player visible genbutsu and limited suji evidence, never a global safe union.
+
+    Red fives share a tile kind. Repeated discards do not create two-sided suji;
+    honors, suji and two-sided suji are not guarantees against every wait shape.
+    """
+    facts = {'现物': {}, '筋': {}, '两筋': {}, '客风客三元': [],
+             '说明':'现物只对对应玩家成立；筋仍可能被嵌张、边张、双碰或单骑命中。三元牌都是役牌，字牌不能视为绝对安全。'}
+    for seat, declared in (riichi or {}).items():
+        if not declared:
+            continue
+        river = [t for t in (rivers.get(seat) or []) if isinstance(t, str) and TILE_RE.fullmatch(t)]
+        river = [tile_name_to_canonical(t) for t in river]
+        facts['现物'][seat] = sorted(set(river))
+        suji, double = set(), set()
+        for tile in river:
+            if tile.endswith('z'):
+                continue
+            number = 5 if tile[0] == '0' else int(tile[0])
+            for side in SUJI_FROM_MIDDLE.get(number, ()):
+                code = str(side) + tile[1]
+                if code not in facts['现物'][seat]:
+                    suji.add(code)
+        for suit in 'mps':
+            for middle in (4,5,6):
+                if str(middle-3)+suit in river and str(middle+3)+suit in river:
+                    code=str(middle)+suit
+                    if code not in river:double.add(code)
+        facts['筋'][seat] = sorted(suji - set(facts['现物'][seat]))
+        facts['两筋'][seat] = sorted(double)
+    return facts
+
+
+def tile_name_to_canonical(code):
+    return '5'+code[1] if code[0]=='0' else code
 
 
 def build_seen(hand_codes, evidence, min_score=0.65):
