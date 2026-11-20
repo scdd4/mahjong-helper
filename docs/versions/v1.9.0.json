@@ -1,0 +1,75 @@
+{
+  "version": "1.9.0",
+  "built_at": "2026-11-21T00:03:02+08:00",
+  "builder": "Python 3.12.14 / PyInstaller 6.22.3",
+  "entry": "MahjongStrategyAssistant/MahjongStrategyAssistant.exe",
+  "launcher": "启动-v1.9.0.cmd",
+  "exe_sha256": "e249ef74c9e99b97665ae6d801d546ddf0210889056ce53aaed33523590fc96d",
+  "exe_bytes": 5649078,
+  "payload_file_count": 1249,
+  "payload_total_bytes": 234425817,
+  "payload_scope": "MahjongStrategyAssistant 内 EXE 与 _internal；排除运行时 user-data；交付清单不计入负载",
+  "self_check": {
+    "ok": true,
+    "version": "1.9.0",
+    "opencv": "4.14.0",
+    "open_hand_ok": true,
+    "model_configured": true
+  },
+  "tests": {
+    "desktop": {
+      "passed": 35,
+      "failed": 0
+    },
+    "strategy_and_rules": {
+      "passed": 22,
+      "failed": 0
+    },
+    "window_and_settings": {
+      "passed": 3,
+      "failed": 0
+    },
+    "hardening": {
+      "passed": 13,
+      "failed": 0
+    },
+    "hard_patterns": {
+      "passed": 11,
+      "failed": 0
+    },
+    "hard_recognition": {
+      "passed": 7,
+      "failed": 0
+    },
+    "auto_recognition": {
+      "passed": 10,
+      "failed": 0
+    },
+    "capture_validation": {
+      "passed": 11,
+      "failed": 0
+    },
+    "window_capture": {
+      "passed": 23,
+      "failed": 0
+    },
+    "legacy_javascript": {
+      "groups": 6,
+      "all_passed": true
+    },
+    "benchmark_scenarios": {
+      "validated": 59,
+      "all_passed": true
+    }
+  },
+  "capability": {
+    "main_set": "43/47 (91%), thinking=on, two identical runs",
+    "limit_set": "6/12 (50%), capability ceiling probe",
+    "thinking_decision": "keep enabled; disabling drops to 79% (McNemar p=0.031)",
+    "median_latency_seconds": 6.0
+  },
+  "privacy": {
+    "credentials_packaged": false,
+    "user_screenshots_packaged": false
+  }
+}
