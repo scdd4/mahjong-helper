@@ -1918,6 +1918,1484 @@
      "宝牌"
     ]
    }
+  },
+  {
+   "id": "def-009",
+   "category": "defense",
+   "difficulty": "advanced",
+   "description": "双立直：只有两家牌河共同现物3m才安全；对一家现物对另一家未必安全。",
+   "state": {
+    "hand": [
+     "3m",
+     "1m",
+     "2m",
+     "4m",
+     "5m",
+     "2p",
+     "3p",
+     "4p",
+     "6p",
+     "7p",
+     "5s",
+     "6s",
+     "7s",
+     "9m"
+    ],
+    "dora_indicators": [],
+    "rivers": {
+     "right": [
+      "3m",
+      "7z",
+      "8p"
+     ],
+     "across": [
+      "3m",
+      "2s",
+      "9p"
+     ]
+    },
+    "melds": {},
+    "riichi": {
+     "right": true,
+     "across": true
+    },
+    "round": "东2局",
+    "self_wind": "东",
+    "remaining": 58,
+    "scores": {}
+   },
+   "kind": "defense",
+   "expected": {
+    "safe": [
+     "3m"
+    ],
+    "must_avoid": [
+     "9m",
+     "5m"
+    ]
+   }
+  },
+  {
+   "id": "def-010",
+   "category": "defense",
+   "difficulty": "advanced",
+   "description": "立直者早打4万：1m/7m为筋，现物2p也在手；从现物与筋中挑，不打无筋5m。",
+   "state": {
+    "hand": [
+     "1m",
+     "7m",
+     "6m",
+     "5m",
+     "2p",
+     "3p",
+     "4p",
+     "5s",
+     "6s",
+     "7s",
+     "8s",
+     "4z",
+     "4z",
+     "9m"
+    ],
+    "dora_indicators": [],
+    "rivers": {
+     "across": [
+      "4m",
+      "6s",
+      "2p",
+      "8p",
+      "1z"
+     ]
+    },
+    "melds": {},
+    "riichi": {
+     "across": true
+    },
+    "round": "东2局",
+    "self_wind": "南",
+    "remaining": 60,
+    "scores": {}
+   },
+   "kind": "defense",
+   "expected": {
+    "safe": [
+     "1m",
+     "2p",
+     "6s",
+     "7m"
+    ],
+    "must_avoid": [
+     "5m",
+     "9m"
+    ]
+   }
+  },
+  {
+   "id": "def-011",
+   "category": "defense",
+   "difficulty": "basic",
+   "description": "客风字牌优先：役牌三元与无筋中张危险，客风4z/3z相对安全。",
+   "state": {
+    "hand": [
+     "2m",
+     "3m",
+     "4m",
+     "5m",
+     "6m",
+     "7p",
+     "8p",
+     "9p",
+     "3z",
+     "4z",
+     "2s",
+     "3s",
+     "4s",
+     "5s"
+    ],
+    "dora_indicators": [],
+    "rivers": {
+     "across": [
+      "1m",
+      "9s",
+      "8p"
+     ]
+    },
+    "melds": {},
+    "riichi": {
+     "across": true
+    },
+    "round": "东1局",
+    "self_wind": "西",
+    "remaining": 62,
+    "scores": {}
+   },
+   "kind": "defense",
+   "expected": {
+    "safe": [
+     "3z",
+     "4z",
+     "8p"
+    ],
+    "must_avoid": [
+     "2m",
+     "3m",
+     "5s"
+    ]
+   }
+  },
+  {
+   "id": "def-012",
+   "category": "defense",
+   "difficulty": "basic",
+   "description": "有现物5p就打现物；7m为无筋中张不可当安全牌。",
+   "state": {
+    "hand": [
+     "1m",
+     "2m",
+     "3m",
+     "5m",
+     "7m",
+     "2p",
+     "3p",
+     "4p",
+     "5p",
+     "6s",
+     "7s",
+     "8s",
+     "3z",
+     "4m"
+    ],
+    "dora_indicators": [],
+    "rivers": {
+     "across": [
+      "1z",
+      "5p",
+      "9s"
+     ]
+    },
+    "melds": {},
+    "riichi": {
+     "across": true
+    },
+    "round": "东1局",
+    "self_wind": "东",
+    "remaining": 68,
+    "scores": {}
+   },
+   "kind": "defense",
+   "expected": {
+    "safe": [
+     "3z",
+     "5p"
+    ],
+    "must_avoid": [
+     "4m",
+     "7m"
+    ]
+   }
+  },
+  {
+   "id": "def-013",
+   "category": "defense",
+   "difficulty": "advanced",
+   "description": "双立直无共同现物：对A家现物可能对B家危险，选对两家都低风险的客风4z。",
+   "state": {
+    "hand": [
+     "2m",
+     "3m",
+     "4m",
+     "5m",
+     "6m",
+     "2p",
+     "3p",
+     "4p",
+     "5p",
+     "6s",
+     "7s",
+     "8s",
+     "4z",
+     "9s"
+    ],
+    "dora_indicators": [],
+    "rivers": {
+     "right": [
+      "5m",
+      "3p",
+      "7s",
+      "1z"
+     ],
+     "across": [
+      "6m",
+      "2p",
+      "9s",
+      "5z"
+     ]
+    },
+    "melds": {},
+    "riichi": {
+     "right": true,
+     "across": true
+    },
+    "round": "南2局",
+    "self_wind": "北",
+    "remaining": 55,
+    "scores": {}
+   },
+   "kind": "defense",
+   "expected": {
+    "safe": [
+     "4z"
+    ],
+    "must_avoid": [
+     "9s",
+     "5m",
+     "2p"
+    ]
+   }
+  },
+  {
+   "id": "def-014",
+   "category": "defense",
+   "difficulty": "advanced",
+   "description": "立直者早打5万：2m/8m成两筋；无筋3m与摸进的9m不可打。",
+   "state": {
+    "hand": [
+     "2m",
+     "8m",
+     "3m",
+     "6m",
+     "4p",
+     "5p",
+     "6p",
+     "2s",
+     "3s",
+     "4s",
+     "5s",
+     "7z",
+     "7z",
+     "9m"
+    ],
+    "dora_indicators": [],
+    "rivers": {
+     "across": [
+      "5m",
+      "7p",
+      "9p",
+      "3z"
+     ]
+    },
+    "melds": {},
+    "riichi": {
+     "across": true
+    },
+    "round": "东3局",
+    "self_wind": "南",
+    "remaining": 61,
+    "scores": {}
+   },
+   "kind": "defense",
+   "expected": {
+    "safe": [
+     "2m",
+     "8m"
+    ],
+    "must_avoid": [
+     "9m",
+     "3m"
+    ]
+   }
+  },
+  {
+   "id": "def-015",
+   "category": "defense",
+   "difficulty": "advanced",
+   "description": "三元牌现物：虽然6z是役牌，但它在立直者牌河里就是现物，绝对安全。",
+   "state": {
+    "hand": [
+     "6z",
+     "2m",
+     "3m",
+     "4m",
+     "5m",
+     "7m",
+     "2p",
+     "3p",
+     "4p",
+     "5p",
+     "6s",
+     "7s",
+     "8s",
+     "9m"
+    ],
+    "dora_indicators": [],
+    "rivers": {
+     "across": [
+      "6z",
+      "5p",
+      "8p",
+      "2s"
+     ]
+    },
+    "melds": {},
+    "riichi": {
+     "across": true
+    },
+    "round": "东2局",
+    "self_wind": "东",
+    "remaining": 64,
+    "scores": {}
+   },
+   "kind": "defense",
+   "expected": {
+    "safe": [
+     "5p",
+     "6z"
+    ],
+    "must_avoid": [
+     "9m",
+     "7m"
+    ]
+   }
+  },
+  {
+   "id": "def-016",
+   "category": "defense",
+   "difficulty": "advanced",
+   "description": "立直者只切端张与字牌，无筋可用：打牌河现物1z/3z，别打摸进的5m中张。",
+   "state": {
+    "hand": [
+     "1m",
+     "9m",
+     "1p",
+     "9p",
+     "1z",
+     "2z",
+     "3z",
+     "4z",
+     "3s",
+     "4s",
+     "5s",
+     "6s",
+     "7s",
+     "5m"
+    ],
+    "dora_indicators": [],
+    "rivers": {
+     "across": [
+      "1m",
+      "9p",
+      "1z",
+      "3z"
+     ]
+    },
+    "melds": {},
+    "riichi": {
+     "across": true
+    },
+    "round": "东1局",
+    "self_wind": "南",
+    "remaining": 66,
+    "scores": {}
+   },
+   "kind": "defense",
+   "expected": {
+    "safe": [
+     "1m",
+     "1z",
+     "3z",
+     "9p"
+    ],
+    "must_avoid": [
+     "5m"
+    ]
+   }
+  },
+  {
+   "id": "eff-011",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "description": "多面复合形：解出向听最小且受入最广的弃牌。",
+   "state": {
+    "hand": [
+     "2m",
+     "3m",
+     "4m",
+     "5m",
+     "6m",
+     "7m",
+     "2p",
+     "3p",
+     "4p",
+     "5s",
+     "6s",
+     "7s",
+     "3z",
+     "8s"
+    ],
+    "dora_indicators": [],
+    "rivers": {},
+    "melds": {},
+    "riichi": {},
+    "round": "东1局",
+    "self_wind": "东",
+    "remaining": 70,
+    "scores": {}
+   },
+   "kind": "efficiency",
+   "expected": {
+    "tile": "3z",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 6
+   },
+   "solver_table": [
+    {
+     "drop": "2m",
+     "shanten": 1,
+     "ukeire": 20
+    },
+    {
+     "drop": "3m",
+     "shanten": 1,
+     "ukeire": 13
+    },
+    {
+     "drop": "4m",
+     "shanten": 1,
+     "ukeire": 17
+    },
+    {
+     "drop": "5m",
+     "shanten": 1,
+     "ukeire": 17
+    },
+    {
+     "drop": "6m",
+     "shanten": 1,
+     "ukeire": 13
+    },
+    {
+     "drop": "7m",
+     "shanten": 1,
+     "ukeire": 20
+    },
+    {
+     "drop": "2p",
+     "shanten": 1,
+     "ukeire": 17
+    },
+    {
+     "drop": "3p",
+     "shanten": 1,
+     "ukeire": 13
+    },
+    {
+     "drop": "4p",
+     "shanten": 1,
+     "ukeire": 17
+    },
+    {
+     "drop": "5s",
+     "shanten": 0,
+     "ukeire": 3
+    },
+    {
+     "drop": "6s",
+     "shanten": 1,
+     "ukeire": 17
+    },
+    {
+     "drop": "7s",
+     "shanten": 1,
+     "ukeire": 17
+    },
+    {
+     "drop": "3z",
+     "shanten": 0,
+     "ukeire": 6
+    },
+    {
+     "drop": "8s",
+     "shanten": 0,
+     "ukeire": 3
+    }
+   ]
+  },
+  {
+   "id": "eff-012",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "description": "七对候补与普通型竞争：比较对子与顺子路线的受入。",
+   "state": {
+    "hand": [
+     "1m",
+     "1m",
+     "3m",
+     "3m",
+     "5m",
+     "5m",
+     "7p",
+     "7p",
+     "2s",
+     "3s",
+     "4s",
+     "6s",
+     "6s",
+     "9p"
+    ],
+    "dora_indicators": [],
+    "rivers": {},
+    "melds": {},
+    "riichi": {},
+    "round": "东1局",
+    "self_wind": "东",
+    "remaining": 70,
+    "scores": {}
+   },
+   "kind": "efficiency",
+   "expected": {
+    "tile": "2s",
+    "alternatives": [
+     "3s",
+     "4s",
+     "9p"
+    ],
+    "best_shanten": 1,
+    "max_ukeire": 9
+   },
+   "solver_table": [
+    {
+     "drop": "1m",
+     "shanten": 2,
+     "ukeire": 35
+    },
+    {
+     "drop": "1m",
+     "shanten": 2,
+     "ukeire": 35
+    },
+    {
+     "drop": "3m",
+     "shanten": 2,
+     "ukeire": 35
+    },
+    {
+     "drop": "3m",
+     "shanten": 2,
+     "ukeire": 35
+    },
+    {
+     "drop": "5m",
+     "shanten": 2,
+     "ukeire": 35
+    },
+    {
+     "drop": "5m",
+     "shanten": 2,
+     "ukeire": 35
+    },
+    {
+     "drop": "7p",
+     "shanten": 2,
+     "ukeire": 35
+    },
+    {
+     "drop": "7p",
+     "shanten": 2,
+     "ukeire": 35
+    },
+    {
+     "drop": "2s",
+     "shanten": 1,
+     "ukeire": 9
+    },
+    {
+     "drop": "3s",
+     "shanten": 1,
+     "ukeire": 9
+    },
+    {
+     "drop": "4s",
+     "shanten": 1,
+     "ukeire": 9
+    },
+    {
+     "drop": "6s",
+     "shanten": 2,
+     "ukeire": 35
+    },
+    {
+     "drop": "6s",
+     "shanten": 2,
+     "ukeire": 35
+    },
+    {
+     "drop": "9p",
+     "shanten": 1,
+     "ukeire": 9
+    }
+   ]
+  },
+  {
+   "id": "eff-013",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "description": "牌河已见三张9s：受入计算须扣除可见牌，避免高估九索进张。",
+   "state": {
+    "hand": [
+     "1m",
+     "2m",
+     "3m",
+     "4m",
+     "5m",
+     "6m",
+     "2p",
+     "3p",
+     "4p",
+     "5s",
+     "6s",
+     "7s",
+     "9s",
+     "8s"
+    ],
+    "dora_indicators": [],
+    "rivers": {
+     "own": [
+      "9s",
+      "9s",
+      "9s"
+     ]
+    },
+    "melds": {},
+    "riichi": {},
+    "round": "东2局",
+    "self_wind": "东",
+    "remaining": 58,
+    "scores": {}
+   },
+   "kind": "efficiency",
+   "expected": {
+    "tile": "9s",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 6
+   },
+   "solver_table": [
+    {
+     "drop": "1m",
+     "shanten": 1,
+     "ukeire": 39
+    },
+    {
+     "drop": "2m",
+     "shanten": 1,
+     "ukeire": 29
+    },
+    {
+     "drop": "3m",
+     "shanten": 1,
+     "ukeire": 26
+    },
+    {
+     "drop": "4m",
+     "shanten": 1,
+     "ukeire": 30
+    },
+    {
+     "drop": "5m",
+     "shanten": 1,
+     "ukeire": 29
+    },
+    {
+     "drop": "6m",
+     "shanten": 1,
+     "ukeire": 35
+    },
+    {
+     "drop": "2p",
+     "shanten": 1,
+     "ukeire": 30
+    },
+    {
+     "drop": "3p",
+     "shanten": 1,
+     "ukeire": 26
+    },
+    {
+     "drop": "4p",
+     "shanten": 1,
+     "ukeire": 30
+    },
+    {
+     "drop": "5s",
+     "shanten": 0,
+     "ukeire": 3
+    },
+    {
+     "drop": "6s",
+     "shanten": 0,
+     "ukeire": 3
+    },
+    {
+     "drop": "7s",
+     "shanten": 1,
+     "ukeire": 17
+    },
+    {
+     "drop": "9s",
+     "shanten": 0,
+     "ukeire": 6
+    },
+    {
+     "drop": "8s",
+     "shanten": 0,
+     "ukeire": 0
+    }
+   ]
+  },
+  {
+   "id": "eff-014",
+   "category": "efficiency",
+   "difficulty": "basic",
+   "description": "字牌孤张对子：孤张6z应先于已成对的字牌打出。",
+   "state": {
+    "hand": [
+     "2m",
+     "3m",
+     "4m",
+     "5m",
+     "6m",
+     "7p",
+     "8p",
+     "9p",
+     "2s",
+     "3s",
+     "4s",
+     "5z",
+     "5z",
+     "6z"
+    ],
+    "dora_indicators": [],
+    "rivers": {},
+    "melds": {},
+    "riichi": {},
+    "round": "东1局",
+    "self_wind": "东",
+    "remaining": 70,
+    "scores": {}
+   },
+   "kind": "efficiency",
+   "expected": {
+    "tile": "6z",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 11
+   },
+   "solver_table": [
+    {
+     "drop": "2m",
+     "shanten": 1,
+     "ukeire": 33
+    },
+    {
+     "drop": "3m",
+     "shanten": 1,
+     "ukeire": 23
+    },
+    {
+     "drop": "4m",
+     "shanten": 1,
+     "ukeire": 12
+    },
+    {
+     "drop": "5m",
+     "shanten": 1,
+     "ukeire": 27
+    },
+    {
+     "drop": "6m",
+     "shanten": 1,
+     "ukeire": 29
+    },
+    {
+     "drop": "7p",
+     "shanten": 1,
+     "ukeire": 15
+    },
+    {
+     "drop": "8p",
+     "shanten": 1,
+     "ukeire": 15
+    },
+    {
+     "drop": "9p",
+     "shanten": 1,
+     "ukeire": 19
+    },
+    {
+     "drop": "2s",
+     "shanten": 1,
+     "ukeire": 19
+    },
+    {
+     "drop": "3s",
+     "shanten": 1,
+     "ukeire": 15
+    },
+    {
+     "drop": "4s",
+     "shanten": 1,
+     "ukeire": 19
+    },
+    {
+     "drop": "5z",
+     "shanten": 1,
+     "ukeire": 17
+    },
+    {
+     "drop": "5z",
+     "shanten": 1,
+     "ukeire": 17
+    },
+    {
+     "drop": "6z",
+     "shanten": 0,
+     "ukeire": 11
+    }
+   ]
+  },
+  {
+   "id": "eff-015",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "description": "赤五0m与普通5m同牌种：按物理四张约束计算受入，勿把赤五当独立张。",
+   "state": {
+    "hand": [
+     "0m",
+     "2m",
+     "3m",
+     "4m",
+     "5m",
+     "6m",
+     "2p",
+     "3p",
+     "4p",
+     "5s",
+     "6s",
+     "7s",
+     "9s",
+     "8s"
+    ],
+    "dora_indicators": [],
+    "rivers": {},
+    "melds": {},
+    "riichi": {},
+    "round": "东1局",
+    "self_wind": "东",
+    "remaining": 70,
+    "scores": {}
+   },
+   "kind": "efficiency",
+   "expected": {
+    "tile": "6m",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 7
+   },
+   "solver_table": [
+    {
+     "drop": "0m",
+     "shanten": 1,
+     "ukeire": 42
+    },
+    {
+     "drop": "2m",
+     "shanten": 1,
+     "ukeire": 38
+    },
+    {
+     "drop": "3m",
+     "shanten": 1,
+     "ukeire": 16
+    },
+    {
+     "drop": "4m",
+     "shanten": 1,
+     "ukeire": 15
+    },
+    {
+     "drop": "5m",
+     "shanten": 1,
+     "ukeire": 42
+    },
+    {
+     "drop": "6m",
+     "shanten": 0,
+     "ukeire": 7
+    },
+    {
+     "drop": "2p",
+     "shanten": 1,
+     "ukeire": 15
+    },
+    {
+     "drop": "3p",
+     "shanten": 1,
+     "ukeire": 11
+    },
+    {
+     "drop": "4p",
+     "shanten": 1,
+     "ukeire": 15
+    },
+    {
+     "drop": "5s",
+     "shanten": 1,
+     "ukeire": 43
+    },
+    {
+     "drop": "6s",
+     "shanten": 1,
+     "ukeire": 41
+    },
+    {
+     "drop": "7s",
+     "shanten": 1,
+     "ukeire": 8
+    },
+    {
+     "drop": "9s",
+     "shanten": 1,
+     "ukeire": 47
+    },
+    {
+     "drop": "8s",
+     "shanten": 1,
+     "ukeire": 37
+    }
+   ]
+  },
+  {
+   "id": "eff-016",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "description": "4m对子与456m顺子重叠：判断拆对子还是保留两张4m。",
+   "state": {
+    "hand": [
+     "1m",
+     "2m",
+     "3m",
+     "4m",
+     "4m",
+     "5m",
+     "6m",
+     "2p",
+     "3p",
+     "4p",
+     "7s",
+     "8s",
+     "9s",
+     "5p"
+    ],
+    "dora_indicators": [],
+    "rivers": {},
+    "melds": {},
+    "riichi": {},
+    "round": "东1局",
+    "self_wind": "东",
+    "remaining": 70,
+    "scores": {}
+   },
+   "kind": "efficiency",
+   "expected": {
+    "tile": "2p",
+    "alternatives": [
+     "5p"
+    ],
+    "best_shanten": 0,
+    "max_ukeire": 9
+   },
+   "solver_table": [
+    {
+     "drop": "1m",
+     "shanten": 0,
+     "ukeire": 6
+    },
+    {
+     "drop": "2m",
+     "shanten": 1,
+     "ukeire": 22
+    },
+    {
+     "drop": "3m",
+     "shanten": 1,
+     "ukeire": 19
+    },
+    {
+     "drop": "4m",
+     "shanten": 0,
+     "ukeire": 6
+    },
+    {
+     "drop": "4m",
+     "shanten": 0,
+     "ukeire": 6
+    },
+    {
+     "drop": "5m",
+     "shanten": 1,
+     "ukeire": 44
+    },
+    {
+     "drop": "6m",
+     "shanten": 1,
+     "ukeire": 43
+    },
+    {
+     "drop": "2p",
+     "shanten": 0,
+     "ukeire": 9
+    },
+    {
+     "drop": "3p",
+     "shanten": 1,
+     "ukeire": 23
+    },
+    {
+     "drop": "4p",
+     "shanten": 1,
+     "ukeire": 23
+    },
+    {
+     "drop": "7s",
+     "shanten": 1,
+     "ukeire": 19
+    },
+    {
+     "drop": "8s",
+     "shanten": 1,
+     "ukeire": 19
+    },
+    {
+     "drop": "9s",
+     "shanten": 1,
+     "ukeire": 23
+    },
+    {
+     "drop": "5p",
+     "shanten": 0,
+     "ukeire": 9
+    }
+   ]
+  },
+  {
+   "id": "val-003",
+   "category": "value",
+   "difficulty": "advanced",
+   "description": "摸进宝牌5s：打孤立字牌5z保住宝牌打点，理由必须点明宝牌价值。",
+   "state": {
+    "hand": [
+     "1m",
+     "2m",
+     "3m",
+     "4m",
+     "5m",
+     "6m",
+     "7p",
+     "8p",
+     "9p",
+     "2s",
+     "3s",
+     "4s",
+     "5z",
+     "5s"
+    ],
+    "dora_indicators": [
+     "4s"
+    ],
+    "rivers": {},
+    "melds": {},
+    "riichi": {},
+    "round": "东1局",
+    "self_wind": "东",
+    "remaining": 67,
+    "scores": {}
+   },
+   "kind": "value",
+   "expected": {
+    "tile": "5z",
+    "alternatives": [],
+    "rationale_keywords": [
+     "宝牌"
+    ]
+   }
+  },
+  {
+   "id": "val-004",
+   "category": "value",
+   "difficulty": "advanced",
+   "description": "保留白发中的役牌对子：打4m完成123m顺子，理由须提及役牌。",
+   "state": {
+    "hand": [
+     "1m",
+     "2m",
+     "3m",
+     "4p",
+     "5p",
+     "6p",
+     "7s",
+     "8s",
+     "9s",
+     "5z",
+     "5z",
+     "2p",
+     "3p",
+     "4m"
+    ],
+    "dora_indicators": [
+     "1p"
+    ],
+    "rivers": {},
+    "melds": {},
+    "riichi": {},
+    "round": "东1局",
+    "self_wind": "东",
+    "remaining": 67,
+    "scores": {}
+   },
+   "kind": "value",
+   "expected": {
+    "tile": "4m",
+    "alternatives": [],
+    "rationale_keywords": [
+     "役牌"
+    ]
+   }
+  },
+  {
+   "id": "val-005",
+   "category": "value",
+   "difficulty": "advanced",
+   "description": "门清好形面对立直：打孤张9p立刻听三面，保住立直与门清打点；理由须提及立直或门清。",
+   "state": {
+    "hand": [
+     "2m",
+     "3m",
+     "4m",
+     "5m",
+     "6m",
+     "7m",
+     "2p",
+     "3p",
+     "4p",
+     "5p",
+     "6p",
+     "5s",
+     "5s",
+     "9p"
+    ],
+    "dora_indicators": [
+     "4p"
+    ],
+    "rivers": {
+     "across": [
+      "1z",
+      "5s",
+      "8p"
+     ]
+    },
+    "melds": {},
+    "riichi": {
+     "across": true
+    },
+    "round": "南1局",
+    "self_wind": "南",
+    "remaining": 60,
+    "scores": {}
+   },
+   "kind": "value",
+   "expected": {
+    "tile": "9p",
+    "alternatives": [],
+    "rationale_keywords": [
+     "立直",
+     "门清"
+    ]
+   }
+  },
+  {
+   "id": "pf-005",
+   "category": "push_fold",
+   "difficulty": "advanced",
+   "description": "南4局亲家落后，好形听牌面对立直：立直机会尚在，应保持进攻压点。",
+   "state": {
+    "hand": [
+     "1m",
+     "2m",
+     "3m",
+     "4m",
+     "5m",
+     "6m",
+     "7p",
+     "8p",
+     "9p",
+     "2s",
+     "3s",
+     "4s",
+     "5z",
+     "6s"
+    ],
+    "dora_indicators": [],
+    "rivers": {
+     "across": [
+      "1z",
+      "5s",
+      "9p",
+      "2m"
+     ]
+    },
+    "melds": {},
+    "riichi": {
+     "across": true
+    },
+    "round": "南4局",
+    "self_wind": "东",
+    "remaining": 18,
+    "scores": {
+     "own": 18000,
+     "across": 42000
+    }
+   },
+   "kind": "push_fold",
+   "expected": {
+    "direction": "push",
+    "stance": "进攻",
+    "tenpai_discards": [
+     "5z",
+     "6s"
+    ]
+   }
+  },
+  {
+   "id": "pf-006",
+   "category": "push_fold",
+   "difficulty": "advanced",
+   "description": "东1局早巡、无役愚形、手牌无价值：对面立直应果断弃和保点。",
+   "state": {
+    "hand": [
+     "1m",
+     "4m",
+     "7m",
+     "2p",
+     "5p",
+     "8p",
+     "1s",
+     "4s",
+     "7s",
+     "2z",
+     "3z",
+     "4z",
+     "5z",
+     "6z"
+    ],
+    "dora_indicators": [],
+    "rivers": {
+     "right": [
+      "7m",
+      "2p",
+      "9s",
+      "1z"
+     ]
+    },
+    "melds": {},
+    "riichi": {
+     "right": true
+    },
+    "round": "东1局",
+    "self_wind": "南",
+    "remaining": 65,
+    "scores": {
+     "own": 25000,
+     "right": 25000
+    }
+   },
+   "kind": "push_fold",
+   "expected": {
+    "direction": "fold",
+    "stance": "防守",
+    "safe": [
+     "2p",
+     "2z",
+     "3z",
+     "4z",
+     "7m"
+    ],
+    "must_avoid": [
+     "6z",
+     "5p"
+    ]
+   }
+  },
+  {
+   "id": "pf-007",
+   "category": "push_fold",
+   "difficulty": "advanced",
+   "description": "双立直威胁但自己有三面听牌且持宝牌2s：价值足够，继续进攻争胜。",
+   "state": {
+    "hand": [
+     "1m",
+     "2m",
+     "3m",
+     "4m",
+     "5m",
+     "6m",
+     "7p",
+     "8p",
+     "9p",
+     "2s",
+     "3s",
+     "4s",
+     "5s",
+     "6s"
+    ],
+    "dora_indicators": [
+     "1s",
+     "8m"
+    ],
+    "rivers": {
+     "right": [
+      "1z",
+      "6p",
+      "9s"
+     ],
+     "across": [
+      "2z",
+      "5p",
+      "3s"
+     ]
+    },
+    "melds": {},
+    "riichi": {
+     "right": true,
+     "across": true
+    },
+    "round": "南3局",
+    "self_wind": "西",
+    "remaining": 30,
+    "scores": {
+     "own": 28000,
+     "right": 22000,
+     "across": 31000
+    }
+   },
+   "kind": "push_fold",
+   "expected": {
+    "direction": "push",
+    "stance": "进攻",
+    "tenpai_discards": [
+     "2s",
+     "3s",
+     "5s",
+     "6s"
+    ]
+   }
+  },
+  {
+   "id": "pf-008",
+   "category": "push_fold",
+   "difficulty": "basic",
+   "description": "东1局早巡，手牌尚可但无役：立直威胁下先弃和，打现物5m。",
+   "state": {
+    "hand": [
+     "2m",
+     "3m",
+     "4m",
+     "5m",
+     "6m",
+     "2p",
+     "3p",
+     "4p",
+     "5p",
+     "6s",
+     "7s",
+     "8s",
+     "3z",
+     "9m"
+    ],
+    "dora_indicators": [],
+    "rivers": {
+     "across": [
+      "5m",
+      "8p",
+      "4s",
+      "2z"
+     ]
+    },
+    "melds": {},
+    "riichi": {
+     "across": true
+    },
+    "round": "东1局",
+    "self_wind": "东",
+    "remaining": 66,
+    "scores": {
+     "own": 25000,
+     "across": 25000
+    }
+   },
+   "kind": "push_fold",
+   "expected": {
+    "direction": "fold",
+    "stance": "防守",
+    "safe": [
+     "3z",
+     "5m"
+    ],
+    "must_avoid": [
+     "9m",
+     "6m"
+    ]
+   }
   }
  ]
 }

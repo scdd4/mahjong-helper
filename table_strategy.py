@@ -104,8 +104,10 @@ def analyze_table(client,image,evidence,calculations=None,history=None,progress=
         environment=quick['report'].get('table') or {}
         detail_context={**context,'environment':environment,'first_decision':quick['report']}
         detail_payload={'model':client.settings.model,'messages':[{'role':'system','content':DETAIL_SYSTEM},
-                        {'role':'user','content':[{'type':'text','text':json.dumps(public_tiles(detail_context),ensure_ascii=False,separators=(',',':'))}]+content[1:]}],
-                        'stream':True,'max_tokens':1536,'reasoning_effort':'low',
+                        # 速度优化：quick 阶段已看过整桌图，详解只需点棒放大图(content[2:])；
+                        # 整桌事实已由结构化 context 与 strata_prefix 的 KV 缓存承载。
+                        {'role':'user','content':[{'type':'text','text':json.dumps(public_tiles(detail_context),ensure_ascii=False,separators=(',',':'))}]+content[2:]}],
+                        'stream':True,'max_tokens':1100,'reasoning_effort':'low',
                         'chat_template_kwargs':{'enable_thinking':True},'strata_prefix':{'messages':1}}
         detail_started=time.perf_counter()
         detail_failed=False

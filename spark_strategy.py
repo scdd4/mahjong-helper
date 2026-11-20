@@ -276,7 +276,7 @@ class SparkClient:
             payload = {'model':self.settings.model,
                        'messages':[{'role':'system','content':FAST_SYSTEM_PROMPT},
                                    {'role':'user','content':content}],
-                       'stream':True,'max_tokens':280,'reasoning_effort':'low',
+                       'stream':True,'max_tokens':200,'reasoning_effort':'low',
                        'chat_template_kwargs':{'enable_thinking':True},'strata_checkpoint':False}
             reply = self._request_with_retry(payload, progress, parse_mode='fast')
             if self._cancel.is_set():

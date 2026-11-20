@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from desktop_runtime import ExactSolver, tile_index, build_safety_facts
 
 SOLVER = ExactSolver()
+from scenarios_extra import EXTRA_SCENARIOS
 
 def idx_name(index):
     return str(index % 9 + 1) + 'mps'[index // 9] if index < 27 else str(index - 26) + 'z'
@@ -267,7 +268,7 @@ SCENARIOS = [
 def main():
     out = []
     problems = []
-    for sc in SCENARIOS:
+    for sc in SCENARIOS + EXTRA_SCENARIOS:
         state = dict(sc['state'])
         hand14 = state['hand'] + [state['drawn']]
         overflow = physics_check(sc)

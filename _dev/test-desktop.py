@@ -213,7 +213,7 @@ class DesktopTests(unittest.TestCase):
             request=received[0]
             self.assertEqual(request['reasoning_effort'],'low')
             self.assertTrue(request['chat_template_kwargs']['enable_thinking'])
-            self.assertEqual(request['max_tokens'],280)
+            self.assertEqual(request['max_tokens'],200)  # 速度优化：280→200
             images=[p for p in request['messages'][1]['content'] if p['type']=='image_url']
             self.assertEqual(len(images),1)
             self.assertLessEqual(len(images[0]['image_url']['url']),250000)  # compressed
