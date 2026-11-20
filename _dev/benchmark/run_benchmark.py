@@ -199,7 +199,10 @@ def run(scenarios, ids, limit, settings):
         payload = build_payload(sc, settings)
         started = time.perf_counter()
         try:
-            reply = client._request_with_retry(payload, None, parse_mode='fast')
+            # 基准的提示词契约是 stance/discard/reason/offense/defense/next，
+            # 对应 parse_mode='quick'。v1.9.2 起 'fast' 必填 wait_plan/risk，
+            # 用 'fast' 会让全部场景解析失败（59/59 调用失败）。
+            reply = client._request_with_retry(payload, None, parse_mode='quick')
             answer = reply['report']
             elapsed = time.perf_counter() - started
             passed, detail = score(sc, answer)
