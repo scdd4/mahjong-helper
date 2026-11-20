@@ -1,0 +1,47 @@
+{
+  "version": "1.9.5",
+  "built_at": "2026-11-21T07:10:00+08:00",
+  "builder": "Python 3.12.14 / PyInstaller 6.22.3",
+  "entry": "MahjongStrategyAssistant/MahjongStrategyAssistant.exe",
+  "launcher": "启动-v1.9.5.cmd",
+  "exe_sha256": "0c8fc47dd2d678c739a555230e5f1fd1d9d59511b535b490a8e102e1d3e8d76d",
+  "exe_bytes": 5659795,
+  "payload_file_count": 1249,
+  "payload_total_bytes": 234436534,
+  "payload_scope": "MahjongStrategyAssistant 内 EXE 与 _internal；排除运行时 user-data；交付清单不计入负载",
+  "self_check": {
+    "ok": true,
+    "version": "1.9.5",
+    "opencv": "4.14.0",
+    "thinking": "medium"
+  },
+  "changes": {
+    "model": "快速模式恢复调用 Spark 大模型：discard/next_discard/reason 由模型决策，本地 ExactSolver 结果降级为提示词里的「程序参考」",
+    "guard": "模型给的牌不在手牌（幻觉）时才兜底回本地核算，并写入 uncertainties 提示",
+    "kept": "仍关思考、不发图、max_tokens=512；已和牌 0 秒直接返回不调模型"
+  },
+  "new_in_this_version": [
+    "fast_mode_model_decides",
+    "program_reference_not_command_prompt",
+    "next_discard_from_model_with_local_fallback",
+    "hallucination_guard_falls_back_to_local"
+  ],
+  "measured_latency": {
+    "end_to_end_median_seconds": 2.41,
+    "end_to_end_max_seconds": 4.28,
+    "model_stage_median_seconds": 1.98,
+    "model_stage_max_seconds": 2.25,
+    "previous_version_seconds": "1.40（纯本地）",
+    "network_requests": "每次分析 1 次（已和牌时 0 次）"
+  },
+  "tests": {
+    "python_suites": 9,
+    "python_tests_passed": 142,
+    "npm_tests_passed": 11,
+    "new_tests": [
+      "test_fast_mode_asks_the_model_and_adopts_its_choice",
+      "test_fast_mode_hallucinated_tile_falls_back_to_local",
+      "test_fast_mode_wait_turn_gives_next_discard_directly（改为模型驱动）"
+    ]
+  }
+}

@@ -177,7 +177,8 @@ class AdditionalHardeningTests(unittest.TestCase):
         from spark_strategy import FAST_SYSTEM_PROMPT, FAST_USER_PREFIX, FAST_MAX_TOKENS
         self.assertEqual(Settings().analysis_mode, 'fast')
         self.assertIn('wait_plan', FAST_SYSTEM_PROMPT)
-        self.assertIn('程序最优', FAST_SYSTEM_PROMPT)   # 弃牌由本地求解器决定
+        self.assertIn('程序参考', FAST_SYSTEM_PROMPT)   # v1.9.5：模型决策，本地结果只作参考
+        self.assertIn('你来决策', FAST_SYSTEM_PROMPT)
         self.assertIn('12字', FAST_SYSTEM_PROMPT)       # 输出保持极短
         self.assertIn('13张', FAST_SYSTEM_PROMPT)
         self.assertIn('{facts}', FAST_USER_PREFIX)
