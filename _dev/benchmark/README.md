@@ -34,7 +34,25 @@ python _dev/benchmark/run_benchmark.py --validate          # 场景自检
 python _dev/benchmark/run_benchmark.py --run               # 全量评测（约 24×6s）
 python _dev/benchmark/run_benchmark.py --run --ids eff-001,def-001
 python _dev/benchmark/run_benchmark.py --run --limit 3     # 冒烟
+
+# 速度/思考预算实验（不改变默认配置）
+python _dev/benchmark/run_benchmark.py --run --thinking off --ids lim-001,lim-002
+python _dev/benchmark/run_benchmark.py --run --effort medium --max-tokens 512
 ```
+
+## 场景集分层
+
+- 主集：47 场景（efficiency/defense/push_fold/value），用于常规能力回归与基线对比。
+- 极限集 `lim-001..lim-012`（category=limit）：专测能力上限，含双/三家立直、
+  单家现物陷阱、筋边界、三路线竞争、赤五物理、极端点差、多要素价值理由。
+  单独用 `--ids lim-001,...` 运行，**不计入主集准确率**，避免掩盖常规能力变化。
+
+## 思考预算的重要约束
+
+服务端规则：思考 token 上限 = `max_tokens` 的一半。因此输出上限越小，推理预算越紧。
+主集默认 `max_tokens=240`（思考上限 120），初判 160（思考上限 80），
+这是极限场景失败的**结构性原因**之一，不是单纯模型能力。
+调大 max_tokens 可提升复杂场景准确率，但会增加响应延迟——需用 A/B 实测权衡。
 
 结果明细写入 `_dev/benchmark/results-<时间戳>.json`，含每场景模型原话，便于复盘。
 

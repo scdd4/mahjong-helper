@@ -348,6 +348,26 @@ def build_safety_facts(rivers, riichi, round_wind=None, self_wind=None):
     return facts
 
 
+def common_safe_tiles(facts, seats, hand=None):
+    """Tiles safe against *every* declared riichi player (intersection, not union).
+
+    Uses confirmed genbutsu and strong suji from each riichi player's own river.
+    Single-sided suji and honors are deliberately excluded: they are weak cues,
+    not verified safety. A tile is returned only if safe for all given seats.
+    """
+    seats = [s for s in seats if s in (facts.get('现物') or {})]
+    if not seats:
+        return []
+    pools = []
+    for seat in seats:
+        pool = set(facts['现物'].get(seat, [])) | set(facts.get('筋', {}).get(seat, [])) | set(facts.get('两筋', {}).get(seat, []))
+        pools.append(pool)
+    common = set.intersection(*pools)
+    if hand:
+        common &= set(hand)
+    return sorted(common)
+
+
 def tile_name_to_canonical(code):
     return '5'+code[1] if code[0]=='0' else code
 

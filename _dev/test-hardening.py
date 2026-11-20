@@ -136,5 +136,21 @@ class AdditionalHardeningTests(unittest.TestCase):
         self.assertNotIn('5m', f['筋']['across'])
 
 
+    def test_common_safe_is_intersection_not_union(self):
+        from desktop_runtime import build_safety_facts, common_safe_tiles
+        rivers = {'right': ['1m','5p','7s','2z','3z'],
+                  'across': ['9p','6p','3s','4z','3z'],
+                  'left': ['8p','7s','3z']}
+        facts = build_safety_facts(rivers, {'right':True,'across':True,'left':True})
+        hand = ['1m','9p','3z','2m','4m','5m','7p','8p','3s','4s','5s','6s','6z','9m']
+        common = common_safe_tiles(facts, ['right','across','left'], hand)
+        self.assertEqual(common, ['3z'])          # only tile safe for all three
+        self.assertNotIn('1m', common)            # genbutsu for right only
+        self.assertNotIn('9p', common)            # genbutsu for across only
+        # single seat -> its own genbutsu
+        one = common_safe_tiles(facts, ['right'], hand)
+        self.assertIn('1m', one)
+
+
 if __name__ == '__main__':
     unittest.main()

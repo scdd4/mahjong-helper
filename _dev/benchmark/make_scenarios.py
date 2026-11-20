@@ -15,6 +15,7 @@ from desktop_runtime import ExactSolver, tile_index, build_safety_facts
 
 SOLVER = ExactSolver()
 from scenarios_extra import EXTRA_SCENARIOS
+from scenarios_limit import LIMIT_SCENARIOS
 
 def idx_name(index):
     return str(index % 9 + 1) + 'mps'[index // 9] if index < 27 else str(index - 26) + 'z'
@@ -268,7 +269,7 @@ SCENARIOS = [
 def main():
     out = []
     problems = []
-    for sc in SCENARIOS + EXTRA_SCENARIOS:
+    for sc in SCENARIOS + EXTRA_SCENARIOS + LIMIT_SCENARIOS:
         state = dict(sc['state'])
         hand14 = state['hand'] + [state['drawn']]
         overflow = physics_check(sc)
@@ -317,7 +318,7 @@ def main():
                                  'rationale_keywords': sc.get('rationale_keywords', [])}
         out.append(entry)
     target = Path(__file__).parent / 'scenarios.json'
-    target.write_text(json.dumps({'version': '1.1', 'scenarios': out}, ensure_ascii=False, indent=1), encoding='utf-8')
+    target.write_text(json.dumps({'version': '1.2', 'scenarios': out}, ensure_ascii=False, indent=1), encoding='utf-8')
     print(f'写 {len(out)} 场景 → {target}')
     if problems:
         print('!! 物理校验问题:')

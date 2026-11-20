@@ -1,7 +1,7 @@
 """Visible table evidence and concise strategy reference, independent of decisions."""
 from collections import Counter
 import re
-from desktop_runtime import tile_index,tile_name,tile_code,group_tiles,build_safety_facts
+from desktop_runtime import tile_index,tile_name,tile_code,group_tiles,build_safety_facts,common_safe_tiles
 
 REFERENCE = '''攻守参考框架：
 逐家看威胁：已确认立直、庄家、多副露、公开役牌与可见宝牌、巡目；副露不等于已经听牌。
@@ -61,6 +61,9 @@ def table_profile(hand,rivers,melds,indicators,riichi=None):
             + ('' if riichi_detected else
                '【本地未识别到任何立直】：safety_by_player 为空不代表无人立直；'
                '立直与现物必须从原图逐家读取，读到立直后再核对其牌河现物。'))
+    declared_seats=[s for s,v in declared.items() if v]
+    common=common_safe_tiles(safety,declared_seats,hand) if len(declared_seats)>=2 else []
+    if common:safety['多家立直共同安全']=common
     return {'players':per_seat,'safety_by_player':safety,'riichi_locally_verified':riichi_detected,
             'instructions':note}
 

@@ -23,7 +23,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from desktop_runtime import load_settings, tile_index, tile_code, build_safety_facts, dora_from_indicator
+from desktop_runtime import load_settings, tile_index, tile_code, build_safety_facts, dora_from_indicator, common_safe_tiles
 from spark_strategy import SparkClient
 
 HERE = Path(__file__).parent
@@ -37,7 +37,8 @@ BENCH_SYSTEM_PROMPT = '''你是四人立直麻将策略教练。输入是结构�
 【硬性】discard 只能从 hand 数组中逐字复制一个牌名；hand 里没有的绝对不能写，写出不存在于 hand 的牌视为无效回答。
 暗牌张数+副露张数=14时必须打牌且牌必须在hand中；=13时discard必须为null，等待摸牌。
 牌名m/p/s/z，0=赤五。有明副露（吃/碰/明杠）的门清已破坏，不能立直；暗杠不算副露仍可立直。
-防守逐家核对现物；对一家安全不等于对另一家安全，双立直要兼顾两家。筋和字牌只能提供相对风险线索，不能说绝对安全，也不能断言无筋一定放铳；三元牌均为役牌。
+防守逐家核对现物；对一家安全不等于对另一家安全，双立直/三家立直必须打 common_safe_for_all_riichi（对所有立直家共同安全的牌），
+若为空则明确说明没有共同安全牌，绝不把只对一家成立的现物当作对三家都安全。筋和字牌只能提供相对风险线索，不能说绝对安全，也不能断言无筋一定放铳；三元牌均为役牌。
 攻守原则：对面立直时不等于必须弃和——南4局/末巡落后需点数、亲家、好形多面听牌、2+宝牌时应保持进攻（弃牌从 tenpai 保持集合中选）；无役、愚形单骑、巡目尚早且损失小时才转防守；转防守时必须从 safety_facts 里挑牌，绝不打无筋中张。
 
 价值类场景：reason/offense 必须明确点出价值来源（宝牌、役牌、立直、门清、打点），只写“效率低”不得分。
@@ -94,6 +95,9 @@ def validate(scenarios):
     return problems
 
 
+EXPERIMENT = {'thinking': True, 'effort': 'low', 'max_tokens': 240}
+
+
 def build_payload(sc, settings):
     state = dict(sc['state'])
     state['safety_facts'] = build_safety_facts(state.get('rivers', {}), state.get('riichi', {}),
@@ -108,6 +112,11 @@ def build_payload(sc, settings):
             safe_union |= set(facts.get('筋', {}).get(seat, []))
             safe_union |= set(facts.get('两筋', {}).get(seat, []))
         state['unsafe_hand_tiles'] = sorted(set(state['hand']) - safe_union)
+        # 多立直场景的关键事实：对所有立直家共同安全的牌（交集），
+        # 防止模型把只对一家成立的现物误当全局安全。
+        common = common_safe_tiles(facts, active, state['hand'])
+        if common:
+            state['common_safe_for_all_riichi'] = common
     # 与生产口径一致：生产注入算好的宝牌，不让模型自己从指示牌推算
     state['dora_tiles'] = [dora_from_indicator(c) for c in state.get('dora_indicators', []) if tile_code(c)]
     # 役牌事实：三元牌(5z/6z/7z)恒为役牌，风牌需匹配场风/自风
@@ -130,8 +139,8 @@ def build_payload(sc, settings):
     payload = {'model': settings.model,
                'messages': [{'role': 'system', 'content': BENCH_SYSTEM_PROMPT},
                             {'role': 'user', 'content': user_text}],
-               'stream': True, 'max_tokens': 240, 'reasoning_effort': 'low',
-               'chat_template_kwargs': {'enable_thinking': True}, 'strata_checkpoint': False}
+               'stream': True, 'max_tokens': EXPERIMENT['max_tokens'], 'reasoning_effort': EXPERIMENT['effort'],
+               'chat_template_kwargs': {'enable_thinking': EXPERIMENT['thinking']}, 'strata_checkpoint': False}
     return payload
 
 
@@ -233,6 +242,9 @@ def main():
     parser.add_argument('--run', action='store_true', help='调用真实模型评测')
     parser.add_argument('--ids', help='逗号分隔的场景 id')
     parser.add_argument('--limit', type=int, help='只跑前 N 个')
+    parser.add_argument('--thinking', choices=('on','off'), default='on', help='实验：开/关思考')
+    parser.add_argument('--effort', choices=('low','medium','high'), default='low', help='实验：思考强度')
+    parser.add_argument('--max-tokens', type=int, default=240, help='实验：输出上限')
     args = parser.parse_args()
     scenarios = load_scenarios()
     ids = set(args.ids.split(',')) if args.ids else None
@@ -244,6 +256,7 @@ def main():
         if problems:
             sys.exit(1)
     if args.run:
+        EXPERIMENT.update(thinking=args.thinking=='on', effort=args.effort, max_tokens=args.max_tokens)
         settings = load_settings()
         if not settings.api_key:
             print('尚未配置 Spark API 密钥')
