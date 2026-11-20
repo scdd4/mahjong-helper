@@ -104,5 +104,25 @@ class HardPatternTests(unittest.TestCase):
             analyze_open(hand, groups)
 
 
+    def test_riichi_candidate_feeds_safety_facts(self):
+        """几何推测的立直（candidate）应驱动安全事实，且被正确标注。"""
+        from strategy_context import table_profile
+        p = table_profile(None, {'across': ['4m','8s']}, {}, [],
+                          riichi={'across': 'candidate'})
+        self.assertTrue(p['riichi_locally_verified'])
+        self.assertIn('across', p['safety_by_player']['现物'])
+        self.assertIn('1m', p['safety_by_player']['筋']['across'])
+
+    def test_riichi_geometry_separates_laid_tile(self):
+        import numpy as np
+        from auto_vision_vendor import reader
+        def q(w, h): return np.array([[0,0],[w,0],[w,h],[0,h]], np.float32)
+        normal = [q(40, 60) for _ in range(13)]
+        laid = q(90, 45)
+        median = sorted(reader.quad_ar(x) for x in normal + [laid])[7]
+        self.assertGreater(reader.quad_ar(laid), 1.5)
+        self.assertGreaterEqual(reader.quad_ar(laid), median * 1.35)
+
+
 if __name__ == '__main__':
     unittest.main()

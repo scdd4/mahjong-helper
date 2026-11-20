@@ -642,6 +642,30 @@ def read_scene(image, cancel=None):
                            'viewport_source': viewport_source,
                            'note': '场风、点棒与余牌由视觉模型读取'}}
 
+    def _detect_riichi_by_geometry(items, values, seat):
+        """Detect a sideways-laid tile in a river = riichi (heuristic, not fact).
+
+        Riichi is physically shown as the last discarded tile turned 90°.
+        The upstream orientation module already calibrates the aspect ratios
+        from ground truth (own>1.18, side>1.5, across uses relative outlier).
+        We reuse quad_ar + group median; only flag the LAST river tile to avoid
+        mistaking sideways meld/dora tiles for riichi. Result is a candidate
+        with reason, never silently treated as confirmed truth.
+        """
+        if not items or not values or len(items) < 4:
+            return False, ''
+        ars = [reader.quad_ar(it['quad']) for it in items]
+        med = sorted(ars)[len(ars)//2]
+        # absolute thresholds from orientation.py GT calibration
+        abs_min = {'own': 1.18, 'left': 1.5, 'right': 1.5, 'across': 1.8}.get(seat, 1.8)
+        # examine the last two river positions (riichi tile is last, may be followed
+        # by a small gap) — require clear outlier vs the group median
+        for idx in range(len(items)-1, max(-1, len(items)-3), -1):
+            ar = ars[idx]
+            if ar >= abs_min and ar >= med * 1.35:
+                return True, '第%d张牌横放(ar=%.2f,组中位=%.2f)' % (idx+1, ar, med)
+        return False, ''
+
     def _environment():
         """Rivers, melds, dora panel and riichi: independent of the hand read."""
         split._FRAME_CACHE.clear()  # thread-local: clear this worker's stale frame
@@ -664,6 +688,11 @@ def read_scene(image, cancel=None):
                     items.append({'id': i, 'name': None, 'quad': np.asarray(quad, np.float32)})
                 values = reader.read_group(cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB), items, seat, templates) if items else []
                 env['rivers'][seat] = [{'name': item.get('name'), 'score': round(float(item.get('score', 0)), 4), 'unverified': True} for item in values]
+                if seat != 'own':
+                    detected, why = _detect_riichi_by_geometry(items, values, seat)
+                    if detected:
+                        env['riichi'][seat] = 'candidate'   # 图推测，非确认事实
+                        env['warnings'].append('%s 疑似立直（%s），请结合立直棒与牌河复核' % (seat, why))
             groups = meld.read_all(bgr, full_box)
             for seat, value in groups.items():
                 safe_groups = []

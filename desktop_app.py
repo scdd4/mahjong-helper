@@ -14,7 +14,7 @@ from desktop_runtime import (ROOT, ExactSolver, Settings, acquire_single_instanc
                              load_settings, log_event, save_settings, tile_name)
 from spark_strategy import Cancelled, SparkClient, validate_report
 
-APP_VERSION = '1.9.0'
+APP_VERSION = '1.9.1'
 PHASE_LABELS = {'local':'正在识别手牌与整张牌桌','vision_ready':'识牌完成，本地规则核算就绪',
                 'structured':'结构化局面已生成，模型正在推理决策',
                 'vision':'Spark 正在读取牌河、副露与场况','thinking':'Spark 正在思考攻守',
@@ -194,7 +194,7 @@ def report_sections(result):
     observed_text += '\n各家副露（识别候选）：\n'+'\n'.join(meld_lines)
     seats={'own':'自己','right':'下家','across':'对家','left':'上家'}
     observed_text += '\n各家牌河（可见候选）：\n'+'\n'.join(seats.get(s,s)+'：'+(' '.join(tile_name(t) for t in tiles) or '未读到') for s,tiles in (observed.get('rivers') or {}).items())
-    observed_text += '\n立直状态：'+'；'.join(seats.get(s,s)+' '+('已立直' if value is True else ('未立直' if value is False else '未确认')) for s,value in (observed.get('riichi') or {}).items())
+    observed_text += '\n立直状态：'+'；'.join(seats.get(s,s)+' '+('已立直' if value is True else ('疑似立直(待复核)' if value=='candidate' else ('未立直' if value is False else '未确认'))) for s,value in (observed.get('riichi') or {}).items())
     sections = []
     if warnings:
         sections.append(('识别核验', '\n'.join(warnings)))
@@ -235,8 +235,16 @@ class StrategyApp:
     def __init__(self, root):
         self.root=root
         self.root.title('雀魂策略助手 v' + APP_VERSION)
-        self.root.geometry('1220x840')
-        self.root.minsize(950,650)
+        # 窄而高的布局：宽度收窄，高度贴近屏幕可用高度（任务栏留边），
+        # 窗口贴屏幕右侧，方便与左侧雀魂窗口并排实战。
+        screen_w=self.root.winfo_screenwidth()
+        screen_h=self.root.winfo_screenheight()
+        win_w=900
+        win_h=max(760,min(screen_h-80,1080))  # 上下尽量占满，最多1080避免超屏
+        pos_x=max(0,screen_w-win_w-20)
+        self.default_geometry='%dx%d+%d+0' % (win_w,win_h,pos_x)
+        self.root.geometry(self.default_geometry)
+        self.root.minsize(820,700)
         self.root.configure(bg=self.BG)
         self.settings_warning = ''
         try:
@@ -251,7 +259,7 @@ class StrategyApp:
         self.image=None;self.preview=None;self.result=None;self.history=[]
         self.started=0;self.last_phase=''
         self.auto_enabled=False;self.watcher=None;self.pending_capture=False;self.initial_advice=None
-        self.mini_mode=False;self.normal_geometry='1220x840'
+        self.mini_mode=False;self.normal_geometry=self.default_geometry
         self.root.report_callback_exception=self._ui_exception
         self._build()
         self.set_mini_mode(self.settings.mini_mode, persist=False)
@@ -301,15 +309,15 @@ class StrategyApp:
         body=tk.PanedWindow(self.full_frame,orient='horizontal',bg=self.BG,sashwidth=8,bd=0)
         body.pack(fill='both',expand=True,padx=24,pady=(0,12))
         left=tk.Frame(body,bg=self.PANEL)
-        body.add(left,minsize=280,width=360)
+        body.add(left,minsize=220,width=290)
         tk.Label(left,text='本次牌桌',bg=self.PANEL,fg=self.MUTED,font=('Microsoft YaHei UI',11)).pack(anchor='w',padx=16,pady=(16,8))
-        self.image_label=tk.Label(left,text='截图后在这里预览\n也可从文件菜单打开图片',bg=self.PANEL,fg=self.MUTED,font=('Microsoft YaHei UI',11),wraplength=300)
+        self.image_label=tk.Label(left,text='截图后在这里预览\n也可从文件菜单打开图片',bg=self.PANEL,fg=self.MUTED,font=('Microsoft YaHei UI',11),wraplength=250)
         self.image_label.pack(fill='both',expand=True,padx=10,pady=10)
-        self.local_label=tk.Label(left,text='观察整张牌桌，结合手牌、牌河、\n副露、宝牌、点棒与巡目分析。',bg=self.PANEL,fg=self.MUTED,font=('Microsoft YaHei UI',10),wraplength=325,justify='left')
+        self.local_label=tk.Label(left,text='观察整张牌桌，结合手牌、牌河、\n副露、宝牌、点棒与巡目分析。',bg=self.PANEL,fg=self.MUTED,font=('Microsoft YaHei UI',10),wraplength=260,justify='left')
         self.local_label.pack(fill='x',padx=16,pady=16)
         right=tk.Frame(body,bg=self.PANEL)
-        body.add(right,minsize=500)
-        self.title=tk.Label(right,text='等待分析',bg=self.PANEL,fg=self.GOLD,font=('Microsoft YaHei UI',24,'bold'),anchor='w',wraplength=700)
+        body.add(right,minsize=460)
+        self.title=tk.Label(right,text='等待分析',bg=self.PANEL,fg=self.GOLD,font=('Microsoft YaHei UI',24,'bold'),anchor='w',wraplength=520)
         self.title.pack(fill='x',padx=20,pady=(18,12))
         text_frame=tk.Frame(right,bg=self.PANEL)
         text_frame.pack(fill='both',expand=True,padx=(20,10),pady=(0,12))
@@ -381,7 +389,7 @@ class StrategyApp:
                 self.mini_frame.pack(fill='both',expand=True)
             else:
                 self.mini_frame.pack_forget()
-                self.root.minsize(950,650)
+                self.root.minsize(820,700)
                 self.root.geometry(self.normal_geometry)
                 self.full_frame.pack(fill='both',expand=True)
         self.mini_mode=enabled;self.mini_var.set(enabled)

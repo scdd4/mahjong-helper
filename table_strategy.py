@@ -49,7 +49,9 @@ def analyze_table(client,image,evidence,calculations=None,history=None,progress=
                for seat,data in (evidence.get('melds') or {}).items()}
         indicators=[t for t in (evidence.get('dora_indicators') or []) if tile_code(t)]
         dora=[dora_from_indicator(t) for t in indicators]
-        riichi={s:True for s,v in (evidence.get('riichi') or {}).items() if v is True}
+        # 'candidate' = 本地几何推测的立直，同样纳入安全事实（保守），
+        # 但 notes 已标注需复核；不完全依赖它做弃和决定。
+        riichi={s:True for s,v in (evidence.get('riichi') or {}).items() if v is True or v=='candidate'}
         if riichi:notes.append('本地检测到立直棒，需结合图复核')
         physical=Counter(tile_index(t) for t in verified+indicators)
         for river in rivers.values():physical.update(tile_index(t) for t in river)
@@ -161,7 +163,7 @@ def analyze_table(client,image,evidence,calculations=None,history=None,progress=
         if (calculations or {}).get('win') and total==14:
             strategy['recommendation']={'action':'和牌核验','tile':None,'reason':'已成和型，请结合自摸或荣和按钮及役种核验。'}
         if len(observed['scores'])==4:
-            stick_count=sum(1 for v in (evidence.get('riichi') or {}).values() if v is True)
+            stick_count=sum(1 for v in (evidence.get('riichi') or {}).values() if v is True or v=='candidate')
             expected_total=100000-1000*stick_count
             actual_total=sum(observed['scores'].values())
             if actual_total!=expected_total:

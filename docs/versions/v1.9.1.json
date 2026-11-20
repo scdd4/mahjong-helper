@@ -1,0 +1,33 @@
+{
+  "version": "1.9.1",
+  "built_at": "2026-11-21T00:16:12+08:00",
+  "builder": "Python 3.12.14 / PyInstaller 6.22.3",
+  "entry": "MahjongStrategyAssistant/MahjongStrategyAssistant.exe",
+  "launcher": "启动-v1.9.1.cmd",
+  "exe_sha256": "c25e7f075648ad3915ee3aa2cc3091e5c66bfaf33a9f44ad45f9d521c48b0ed4",
+  "exe_bytes": 5650545,
+  "payload_file_count": 1249,
+  "payload_total_bytes": 234427284,
+  "payload_scope": "MahjongStrategyAssistant 内 EXE 与 _internal；排除运行时 user-data",
+  "self_check": {
+    "ok": true,
+    "version": "1.9.1",
+    "opencv": "4.14.0"
+  },
+  "new_in_this_version": [
+    "riichi_detection_by_tile_geometry",
+    "tall_narrow_window_layout"
+  ],
+  "tests": {
+    "python_suites": 9,
+    "python_all_passed": true,
+    "npm_groups": 6,
+    "npm_all_passed": true,
+    "benchmark_scenarios_validated": 59,
+    "self_check_passed": true
+  },
+  "privacy": {
+    "credentials_packaged": false,
+    "user_screenshots_packaged": false
+  }
+}

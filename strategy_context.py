@@ -50,7 +50,7 @@ def table_profile(hand,rivers,melds,indicators,riichi=None):
                         'note':'牌河与副露来自有置信门槛的候选；没有读出立直不等于确认未立直'}
     # 只为画面中确实确认立直的座位生成现物/筋；未读出立直不等于立直，
     # 把三家一律当立直会喂给模型错误的“安全牌”事实。
-    declared={s: bool((riichi or {}).get(s)) for s in per_seat}
+    declared={s: ((riichi or {}).get(s) is True or (riichi or {}).get(s)=='candidate') for s in per_seat}
     safety=build_safety_facts(rivers, declared)
     safety.pop('客风客三元',None)
     safety['说明']='仅对上表 riichi=true 的座位生成现物/筋；未确认立直的座位没有安全事实，不要套用他家现物。'
