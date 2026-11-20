@@ -118,6 +118,20 @@ EXTRA_SCENARIOS = [
                     round='东1局', self_wind='东', remaining=70),
          kind='efficiency'),
 
+    dict(id='eff-017', category='efficiency', difficulty='advanced',
+         description='国士无双13面听：摸到无关5m，必须打5m保持13种幺九的国士听牌。',
+         state=dict(hand=['1m','9m','1p','9p','1s','9s','1z','2z','3z','4z','5z','6z','7z'],
+                    drawn='5m', dora_indicators=[], rivers={}, melds={},
+                    round='东1局', self_wind='东', remaining=65),
+         kind='efficiency'),
+
+    dict(id='eff-018', category='efficiency', difficulty='advanced',
+         description='七对子听牌：6对子+两张单张(9s/5m)，打任一张仍听另一张，切勿拆对子。',
+         state=dict(hand=['1m','1m','3p','3p','5s','5s','7z','7z','2m','2m','4p','4p','9s'],
+                    drawn='5m', dora_indicators=[], rivers={}, melds={},
+                    round='东1局', self_wind='东', remaining=65),
+         kind='efficiency'),
+
     dict(id='eff-016', category='efficiency', difficulty='advanced',
          description='4m对子与456m顺子重叠：判断拆对子还是保留两张4m。',
          state=dict(hand=['1m','2m','3m','4m','4m','5m','6m','2p','3p','4p','7s','8s','9s'],

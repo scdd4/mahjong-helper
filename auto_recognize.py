@@ -119,7 +119,11 @@ def _assess_hand(raw, started, min_score=DEFAULT_MIN_SCORE):
     uncertain = [t["index"] + 1 for t in tiles if t["name"] is None or not math.isfinite(t["score"]) or t["score"] < min_score
                  or (t["margin"] is not None and t["margin"] < 0.02 and t["secondary_margin"] < 0.03)]
     if uncertain:
-        return _failure("low_confidence", "有牌面识别不够确定，本次不生成建议。请使用默认牌面，并保持游戏画面清晰完整后重试。", started, uncertain_tiles=uncertain, **common)
+        # 告诉用户具体是哪几张不确定，避免"整排重截"的盲目重试
+        positions = '、'.join(str(i) for i in uncertain[:6]) + ('…' if len(uncertain) > 6 else '')
+        message = ('第 %s 张牌识别不够确定，本次不生成建议。请等摸牌动画结束、'
+                   '保持牌面清晰后重试；也可以逐张点击纠错。' % positions)
+        return _failure("low_confidence", message, started, uncertain_tiles=uncertain, **common)
     counts = Counter(t["label"] for t in tiles)
     if any(n > 4 for n in counts.values()):
         return _failure("invalid_tiles", "识别结果出现同种牌超过 4 张，本次不生成建议。请保持手牌清晰可见后重试。", started, **common)

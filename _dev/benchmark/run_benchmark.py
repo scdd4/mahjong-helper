@@ -78,9 +78,13 @@ def validate(scenarios):
             seen += state.get('dora_indicators', [])
             expected = sc['expected']
             table = {row['drop']: (row['shanten'], row['ukeire']) for row in sc['solver_table']}
-            best = min(table.items(), key=lambda kv: (kv[1][0], -kv[1][1]))
-            if best[0] != expected['tile'] or best[0] not in [expected['tile']] + expected['alternatives']:
-                problems.append(f"{sc['id']}: 期望 {expected['tile']} 与求解器最优 {best[0]} 不符")
+            best_value = min(table.values(), key=lambda v: (v[0], -v[1]))
+            # 生成器按牌名排序取并列最优，校验器按表序；两者可能选不同并列项，
+            # 因此只校验「期望属于并列最优集合」，不要求与生成器的那一个完全相同。
+            optimal = {drop for drop, value in table.items() if value == best_value}
+            accepted = set([expected['tile']] + expected['alternatives'])
+            if not optimal & accepted:
+                problems.append(f"{sc['id']}: 期望 {expected['tile']} 与求解器最优 {optimal} 不符")
         try:
             for name in state['hand']:
                 tile_index(name)
@@ -118,6 +122,10 @@ def build_payload(sc, settings):
         state['local_calculations'] = {'candidates': [
             {'tile': row['drop'], 'shanten': row['shanten'], 'ukeire': row['ukeire']}
             for row in sorted(sc['solver_table'], key=lambda r: (r['shanten'], -r['ukeire']))[:8]]}
+    # 单筋强度弱，不注入基准输入以免模型把它当强安全线索（保留在 facts 供人工核验）。
+    if 'safety_facts' in state:
+        for seat in list(state['safety_facts'].get('单筋', {})):
+            state['safety_facts']['单筋'][seat] = []
     user_text = '当前局面（本地程序核验与规则核算）：' + json.dumps(state, ensure_ascii=False)
     payload = {'model': settings.model,
                'messages': [{'role': 'system', 'content': BENCH_SYSTEM_PROMPT},

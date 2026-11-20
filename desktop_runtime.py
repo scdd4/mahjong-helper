@@ -298,9 +298,10 @@ def dora_from_indicator(code):
 
 
 WIND_CODE = {'东': '1z', '南': '2z', '西': '3z', '北': '4z'}
-# 立直者切中间张（4/5/6）才产生两侧筋；切端张（1/7/2/8/3/9）不产生筋
-# （对面持有相邻搭子时切端张不损失听牌形状）。
+# 筋 = 与立直者切牌相差 3 的同花色数牌。两侧筋(切4/5/6)为强线索；
+# 端张(1/2/3/7/8/9)也有单侧筋(x±3)，但强度更弱，单列字段不并入强筋。
 SUJI_FROM_MIDDLE = {4: (1, 7), 5: (2, 8), 6: (3, 9)}
+SUJI_SINGLE = {1:(4,),2:(5,),3:(6,),7:(4,),8:(5,),9:(6,)}
 
 
 def build_safety_facts(rivers, riichi, round_wind=None, self_wind=None):
@@ -309,8 +310,9 @@ def build_safety_facts(rivers, riichi, round_wind=None, self_wind=None):
     Red fives share a tile kind. Repeated discards do not create two-sided suji;
     honors, suji and two-sided suji are not guarantees against every wait shape.
     """
-    facts = {'现物': {}, '筋': {}, '两筋': {}, '客风客三元': [],
-             '说明':'现物只对对应玩家成立；筋仍可能被嵌张、边张、双碰或单骑命中。三元牌都是役牌，字牌不能视为绝对安全。'}
+    facts = {'现物': {}, '筋': {}, '单筋': {}, '两筋': {}, '客风客三元': [],
+             '说明':'现物只对对应玩家成立；筋仍可能被嵌张、边张、双碰或单骑命中。'
+                    '单筋(切端张产生的 x±3)比两侧筋更弱，仅作参考。三元牌都是役牌，字牌不能视为绝对安全。'}
     for seat, declared in (riichi or {}).items():
         if not declared:
             continue
@@ -326,6 +328,16 @@ def build_safety_facts(rivers, riichi, round_wind=None, self_wind=None):
                 code = str(side) + tile[1]
                 if code not in facts['现物'][seat]:
                     suji.add(code)
+        single = set()
+        for tile in river:
+            if tile.endswith('z'):
+                continue
+            number = 5 if tile[0] == '0' else int(tile[0])
+            for side in SUJI_SINGLE.get(number, ()):
+                code = str(side) + tile[1]
+                if code not in facts['现物'][seat] and code not in suji:
+                    single.add(code)
+        facts['单筋'][seat] = sorted(single - set(facts['现物'][seat]))
         for suit in 'mps':
             for middle in (4,5,6):
                 if str(middle-3)+suit in river and str(middle+3)+suit in river:

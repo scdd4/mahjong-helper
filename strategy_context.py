@@ -54,8 +54,15 @@ def table_profile(hand,rivers,melds,indicators,riichi=None):
     safety=build_safety_facts(rivers, declared)
     safety.pop('客风客三元',None)
     safety['说明']='仅对上表 riichi=true 的座位生成现物/筋；未确认立直的座位没有安全事实，不要套用他家现物。'
-    return {'players':per_seat,'safety_by_player':safety,
-            'instructions':'必须逐家结合可见牌河、副露与图中立直、点棒、局数判断；不能只分析自己手牌。'}
+    # 当前本地识别不产出 riichi（立直棒），safety_by_player 可能为空；
+    # 必须如实告诉模型，避免它误以为"没有安全事实=没有威胁"。
+    riichi_detected = any(declared.values()) if declared else False
+    note = ('必须逐家结合可见牌河、副露与图中立直、点棒、局数判断；不能只分析自己手牌。'
+            + ('' if riichi_detected else
+               '【本地未识别到任何立直】：safety_by_player 为空不代表无人立直；'
+               '立直与现物必须从原图逐家读取，读到立直后再核对其牌河现物。'))
+    return {'players':per_seat,'safety_by_player':safety,'riichi_locally_verified':riichi_detected,
+            'instructions':note}
 
 
 def shape_facts(hand):

@@ -2916,6 +2916,230 @@
    ]
   },
   {
+   "id": "eff-017",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "description": "国士无双13面听：摸到无关5m，必须打5m保持13种幺九的国士听牌。",
+   "state": {
+    "hand": [
+     "1m",
+     "9m",
+     "1p",
+     "9p",
+     "1s",
+     "9s",
+     "1z",
+     "2z",
+     "3z",
+     "4z",
+     "5z",
+     "6z",
+     "7z",
+     "5m"
+    ],
+    "dora_indicators": [],
+    "rivers": {},
+    "melds": {},
+    "riichi": {},
+    "round": "东1局",
+    "self_wind": "东",
+    "remaining": 65,
+    "scores": {}
+   },
+   "kind": "efficiency",
+   "expected": {
+    "tile": "5m",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 39
+   },
+   "solver_table": [
+    {
+     "drop": "1m",
+     "shanten": 1,
+     "ukeire": 40
+    },
+    {
+     "drop": "9m",
+     "shanten": 1,
+     "ukeire": 40
+    },
+    {
+     "drop": "1p",
+     "shanten": 1,
+     "ukeire": 40
+    },
+    {
+     "drop": "9p",
+     "shanten": 1,
+     "ukeire": 40
+    },
+    {
+     "drop": "1s",
+     "shanten": 1,
+     "ukeire": 40
+    },
+    {
+     "drop": "9s",
+     "shanten": 1,
+     "ukeire": 40
+    },
+    {
+     "drop": "1z",
+     "shanten": 1,
+     "ukeire": 40
+    },
+    {
+     "drop": "2z",
+     "shanten": 1,
+     "ukeire": 40
+    },
+    {
+     "drop": "3z",
+     "shanten": 1,
+     "ukeire": 40
+    },
+    {
+     "drop": "4z",
+     "shanten": 1,
+     "ukeire": 40
+    },
+    {
+     "drop": "5z",
+     "shanten": 1,
+     "ukeire": 40
+    },
+    {
+     "drop": "6z",
+     "shanten": 1,
+     "ukeire": 40
+    },
+    {
+     "drop": "7z",
+     "shanten": 1,
+     "ukeire": 40
+    },
+    {
+     "drop": "5m",
+     "shanten": 0,
+     "ukeire": 39
+    }
+   ]
+  },
+  {
+   "id": "eff-018",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "description": "七对子听牌：6对子+两张单张(9s/5m)，打任一张仍听另一张，切勿拆对子。",
+   "state": {
+    "hand": [
+     "1m",
+     "1m",
+     "3p",
+     "3p",
+     "5s",
+     "5s",
+     "7z",
+     "7z",
+     "2m",
+     "2m",
+     "4p",
+     "4p",
+     "9s",
+     "5m"
+    ],
+    "dora_indicators": [],
+    "rivers": {},
+    "melds": {},
+    "riichi": {},
+    "round": "东1局",
+    "self_wind": "东",
+    "remaining": 65,
+    "scores": {}
+   },
+   "kind": "efficiency",
+   "expected": {
+    "tile": "5m",
+    "alternatives": [
+     "9s"
+    ],
+    "best_shanten": 0,
+    "max_ukeire": 3
+   },
+   "solver_table": [
+    {
+     "drop": "1m",
+     "shanten": 1,
+     "ukeire": 9
+    },
+    {
+     "drop": "1m",
+     "shanten": 1,
+     "ukeire": 9
+    },
+    {
+     "drop": "3p",
+     "shanten": 1,
+     "ukeire": 9
+    },
+    {
+     "drop": "3p",
+     "shanten": 1,
+     "ukeire": 9
+    },
+    {
+     "drop": "5s",
+     "shanten": 1,
+     "ukeire": 9
+    },
+    {
+     "drop": "5s",
+     "shanten": 1,
+     "ukeire": 9
+    },
+    {
+     "drop": "7z",
+     "shanten": 1,
+     "ukeire": 9
+    },
+    {
+     "drop": "7z",
+     "shanten": 1,
+     "ukeire": 9
+    },
+    {
+     "drop": "2m",
+     "shanten": 1,
+     "ukeire": 9
+    },
+    {
+     "drop": "2m",
+     "shanten": 1,
+     "ukeire": 9
+    },
+    {
+     "drop": "4p",
+     "shanten": 1,
+     "ukeire": 9
+    },
+    {
+     "drop": "4p",
+     "shanten": 1,
+     "ukeire": 9
+    },
+    {
+     "drop": "9s",
+     "shanten": 0,
+     "ukeire": 3
+    },
+    {
+     "drop": "5m",
+     "shanten": 0,
+     "ukeire": 3
+    }
+   ]
+  },
+  {
    "id": "eff-016",
    "category": "efficiency",
    "difficulty": "advanced",
