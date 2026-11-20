@@ -1,0 +1,43 @@
+{
+  "version": "1.9.2",
+  "built_at": "2026-11-21T00:26:00+08:00",
+  "builder": "Python 3.12.14 / PyInstaller 6.22.3",
+  "entry": "MahjongStrategyAssistant/MahjongStrategyAssistant.exe",
+  "launcher": "启动-v1.9.2.cmd",
+  "exe_sha256": "c83748e70ebc60393c98066386cfbf52771a3ac0f89343e8e5c8fe5c5f96cd30",
+  "exe_bytes": 5651091,
+  "payload_file_count": 1249,
+  "payload_total_bytes": 234427830,
+  "payload_scope": "MahjongStrategyAssistant 内 EXE 与 _internal；排除运行时 user-data；交付清单不计入负载",
+  "self_check": {
+    "ok": true,
+    "version": "1.9.2",
+    "opencv": "4.14.0",
+    "thinking": "medium"
+  },
+  "new_in_this_version": [
+    "fast_mode_is_default",
+    "turn_aware_discard_or_wait_plan",
+    "legacy_structured_settings_migrate_to_fast",
+    "slim_fast_schema_stance_discard_reason_wait_plan_risk"
+  ],
+  "measured_latency": {
+    "fast_model_only_seconds": [4.9, 5.7],
+    "structured_previous_seconds": 27.0,
+    "with_local_recognition_estimate_seconds": 8.0,
+    "note": "真实端点实测：14 张出牌 4.90s，13 张前瞻 5.70s（含思考）"
+  },
+  "tests": {
+    "python_suites": 9,
+    "python_total_cases": 138,
+    "python_all_passed": true,
+    "npm_groups": 6,
+    "npm_all_passed": true,
+    "benchmark_scenarios_validated": 59,
+    "self_check_passed": true
+  },
+  "privacy": {
+    "credentials_packaged": false,
+    "user_screenshots_packaged": false
+  }
+}

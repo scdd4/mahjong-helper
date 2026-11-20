@@ -152,5 +152,15 @@ class AdditionalHardeningTests(unittest.TestCase):
         self.assertIn('1m', one)
 
 
+    def test_fast_mode_is_default_and_turn_aware(self):
+        from desktop_runtime import Settings
+        from spark_strategy import FAST_SYSTEM_PROMPT, FAST_USER_PREFIX
+        self.assertEqual(Settings().analysis_mode, 'fast')
+        self.assertIn('wait_plan', FAST_SYSTEM_PROMPT)
+        self.assertIn('13张', FAST_SYSTEM_PROMPT)
+        self.assertIn('14张', FAST_SYSTEM_PROMPT)
+        self.assertIn('{phase}', FAST_USER_PREFIX)
+
+
 if __name__ == '__main__':
     unittest.main()

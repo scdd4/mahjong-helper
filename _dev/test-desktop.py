@@ -192,7 +192,7 @@ class DesktopTests(unittest.TestCase):
 
     def test_fast_mode_uses_one_small_image_low_thinking_and_maps_action(self):
         received=[]
-        fast_answer=json.dumps({'stance':'均衡','discard':'4z','reason':'效率最高','offense':'推进','defense':'观察','next':'听牌','dora':'无'},ensure_ascii=False)
+        fast_answer=json.dumps({'stance':'均衡','discard':'4z','reason':'效率最高','wait_plan': '推进','risk': '观察'},ensure_ascii=False)
         class Handler(BaseHTTPRequestHandler):
             def log_message(self,*args):pass
             def do_POST(self):
@@ -226,7 +226,7 @@ class DesktopTests(unittest.TestCase):
 
     def test_fast_mode_thirteen_tiles_forces_wait(self):
         received=[]
-        answer=json.dumps({'stance':'进攻','discard':'1m','reason':'x','offense':'y','defense':'z','next':'w','dora':'d'},ensure_ascii=False)
+        answer=json.dumps({'stance':'进攻','discard':'1m','reason':'x','wait_plan': 'y','risk': 'z'},ensure_ascii=False)
         class Handler(BaseHTTPRequestHandler):
             def log_message(self,*args):pass
             def do_POST(self):
@@ -246,8 +246,8 @@ class DesktopTests(unittest.TestCase):
             self.assertIsNone(action['tile'])
         finally:server.shutdown();server.server_close();thread.join(timeout=2)
 
-    def test_analysis_mode_setting_defaults_to_structured_and_validates(self):
-        self.assertEqual(Settings().analysis_mode,'structured')
+    def test_analysis_mode_setting_defaults_to_fast_and_validates(self):
+        self.assertEqual(Settings().analysis_mode,'fast')
         with self.assertRaises(ValueError):Settings(analysis_mode='turbo').validate()
 
     def test_dora_panel_fallback_reads_fixture_indicators(self):
@@ -268,7 +268,7 @@ class DesktopTests(unittest.TestCase):
 
     def test_structured_state_carries_local_riichi_detection(self):
         received=[]
-        fast_answer=json.dumps({'stance':'防守','discard':None,'reason':'双立直威胁','offense':'后攻','defense':'现物','next':'安全','dora':'无'},ensure_ascii=False)
+        fast_answer=json.dumps({'stance':'防守','discard':None,'reason':'双立直威胁','wait_plan': '后攻','risk': '现物'},ensure_ascii=False)
         class Handler(BaseHTTPRequestHandler):
             def log_message(self,*args):pass
             def do_POST(self):
@@ -292,7 +292,7 @@ class DesktopTests(unittest.TestCase):
     def test_transient_stream_failure_retries_once_and_recovers(self):
         received=[]
         state={'broken':1}
-        fast_answer=json.dumps({'stance':'进攻','discard':'1m','reason':'进张最多','offense':'推进','defense':'现物','next':'听牌','dora':'无'},ensure_ascii=False)
+        fast_answer=json.dumps({'stance':'进攻','discard':'1m','reason':'进张最多','wait_plan': '推进','risk': '现物'},ensure_ascii=False)
         class Handler(BaseHTTPRequestHandler):
             def log_message(self,*args):pass
             def do_POST(self):
@@ -346,13 +346,13 @@ class DesktopTests(unittest.TestCase):
         watcher._loop()  # deterministic single pass through available frames
         self.assertEqual(len(calls),1)
 
-    def test_structured_mode_defaults_and_rejects_invalid(self):
-        self.assertEqual(Settings().analysis_mode,'structured')
+    def test_analysis_mode_defaults_and_rejects_invalid(self):
+        self.assertEqual(Settings().analysis_mode,'fast')
         with self.assertRaises(ValueError):Settings(analysis_mode='network').validate()
 
     def test_structured_mode_sends_no_image_and_uses_program_facts(self):
         received=[]
-        answer=json.dumps({'stance':'进攻','discard':'4z','reason':'效率高','offense':'推进','defense':'观察','next':'听牌','dora':'无'},ensure_ascii=False)
+        answer=json.dumps({'stance':'进攻','discard':'4z','reason':'效率高','wait_plan': '推进','risk': '观察'},ensure_ascii=False)
         class Handler(BaseHTTPRequestHandler):
             def log_message(self,*args):pass
             def do_POST(self):
@@ -456,7 +456,7 @@ class UserScreenshotTests(unittest.TestCase):
         self.assertEqual(total,13)
         local['hand']['reliable']=True
         local['hand']['open_hand']={'concealed':10,'meld_tiles':own_meld_tiles,'total':total}
-        answer=json.dumps({'stance':'均衡','discard':'6p','reason':'孤张','offense':'推进','defense':'观察','next':'听牌','dora':'无'},ensure_ascii=False)
+        answer=json.dumps({'stance':'均衡','discard':'6p','reason':'孤张','wait_plan': '推进','risk': '观察'},ensure_ascii=False)
         received=[]
         class Handler(BaseHTTPRequestHandler):
             def log_message(self,*args):pass

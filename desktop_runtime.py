@@ -1,6 +1,6 @@
 """Desktop resources, user-scoped encrypted configuration, and exact JS calculations."""
 from collections import Counter
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 import base64
 import ctypes
 from ctypes import wintypes
@@ -110,7 +110,7 @@ class Settings:
     max_tokens: int = 16384
     timeout: int = 600
     capture_source: str = 'window'
-    analysis_mode: str = 'structured'
+    analysis_mode: str = 'fast'  # 默认快速：只要下一张出什么，不做详解
     mini_mode: bool = False
     mini_topmost: bool = True
 
@@ -229,6 +229,10 @@ def load_settings(path=None):
     allowed = Settings.__dataclass_fields__
     result = Settings(**{k: v for k, v in value.items() if k in allowed and k != 'api_key'})
     result.api_key = _crypt(base64.b64decode(encrypted), decrypt=True).decode('utf-8') if encrypted else ''
+    # 快速优先迁移：旧配置默认 structured（约27s）改为 fast（数秒）。
+    # mode_explicit 标记由设置对话框写入，用户主动选过则尊重其选择。
+    if value.get('analysis_mode')=='structured' and not value.get('mode_explicit'):
+        result=replace(result, analysis_mode='fast')
     return result.validate()
 
 

@@ -14,7 +14,7 @@ from desktop_runtime import (ROOT, ExactSolver, Settings, acquire_single_instanc
                              load_settings, log_event, save_settings, tile_name)
 from spark_strategy import Cancelled, SparkClient, validate_report
 
-APP_VERSION = '1.9.1'
+APP_VERSION = '1.9.2'
 PHASE_LABELS = {'local':'正在识别手牌与整张牌桌','vision_ready':'识牌完成，本地规则核算就绪',
                 'structured':'结构化局面已生成，模型正在推理决策',
                 'vision':'Spark 正在读取牌河、副露与场况','thinking':'Spark 正在思考攻守',
@@ -165,7 +165,12 @@ def report_sections(result):
     observed, strategy = report['observed'],report['strategy']
     action = strategy.get('recommendation',{})
     tile = action.get('tile')
-    title = ('建议打 '+tile_name(tile)) if tile and tile not in ('null','unknown','无') else action.get('action','查看策略')
+    if tile and tile not in ('null','unknown','无'):
+        title = '建议打 '+tile_name(tile)
+    elif action.get('action') == '等待摸牌':
+        title = '未轮到你 · 给你前瞻'
+    else:
+        title = action.get('action','查看策略')
     warnings = result.get('validation_warnings',[])
     if warnings:
         title = '行动建议待核对'
@@ -214,7 +219,8 @@ def report_sections(result):
         ('进攻路线',_text(strategy.get('offense'))),
         ('防守与风险',_text(strategy.get('defense'))),
         ('备选打法',_text(strategy.get('alternatives',[]))),
-        ('后续几巡',_text(strategy.get('next_turn_plan',[]))),
+        (('轮到你时考虑' if result.get('thinking_stages',{}).get('fast') else '后续几巡'),
+         _text(strategy.get('next_turn_plan',[]))),
         ('吃碰杠与立直',_text(strategy.get('call_plan'))),
         ('顺位与点差',_text(strategy.get('placement'))),
         ('融合局面 · 手牌来源：'+result.get('hand_source','本地核验'),observed_text),
