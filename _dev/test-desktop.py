@@ -190,9 +190,11 @@ class DesktopTests(unittest.TestCase):
             self.assertTrue(all(request['chat_template_kwargs']['enable_thinking'] for request in received))
         finally:server.shutdown();server.server_close();thread.join(timeout=2)
 
-    def test_fast_mode_uses_one_small_image_low_thinking_and_maps_action(self):
+    def test_fast_mode_is_text_only_no_thinking_and_defers_to_local_solver(self):
+        """v1.9.3：关思考、不发图、弃牌以本地求解器为准（模型给错也会被纠正）。"""
         received=[]
-        fast_answer=json.dumps({'stance':'均衡','discard':'4z','reason':'效率最高','wait_plan': '推进','risk': '观察'},ensure_ascii=False)
+        # 模型故意给一个错误牌，验证程序会用本地事实覆盖它。
+        fast_answer=json.dumps({'discard':'9z','reason':'效率最高','wait_plan':'推进','risk':'观察'},ensure_ascii=False)
         class Handler(BaseHTTPRequestHandler):
             def log_message(self,*args):pass
             def do_POST(self):
@@ -207,26 +209,32 @@ class DesktopTests(unittest.TestCase):
             settings=Settings(base_url='http://127.0.0.1:%d/v1'%server.server_port,api_key='test-key')
             local={'hand':{'reliable':True,'tiles':[{'name':t} for t in HAND]},'dora_indicators':[],
                    'rivers':{},'melds':{},'warnings':[]}
+            calculations={'shanten':0,'candidates':[{'tile':'4z','shanten':0,'ukeire':40,'kinds':6}],
+                          'waits':[],'ukeire':[]}
             with Image.new('RGB',(2560,1400),'navy') as image:
-                result=SparkClient(settings).analyze_fast(image,local)
-            self.assertEqual(len(received),1)  # single call, not two
+                result=SparkClient(settings).analyze_fast(image,local,calculations)
+            self.assertEqual(len(received),1)  # single call
             request=received[0]
-            self.assertEqual(request['reasoning_effort'],'low')
-            self.assertTrue(request['chat_template_kwargs']['enable_thinking'])
-            self.assertEqual(request['max_tokens'],200)  # 速度优化：280→200
-            images=[p for p in request['messages'][1]['content'] if p['type']=='image_url']
-            self.assertEqual(len(images),1)
-            self.assertLessEqual(len(images[0]['image_url']['url']),250000)  # compressed
+            # 思考会挤占 max_tokens 的一半并拖慢数倍，快速模式必须关闭。
+            self.assertEqual(request['reasoning_effort'],'none')
+            self.assertFalse(request['chat_template_kwargs']['enable_thinking'])
+            self.assertEqual(request['max_tokens'],512)  # 200 时思考预算仅 100，必然撞上限
+            # 不再发图：手牌已本地核验，图片只增加 0.7s。
+            self.assertFalse(any(isinstance(p,dict) and p.get('type')=='image_url'
+                                 for p in request['messages'][1]['content']))
             report=result['report']
+            # 模型说 9z（不在手牌），程序必须改用本地最优 4z
             self.assertEqual(report['strategy']['recommendation']['tile'],'4z')
+            self.assertTrue(any('不一致' in w for w in result['vision_uncertainties']))
             self.assertEqual(report['observed']['hand'],HAND)
             self.assertEqual(result['mode'],'fast')
             self.assertIn('fast',result['stage_seconds'])
         finally:server.shutdown();server.server_close();thread.join(timeout=2)
 
-    def test_fast_mode_thirteen_tiles_forces_wait(self):
+    def test_fast_mode_turn_prompt_carries_local_fact(self):
+        """轮次感知：14 张提示"程序最优"，13 张提示摸牌前瞻。"""
         received=[]
-        answer=json.dumps({'stance':'进攻','discard':'1m','reason':'x','wait_plan': 'y','risk': 'z'},ensure_ascii=False)
+        answer=json.dumps({'discard':None,'reason':'等雀头','wait_plan':'摸1z成对即听','risk':'防立直'},ensure_ascii=False)
         class Handler(BaseHTTPRequestHandler):
             def log_message(self,*args):pass
             def do_POST(self):
@@ -238,12 +246,42 @@ class DesktopTests(unittest.TestCase):
         thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
         try:
             settings=Settings(base_url='http://127.0.0.1:%d/v1'%server.server_port,api_key='test-key')
-            local={'hand':{'reliable':True,'tiles':[{'name':t} for t in HAND[:-1]]},'dora_indicators':[],'rivers':{},'melds':{},'warnings':[]}
+            local={'hand':{'reliable':True,'tiles':[{'name':t} for t in HAND[:-1]]},'dora_indicators':[],
+                   'rivers':{},'melds':{},'warnings':[]}
+            calculations={'shanten':1,'candidates':[],'waits':[],
+                          'ukeire':[{'tile':'1z','remaining':3},{'tile':'5z','remaining':2}]}
             with Image.new('RGB',(640,360),'navy') as image:
-                result=SparkClient(settings).analyze_fast(image,local)
+                result=SparkClient(settings).analyze_fast(image,local,calculations)
+            text=received[0]['messages'][1]['content'][0]['text']
+            self.assertIn('还没轮到你',text)
+            self.assertIn('1z',text)          # 本地进张作为事实注入
             action=result['report']['strategy']['recommendation']
             self.assertEqual(action['action'],'等待摸牌')
             self.assertIsNone(action['tile'])
+        finally:server.shutdown();server.server_close();thread.join(timeout=2)
+
+    def test_fast_mode_complete_hand_reports_win_without_model_call(self):
+        """已和牌：程序直接给结论，不发请求。"""
+        received=[]
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self,*args):pass
+            def do_POST(self):
+                received.append(1)
+                self.send_response(500);self.end_headers()
+        server=HTTPServer(('127.0.0.1',0),Handler)
+        thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
+        try:
+            settings=Settings(base_url='http://127.0.0.1:%d/v1'%server.server_port,api_key='test-key')
+            hand=['1m','2m','3m','4m','5m','6m','7m','8m','9m','1p','2p','3p','5z','5z']
+            local={'hand':{'reliable':True,'tiles':[{'name':t} for t in hand]},'dora_indicators':[],
+                   'rivers':{},'melds':{},'warnings':[]}
+            calculations={'shanten':-1,'win':True,'candidates':[],'waits':[],'ukeire':[]}
+            with Image.new('RGB',(640,360),'navy') as image:
+                result=SparkClient(settings).analyze_fast(image,local,calculations)
+            self.assertEqual(received,[])  # 完全不调模型
+            action=result['report']['strategy']['recommendation']
+            self.assertEqual(action['action'],'可以和牌')
+            self.assertIn('和牌',action['reason'])
         finally:server.shutdown();server.server_close();thread.join(timeout=2)
 
     def test_analysis_mode_setting_defaults_to_fast_and_validates(self):

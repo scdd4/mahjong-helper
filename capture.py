@@ -139,20 +139,39 @@ def b64(im, fmt="PNG"):
     return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
 
 
+_TEMPLATE_CACHE = {}
+
+
 def load_templates():
+    """加载并缓存模板特征。
+
+    首次调用要读 149 个 .npy/.png 并逐张算特征（实测约 2.5s），
+    这是单次识别 3s 里最主要的开销。模板在运行期不会变，
+    缓存后每次识别降到 0.35s；mtime 变化时才重新加载。
+    """
+    stamp = None
+    try:
+        entries = sorted(f for f in os.listdir(TPL_DIR) if f.endswith((".npy", ".png")))
+        stamp = tuple((f, os.path.getmtime(os.path.join(TPL_DIR, f))) for f in entries)
+    except OSError:
+        entries = []
+    cached = _TEMPLATE_CACHE.get('value')
+    if cached is not None and _TEMPLATE_CACHE.get('stamp') == stamp:
+        return dict(cached)
     os.makedirs(TPL_DIR, exist_ok=True)
     out = {}
-    for f in os.listdir(TPL_DIR):
-        if not f.endswith((".npy", ".png")):
-            continue
+    for f in entries:
         try:
             label = int(os.path.splitext(f)[0])
             if not 0 <= label < 34:
                 continue
+            path = os.path.join(TPL_DIR, f)
+            if not os.path.isfile(path):
+                continue
             if f.endswith(".npy"):
-                v = np.load(os.path.join(TPL_DIR, f), allow_pickle=False).astype(np.float32)
+                v = np.load(path, allow_pickle=False).astype(np.float32)
             else:
-                with Image.open(os.path.join(TPL_DIR, f)) as im:
+                with Image.open(path) as im:
                     v = feat_from_image(im.convert("RGB"))
             norm = float(np.linalg.norm(v))
             if v.shape != (WIN_W * WIN_H,) or not np.isfinite(v).all() or not math.isfinite(norm) or norm < 1e-6:
@@ -160,6 +179,8 @@ def load_templates():
             out[label] = v / norm
         except (ValueError, TypeError, OSError, EOFError):
             continue
+    _TEMPLATE_CACHE['value'] = dict(out)
+    _TEMPLATE_CACHE['stamp'] = stamp
     return out
 
 

@@ -14,7 +14,7 @@ from desktop_runtime import (ROOT, ExactSolver, Settings, acquire_single_instanc
                              load_settings, log_event, save_settings, tile_name)
 from spark_strategy import Cancelled, SparkClient, validate_report
 
-APP_VERSION = '1.9.2'
+APP_VERSION = '1.9.3'
 PHASE_LABELS = {'local':'正在识别手牌与整张牌桌','vision_ready':'识牌完成，本地规则核算就绪',
                 'structured':'结构化局面已生成，模型正在推理决策',
                 'vision':'Spark 正在读取牌河、副露与场况','thinking':'Spark 正在思考攻守',
@@ -39,6 +39,8 @@ def compact_calculations(result):
             'forms':{'普通型':result.get('forms',{}).get('std'),'七对子':result.get('forms',{}).get('chiitoi'),'国士':result.get('forms',{}).get('kokushi')},
             'candidates':[{'tile':code(item['tile']),'shanten':item['shanten'],
                            'ukeire':item.get('ukeireTotal'),'kinds':item.get('ukeireKinds')} for item in result['discards'][:8]],
+            # 13 张时 discards 为空，有效进张在 ukeire（按剩余枚数排序），快速模式的前瞻依赖它。
+            'ukeire':[{'tile':code(item['tile']),'remaining':item['remaining']} for item in result.get('ukeire',[])],
             'waits':[{'tile':code(item['tile']),'remaining':item['remaining']} for item in result.get('waits',[])],
             'scope':'仅门清牌效率核算，不含完整攻守、场况或点数，不应据此覆盖模型策略'}
 
@@ -796,6 +798,18 @@ class StrategyApp:
                 value.close()
 
 
+def _warm_up_recognition():
+    """后台加载识别模板与求解器上下文，避免首次分析多等 2~3 秒。
+
+    只做预热：任何失败都必须静默吞掉，绝不能让预热把应用拖崩。
+    """
+    try:
+        from auto_vision_vendor import reader as vendor_reader
+        vendor_reader.load_templates()
+    except Exception as error:
+        log_event('template warm-up skipped: ' + type(error).__name__, 'WARNING')
+
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--image')
@@ -848,6 +862,9 @@ def main():
         return
     log_event('application started')
     root=tk.Tk();app=StrategyApp(root)
+    # 模板首次加载约 2.5s（37 组 pattern 图转 float）。放到后台线程预热，
+    # 用户第一次点"截图并分析"时模板已在内存里，省掉这段固定等待。
+    threading.Thread(target=_warm_up_recognition, daemon=True).start()
     if args.show_report:
         result=json.loads(Path(args.show_report).read_text(encoding='utf-8'))
         root.after(200,lambda:app.show_result(result))

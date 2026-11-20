@@ -145,8 +145,18 @@ def gray(p):
 
 
 # ══════════════════════ 模板资产 ══════════════════════
+_TEMPLATE_CACHE = {}
+
+
 def load_templates(use_norm=False):
-    """{牌名: pattern 掩膜}（紧裁到 bbox、无留白，墨=1 底=0）。"""
+    """{牌名: pattern 掩膜}（紧裁到 bbox、无留白，墨=1 底=0）。
+
+    首次调用需读 34 组 .pattern.png 并转 float，实测约 2.5s——这是单次
+    识别 3s 里最大的固定开销。模板运行期不变，缓存后降到毫秒级。
+    """
+    cached = _TEMPLATE_CACHE.get(use_norm)
+    if cached is not None:
+        return dict(cached[0]), cached[1]
     with open(os.path.join(CLEAN, 'meta.json'), encoding='utf-8') as source:
         meta = json.load(source)
     T = {}
@@ -159,12 +169,15 @@ def load_templates(use_norm=False):
                 T[k] = np.load(f)
         else:
             f = os.path.join(CLEAN, f'{k}.pattern.png')
+            # meta 里列了 0z（赤字牌），但上游没有对应模板文件。
+            # 先判存在再 imread，避免每局刷一条 cv2 解码失败警告。
             if not os.path.exists(f):
                 continue
             pv = cv2.imread(f, cv2.IMREAD_GRAYSCALE)
             if pv is None:
                 continue
             T[k] = (255 - pv).astype(np.float32)/255.0
+    _TEMPLATE_CACHE[use_norm] = (dict(T), meta)
     return T, meta
 
 

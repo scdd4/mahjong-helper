@@ -1,0 +1,61 @@
+{
+  "version": "1.9.3",
+  "built_at": "2026-11-21T01:17:00+08:00",
+  "builder": "Python 3.12.14 / PyInstaller 6.22.3",
+  "entry": "MahjongStrategyAssistant/MahjongStrategyAssistant.exe",
+  "launcher": "启动-v1.9.3.cmd",
+  "exe_sha256": "e6f6aaeb1a199aa06112ce63bc1120dc96cf1eb85f2958fca4bc5baec7c4002e",
+  "exe_bytes": 5655839,
+  "payload_file_count": 1249,
+  "payload_total_bytes": 234432578,
+  "payload_scope": "MahjongStrategyAssistant 内 EXE 与 _internal；排除运行时 user-data；交付清单不计入负载",
+  "self_check": {
+    "ok": true,
+    "version": "1.9.3",
+    "opencv": "4.14.0",
+    "thinking": "medium"
+  },
+  "fixes": {
+    "output_limit_error": "max_tokens=200 时服务端只给 100 token 思考预算，实测用掉 195/200，必然 finish_reason=length",
+    "slow_response": "开思考 low 档实测 10.85s，关思考 2.81s"
+  },
+  "new_in_this_version": [
+    "fast_mode_thinking_disabled",
+    "fast_mode_text_only_no_image",
+    "discard_decided_by_local_exact_solver",
+    "safe_tile_priority_when_opponent_riichi",
+    "instant_return_on_complete_hand",
+    "fast_max_tokens_512",
+    "template_load_cached_and_warmed",
+    "ukeire_injected_for_13_tiles",
+    "meaningful_reason_for_wait_turn"
+  ],
+  "measured_latency": {
+    "fast_mode_8_runs_median_seconds": 2.14,
+    "fast_mode_8_runs_max_seconds": 2.20,
+    "success_rate": "8/8",
+    "packaged_exe_end_to_end_seconds": 5.07,
+    "recognition_seconds_first": 2.9,
+    "recognition_seconds_cached": 0.35,
+    "local_solver_seconds": 0.14,
+    "note": "服务端偶发 prefill 抖动会拉长到 20~50s（首 token 与输出量正常），非程序问题"
+  },
+  "capability": {
+    "efficiency_benchmark_strict": "19/21 (90%)",
+    "efficiency_benchmark_with_alternatives": "21/21 (100%)",
+    "previous_thinking_model": "91%",
+    "note": "速度提升 5 倍以上，准确率持平"
+  },
+  "tests": {
+    "python_suites": 9,
+    "python_total_cases": 141,
+    "python_all_passed": true,
+    "npm_groups": 6,
+    "npm_all_passed": true,
+    "self_check_passed": true
+  },
+  "privacy": {
+    "credentials_packaged": false,
+    "user_screenshots_packaged": false
+  }
+}

@@ -152,14 +152,37 @@ class AdditionalHardeningTests(unittest.TestCase):
         self.assertIn('1m', one)
 
 
+    def test_fast_pick_prefers_safe_tile_only_when_someone_riichi(self):
+        """立直时安全牌优先于牌效率；无人立直时才按进张选。"""
+        from spark_strategy import SparkClient
+        hand = ['1z','2m','3m','5m','6m','2p','4p','6p','8p','3s','5s','7s','9s','4m']
+        calc = {'shanten':2,'waits':[],'ukeire':[],
+                'candidates':[{'tile':'4m','shanten':1,'ukeire':40,'kinds':9},
+                              {'tile':'1z','shanten':2,'ukeire':20,'kinds':5}]}
+        riichi_ev = {'riichi':{'across':True},
+                     'rivers':{'across':[{'name':t,'score':1.0} for t in ['1z','3p','5p','7m','9s']]}}
+        safe = SparkClient._fast_safe_tiles(hand, riichi_ev)
+        self.assertIn('1z', safe)          # 现物
+        self.assertNotIn('4m', safe)       # 无筋中张
+        picked = SparkClient._fast_pick(calc, hand, True, riichi_ev)
+        self.assertEqual(picked['tile'], '1z')
+        self.assertTrue(picked.get('safe'))
+        # 没人立直：不能被安全逻辑干扰，走效率最优
+        quiet = SparkClient._fast_pick(calc, hand, True, {'riichi':{},'rivers':{}})
+        self.assertEqual(quiet['tile'], '4m')
+        self.assertFalse(quiet.get('safe'))
+
     def test_fast_mode_is_default_and_turn_aware(self):
         from desktop_runtime import Settings
-        from spark_strategy import FAST_SYSTEM_PROMPT, FAST_USER_PREFIX
+        from spark_strategy import FAST_SYSTEM_PROMPT, FAST_USER_PREFIX, FAST_MAX_TOKENS
         self.assertEqual(Settings().analysis_mode, 'fast')
         self.assertIn('wait_plan', FAST_SYSTEM_PROMPT)
+        self.assertIn('程序最优', FAST_SYSTEM_PROMPT)   # 弃牌由本地求解器决定
+        self.assertIn('12字', FAST_SYSTEM_PROMPT)       # 输出保持极短
         self.assertIn('13张', FAST_SYSTEM_PROMPT)
-        self.assertIn('14张', FAST_SYSTEM_PROMPT)
-        self.assertIn('{phase}', FAST_USER_PREFIX)
+        self.assertIn('{facts}', FAST_USER_PREFIX)
+        # 服务端把思考预算限制为 max_tokens 的一半；200 时只剩 100，必然超限。
+        self.assertGreaterEqual(FAST_MAX_TOKENS, 512)
 
     def test_explicit_mode_survives_reload_and_legacy_config_migrates(self):
         """用户主动选过 structured 必须能留在 structured；旧的隐式配置才迁移。"""
