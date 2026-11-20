@@ -1,0 +1,80 @@
+{
+ "question": "是否应关闭思考以提升响应速度？",
+ "decision": "否。必须保持思考开启。",
+ "design": "主集47题，开思考×2、关思考×2，串行执行避免单并发锁冲突。配对分析（同题开/关对比）+ 分类拆解 + 两轮稳定性。",
+ "results": {
+  "thinking_on": {
+   "runs": [
+    43,
+    43
+   ],
+   "total": 47,
+   "accuracy": "91%",
+   "median_seconds": [
+    6.0,
+    5.8
+   ]
+  },
+  "thinking_off": {
+   "runs": [
+    37,
+    37
+   ],
+   "total": 47,
+   "accuracy": "79%",
+   "median_seconds": [
+    2.9,
+    2.9
+   ]
+  },
+  "paired_R1": {
+   "on_correct_off_wrong": [
+    "def-005",
+    "pf-001",
+    "pf-005",
+    "val-002",
+    "val-003",
+    "val-005"
+   ],
+   "off_correct_on_wrong": [],
+   "both_correct": 37,
+   "both_wrong": 4,
+   "mcnemar_exact_p": 0.03125
+  },
+  "by_category_R1": {
+   "defense": {
+    "on": 15,
+    "off": 14,
+    "n": 16
+   },
+   "efficiency": {
+    "on": 18,
+    "off": 18,
+    "n": 18
+   },
+   "push_fold": {
+    "on": 6,
+    "off": 4,
+    "n": 8
+   },
+   "value": {
+    "on": 4,
+    "off": 1,
+    "n": 5
+   }
+  },
+  "stability": {
+   "on_flips": 0,
+   "off_flips": 0
+  }
+ },
+ "analysis": "关思考快52%(6.0s→2.9s)，但准确率降12个百分点且完全稳定（两轮各43 vs 37，零翻转）。6题开对关错、0题关对开错，McNemar精确检验p=0.031，统计显著。损失集中在需要多步权衡的攻守(75%→50%)与价值理由(80%→20%)；关思考时模型退化为\"见立直就打现物保命\"的单一策略，南4局亲家落后该攻的场景也弃和。牌效率不受影响(18/18)，因该项主要靠程序注入的候选核算。",
+ "caveat": "此前极限集12题小样本显示\"关思考58%>开思考50%\"是噪声：大样本47题结论完全相反。小样本单次评测不可用于配置决策。",
+ "recommendation": "生产保持 enable_thinking=True、reasoning_effort=low。速度优化应走\"程序化事实注入+减少重复请求\"路线，不靠关思考。",
+ "source_files": [
+  "results-20261120-234621.json",
+  "results-20261120-234840.json",
+  "results-20261120-235318.json",
+  "results-20261120-235536.json"
+ ]
+}
