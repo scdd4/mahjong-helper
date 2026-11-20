@@ -5,7 +5,7 @@ from tkinter import messagebox, ttk
 from desktop_runtime import log_event
 
 
-MODE_LABELS = {'structured': '结构化（推荐）', 'fast': '快速识图', 'full': '完整分析'}
+MODE_LABELS = {'fast': '快速（只报下一张，推荐）', 'structured': '结构化（初判+详解）', 'full': '完整分析'}
 
 
 def settings_from_form(initial, values):
@@ -17,7 +17,9 @@ def settings_from_form(initial, values):
                    api_key=values['api_key'].strip(), reasoning_effort={'快速':'low','标准':'medium','深入':'high'}.get(values['reasoning_effort'],values['reasoning_effort']),
                    max_tokens=int(values['max_tokens']), timeout=int(values['timeout']),
                    capture_source='window' if values['capture_source'] == '雀魂窗口' else 'screen',
-                   analysis_mode=reverse[values['analysis_mode']]).validate()
+                   analysis_mode=reverse[values['analysis_mode']],
+                   # 用户在这里保存过就算主动选择，之后不再被默认值迁移覆盖。
+                   mode_explicit=True).validate()
 
 
 class SettingsDialog(tk.Toplevel):
@@ -78,8 +80,8 @@ class SettingsDialog(tk.Toplevel):
             value = tk.StringVar(value=initial)
             self.values[field] = value
             ttk.Combobox(self.form, textvariable=value, values=choices, state='readonly', width=20).grid(row=row, column=1, sticky='ew', padx=(12, 0))
-        description = ('结构化模式结合本地核验、整桌图和分座位点棒图，先给初判，再补全场面详解。'
-                       '快速模式给简短提示；完整模式展开攻守、备选和后续计划，耗时较长。'
+        description = ('快速模式（默认）只回答这一张打什么；不是你回合时回答轮到你先考虑哪些牌，约 5 秒。'
+                       '结构化模式先给初判再补全场面详解，完整模式展开攻守与后续计划，两者耗时较长。'
                        '\n三种模式均开启思考。结构化和快速模式使用快速思考档位。'
                        '\n\n密钥使用当前 Windows 用户加密保存。识别到的游戏画面会发送到配置的模型服务。')
         help_label = ttk.Label(self.form, text=description, wraplength=560, justify='left')

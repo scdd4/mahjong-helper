@@ -111,6 +111,8 @@ class Settings:
     timeout: int = 600
     capture_source: str = 'window'
     analysis_mode: str = 'fast'  # 默认快速：只要下一张出什么，不做详解
+    # 用户在设置里主动选过分析模式；为 True 时 load_settings 不再把 structured 改回 fast。
+    mode_explicit: bool = False
     mini_mode: bool = False
     mini_topmost: bool = True
 

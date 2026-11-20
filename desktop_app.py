@@ -597,7 +597,7 @@ class StrategyApp:
         messagebox.showinfo('关于','雀魂策略助手 v%s\n\n'
             '输入仅为程序截图：本地识别牌面与规则核算，结构化局面交给模型推理决策。\n'
             '不读游戏内存、不拦截网络、不操作游戏。截图会发送到所配置的模型服务。\n\n'
-            '模式：结构化（初判后自动补全详解，推荐）／快速识图／完整分析。'
+            '模式：快速（默认，只报下一张）／结构化（初判+详解）／完整分析。'
             % APP_VERSION,parent=self.root)
 
     def _grab_for_watch(self):

@@ -161,6 +161,33 @@ class AdditionalHardeningTests(unittest.TestCase):
         self.assertIn('14张', FAST_SYSTEM_PROMPT)
         self.assertIn('{phase}', FAST_USER_PREFIX)
 
+    def test_explicit_mode_survives_reload_and_legacy_config_migrates(self):
+        """用户主动选过 structured 必须能留在 structured；旧的隐式配置才迁移。"""
+        import json, tempfile
+        from pathlib import Path
+        from desktop_runtime import load_settings, save_settings, Settings
+        folder = Path(tempfile.mkdtemp())
+        path = folder/'settings.json'
+
+        # 1) 旧版本遗留配置：没有 mode_explicit 标记 -> 迁移到 fast
+        path.write_text(json.dumps({'analysis_mode': 'structured', 'model': 'm'}), encoding='utf-8')
+        self.assertEqual(load_settings(path).analysis_mode, 'fast')
+
+        # 2) 用户主动选择 structured 后保存 -> 再次加载仍是 structured
+        save_settings(Settings(analysis_mode='structured', mode_explicit=True, model='m'), path)
+        self.assertEqual(load_settings(path).analysis_mode, 'structured')
+
+        # 3) 设置表单保存会写入标记，而不是只改模式名
+        from desktop_widgets import settings_from_form, MODE_LABELS
+        values = {'base_url': '', 'model': 'm', 'api_key': '', 'reasoning_effort': '标准',
+                  'max_tokens': '16384', 'timeout': '600', 'capture_source': '全屏',
+                  'analysis_mode': MODE_LABELS['structured']}
+        saved = settings_from_form(Settings(), values)
+        self.assertEqual(saved.analysis_mode, 'structured')
+        self.assertTrue(saved.mode_explicit)
+        save_settings(saved, path)
+        self.assertEqual(load_settings(path).analysis_mode, 'structured')
+
 
 if __name__ == '__main__':
     unittest.main()
