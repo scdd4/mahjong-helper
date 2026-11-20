@@ -188,33 +188,59 @@ def _recognize_tile_variants(rgb, hand_reader, reject_blank_white=False):
     rgb is an HxWx3 uint8 crop that may include some table background; the
     bright-pixel median drives per-channel gain before several crop variants
     are scored. Returns the best (name, score) or (None, 0.0).
+
+    性能说明（v1.9.4）：原实现对 2×3×3=18 个裁剪变体逐个跑满 37 模板匹配，
+    一帧就是 16000+ 次 match_one，冷缓存首帧要 2.7s。绝大多数变体是冗余的
+    （同一张牌只差 2~4 像素内缩，结论完全一致）。现在只保留 2 个必答变体，
+    其余只在该两张分歧时才作为仲裁手段。
     """
     full = rgb
     bright = full[(full.min(axis=2) > 130) & (full.max(axis=2) - full.min(axis=2) < 110)]
     if len(bright) > 50:
         background = np.median(bright, axis=0)
-        gain = np.maximum(background, 1)
         balanced = np.clip(full * (max(background) / np.maximum(background, 1)), 0, 255).astype('uint8')
     else:
         balanced = full
+
+    def score(part):
+        try:
+            name, value = recognize_cached(hand_reader, cv2.cvtColor(part, cv2.COLOR_RGB2BGR))
+        except Exception:
+            return None
+        if reject_blank_white and name == '5z' and _face_ink_ratio(part) > .035:
+            return None
+        return (float(value), name)
+
     options = []
+    # 第一轮：先只试原图内缩 2px。清晰牌面一次就能给出高分结论，
+    # 再多试白平衡图纯属浪费（每变体要跑满 37 模板）。
+    primary = full[2:full.shape[0] - 2, 2:full.shape[1] - 2] if full.shape[0] > 4 and full.shape[1] > 4 else full
+    first = score(primary)
+    if first and first[0] >= .86:
+        return first[1], first[0]
+    options.append(first)
+    if balanced.shape[0] > 4 and balanced.shape[1] > 4:
+        options.append(score(balanced[2:balanced.shape[0] - 2, 2:balanced.shape[1] - 2]))
+    options = [item for item in options if item]
+    if not options:
+        return None, 0.0
+    best_score, best_name = max(options, key=lambda item: item[0])
+    # 两个必答变体给出同一个名字且分数够高：直接采纳，不再做冗余仲裁。
+    if len(options) == 2 and options[0][1] == options[1][1] and best_score >= .78:
+        return best_name, best_score
+    # 否则（分歧或低分）：再试内缩 0/4px 与顶部裁切的变体做仲裁。
     for candidate in (full, balanced):
         variants = [candidate]
         for fraction in (.05, .08):
             if candidate.shape[0] > 20:
                 variants.append(candidate[int(candidate.shape[0] * fraction):candidate.shape[0] - 2])
         for crop in variants:
-            for inset in (0, 2, 4):
+            for inset in (0, 4):
                 if crop.shape[0] <= inset * 2 + 10 or crop.shape[1] <= inset * 2 + 10:
                     continue
-                part = crop[inset:crop.shape[0] - inset or None, inset:crop.shape[1] - inset or None]
-                try:
-                    name, score = recognize_cached(hand_reader,cv2.cvtColor(part, cv2.COLOR_RGB2BGR))
-                except Exception:
-                    continue
-                if reject_blank_white and name == '5z' and _face_ink_ratio(part) > .035:
-                    continue
-                options.append((float(score), name))
+                options.append(score(crop[inset:crop.shape[0] - inset or None,
+                                          inset:crop.shape[1] - inset or None]))
+    options = [item for item in options if item]
     if not options:
         return None, 0.0
     best_score, best_name = max(options, key=lambda item: item[0])
@@ -621,7 +647,14 @@ def _fallback_seat_melds(orig_bgr, ratios, hand_reader, axis='x', four_way=False
     return out
 
 
-def read_scene(image, cancel=None):
+def read_scene(image, cancel=None, fast=False):
+    """识别牌桌。fast=True 时只读手牌与立直，跳过牌河/副露/宝牌的逐张识别。
+
+    快速模式不做攻守推理，只需要：手牌（算进张）+ 谁立直了（选安全牌）。
+    立直仍走几何检测（依赖牌河末张角度），所以牌河的"位置"要读，
+    但牌河每张牌的"牌名"、各家副露的牌名对快速模式没有作用——
+    跳过它们能把 2.4s 的冷缓存识别压到 1s 量级。
+    """
     import cv2
     import numpy as np
     from auto_vision_vendor import split, reader, meld, hand
@@ -693,6 +726,10 @@ def read_scene(image, cancel=None):
                     if detected:
                         env['riichi'][seat] = 'candidate'   # 图推测，非确认事实
                         env['warnings'].append('%s 疑似立直（%s），请结合立直棒与牌河复核' % (seat, why))
+            if fast:
+                # 立直已由上面的几何检测得到（只需要牌河矩形，不需要牌名）。
+                # 副露牌名与宝牌对"打哪张"没有帮助，不再逐张识别。
+                return env
             groups = meld.read_all(bgr, full_box)
             for seat, value in groups.items():
                 safe_groups = []
@@ -749,6 +786,10 @@ def read_scene(image, cancel=None):
         result['dora_indicators'] = env['dora_indicators']
         result['riichi'] = env['riichi']
         result['warnings'].extend(env['warnings'])
+        if fast:
+            # 快速模式：副露已跳过识别，门清假设即可；立直候选保留给安全牌判断。
+            result['melds'] = {'own': {'groups': []}}
+            result['fast_mode'] = True
         # A closed 13/14-tile hand cannot have melds; clear the upstream own
         # candidates (the hand result was not available inside the env thread),
         # then let the region fallback recover them for open hands.

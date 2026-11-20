@@ -306,96 +306,50 @@ class SparkClient:
         return analyze_table(self,image,evidence,calculations,history,progress)
 
     def analyze_fast(self, image, evidence, calculations=None, history=None, progress=None):
-        """最快通道：本地求解器定牌，模型只写一句话理由。
+        """快速通道：纯本地求解器出结论，不调用模型。
 
-        设计取舍（v1.9.3）：
-        - 关闭思考。实测开思考 low 档也要 6.7~10.9s，且服务端把思考预算限制为
-          max_tokens 的一半，思考一长就撞上限报"输出达到上限"；关思考 1.6~2.4s 更稳。
-        - 不发图片。手牌已由本地核验，牌河/副露对一句话理由的增益远小于代价
-          （无图 1.6s vs 带图 2.35s）。需要看牌河判断危险时走结构化模式。
-        - 弃牌由 ExactSolver 决定，模型只做解释，杜绝幻觉出不存在的牌。
+        为什么彻底去掉模型（v1.9.4）：
+        - 弃牌本来已由 ExactSolver 决定（0.05~0.13s），模型只被用来"写一句话理由"。
+          这一句话要付 2.0~2.1s 的网络与推理代价，用户等待的主要部分就在这里。
+        - 网络还会偶发 prefill 抖动（实测同请求曾出现 21s、50s），
+          实战中不可接受的延迟方差比"理由措辞好听"重要得多。
+        - 关思考后模型输出质量本就不稳定（曾把 reason 写空、写出不存在的牌）。
+
+        现在的结论完全可复现、可离线、不依赖网络。需要牌河威胁分析时用结构化模式。
         """
-        if not self.settings.api_key:
-            raise ValueError('尚未配置 Spark API 密钥，请在模型设置里填写')
-        if not self._lock.acquire(blocking=False):
-            raise RuntimeError('模型为单并发，请等待上一次分析结束')
-        if not getattr(self, '_shared_cancel', False):
-            self._cancel.clear()
-        try:
-            hand_evidence = evidence.get('hand', {})
-            if hand_evidence.get('reliable'):
-                verified = [tile['name'] for tile in hand_evidence['tiles']]
-                hand_source = '本地核验'
-            else:
+        hand_evidence = evidence.get('hand', {})
+        if hand_evidence.get('reliable'):
+            verified = [tile['name'] for tile in hand_evidence['tiles']]
+            hand_source = '本地核验'
+        else:
+            candidate = None
+            try:
+                guess = [tile['name'] for tile in hand_evidence.get('tiles', []) if tile.get('name')]
+                if len(guess) in (13, 14):
+                    values = [tile_index(code) for code in guess]
+                    candidate = guess if all(values.count(v) <= 4 for v in values) else None
+            except (ValueError, TypeError):
                 candidate = None
-                try:
-                    guess = [tile['name'] for tile in hand_evidence.get('tiles', []) if tile.get('name')]
-                    if len(guess) in (13, 14):
-                        values = [tile_index(code) for code in guess]
-                        candidate = guess if all(values.count(v) <= 4 for v in values) else None
-                except (ValueError, TypeError):
-                    candidate = None
-                verified = candidate or []
-                hand_source = '本地候选，未核验' if candidate else '手牌未核验'
+            verified = candidate or []
+            hand_source = '本地候选，未核验' if candidate else '手牌未核验'
 
-            notes = list(evidence.get('warnings') or [])
-            if not hand_evidence.get('reliable'):
-                notes.append('自家手牌尚未通过本地核验，策略仅可作条件参考')
-            is_my_turn = hand_tile_total(verified, evidence) == 14
-            # 已和牌（14 张凑齐面子+雀头）没有"可打的牌"，直接由程序给出结论，不调模型。
-            if is_my_turn and calculations and calculations.get('win'):
-                return self._fast_result(self._won_result(verified, calculations, evidence, notes,
-                                                          hand_source), 0.0)
-            # 本地求解器给出的事实：最优弃牌与次选、向听、进张。模型只解释不重算。
-            best = self._fast_pick(calculations, verified, is_my_turn, evidence)
-            if is_my_turn and not best:
-                # 手牌未核验或核算失败：不猜牌，降级为只给风险提示。
-                if not verified:
-                    raise ValueError('手牌识别失败，请让手牌完整清晰后重新截图')
-                notes.append('本地核算未给出弃牌，本次仅提示风险，未给具体打牌')
-            facts = []
-            if best:
-                if is_my_turn:
-                    tag = '（安全牌优先，对手已立直）' if best.get('safe') else ''
-                    facts.append('程序最优：%s（%s向听，%s张进张，%s种）%s'
-                                 % (best['tile'], best.get('shanten'), best.get('ukeire'),
-                                    best.get('kinds'), tag))
-                    if best.get('runner_up'):
-                        facts.append('次选：%s（%s张进张）'
-                                     % (best['runner_up']['tile'], best['runner_up'].get('ukeire')))
-                else:
-                    detail = '%s向听，共%s种%s张有效进张' % (best.get('shanten'), best.get('kinds') or 0,
-                                                            best.get('ukeire') or 0)
-                    if best.get('draws'):
-                        detail += '，最快进张 ' + '/'.join(best['draws'])
-                    facts.append('程序核算：' + detail)
-            if is_my_turn and calculations and calculations.get('shanten') is not None:
-                facts.append('当前%s向听' % calculations['shanten'])
-            fact_text = ('；'.join(facts) + '。') if facts else ''
-            phase = ('【轮到你出牌】discard 必须等于"程序最优"的牌。' if is_my_turn else
-                     '【还没轮到你】discard=null，说摸到什么牌后打哪张。')
-            if is_my_turn and not best:
-                phase = '【轮到你出牌】本地未算出弃牌，discard=null，只给风险与方向提示。'
-            user_text = FAST_USER_PREFIX.format(depth=len(verified), hand=' '.join(verified) or '未知',
-                                                phase=phase, facts=fact_text)
-            if progress:
-                progress({'phase':'vision'})
-            # 关思考 + 不给图：思考会挤占 max_tokens 的一半预算并拖慢数倍。
-            payload = {'model':self.settings.model,
-                       'messages':[{'role':'system','content':FAST_SYSTEM_PROMPT},
-                                   {'role':'user','content':[{'type':'text','text':user_text}]}],
-                       'stream':True,'max_tokens':FAST_MAX_TOKENS,'reasoning_effort':'none',
-                       'chat_template_kwargs':{'enable_thinking':False},'strata_checkpoint':False}
-            reply = self._request_with_retry(payload, progress, parse_mode='fast')
-            if self._cancel.is_set():
-                raise Cancelled('分析已取消')
-            fast = reply['report']
-            return self._fast_result(
-                (fast, verified, evidence, notes, hand_source, is_my_turn, best),
-                reply['elapsed_seconds'], reply)
-        finally:
-            self._socket = None
-            self._lock.release()
+        notes = list(evidence.get('warnings') or [])
+        if not hand_evidence.get('reliable'):
+            notes.append('自家手牌尚未通过本地核验，策略仅可作条件参考')
+        is_my_turn = hand_tile_total(verified, evidence) == 14
+        if is_my_turn and calculations and calculations.get('win'):
+            return self._fast_result(self._won_result(verified, calculations, evidence, notes,
+                                                      hand_source), 0.0)
+        best = self._fast_pick(calculations, verified, is_my_turn, evidence)
+        if is_my_turn and not best:
+            if not verified:
+                raise ValueError('手牌识别失败，请让手牌完整清晰后重新截图')
+            notes.append('本地核算未给出弃牌')
+        if progress:
+            progress({'phase':'vision'})
+        # 结论由本地规则生成，没有模型请求，所以 elapsed 恒为 0。
+        state = ({}, verified, evidence, notes, hand_source, is_my_turn, best)
+        return self._fast_result(state, 0.0)
 
     def _fast_result(self, state, elapsed, request=None):
         """组装与完整流程兼容的 report；本地事实优先于模型表述。"""
@@ -420,42 +374,55 @@ class SparkClient:
                     groups.append({'type':'unknown','tiles':tiles,'confidence':'low'})
             observed['melds'][seat] = groups
 
-        discard = (fast.get('discard') or '')
-        if discard in ('null', 'none', '无'):
-            discard = None
-        if verified and hand_tile_total(verified, evidence) == 13:
-            discard = None
-        # 程序事实优先：模型给错牌时以本地求解结果兜底，绝不让建议落空。
+        discard = None
+        # 弃牌只认本地求解结果：快速模式不再有模型输入，避免任何幻觉可能。
         if is_my_turn and best:
-            if discard != best['tile']:
-                if discard:
-                    notes.append('模型建议 %s 与本地最优 %s 不一致，已采用本地核算结果'
-                                 % (discard, best['tile']))
-                discard = best['tile']
+            discard = best['tile']
         if discard and verified and discard not in verified:
             notes.append('建议打出的牌不在已核验手牌中，已隐藏该行动')
             discard = None
         action = '等待摸牌' if not discard else '打牌'
-        reason = (fast.get('reason') or '').strip()
-        if not reason:
-            reason = '进张最多' if discard else ('按牌效率推进' if best else '本地未给出弃牌')
         won = any('和牌型' in note for note in notes)
+        # 一句话结论：先说做什么，再给一句为什么。前瞻模式下直接给摸牌后的结论。
+        reason = ''
         if won:
             action, reason = '可以和牌', '手牌已满足和牌型'
-        # 13 张时"为什么打这张"没有意义，理由位改为说明当前进度。
-        if not discard and not won:
-            reason = ('%s向听' % best['shanten']) if (best or {}).get('shanten') is not None else '等牌推进'
-            if best and best.get('ukeire'):
-                reason += '，%s张进张' % best['ukeire']
+        elif discard:
+            reason = '进张最多' if (best or {}).get('kinds') else '牌效率最优'
+            if best and best.get('safe'):
+                reason = '安全牌优先（对手已立直）'
+            elif best and best.get('ukeire'):
+                reason = '%s张进张，最广' % best['ukeire']
+        elif best:
+            shanten = best.get('shanten')
+            # 13 张时手里就是最好状态，不该说"先打"。只报进度，
+            # 具体"打哪张"留给 wait_plan 的摸牌后动作。
+            draws = best.get('draws') or []
+            reason = ('%s向听' % shanten) if shanten is not None else '等牌推进'
+            if draws:
+                reason += '，等 ' + '/'.join(draws[:4])
+        else:
+            reason = '本地未给出弃牌'
+        # 前瞻：13 张时直接告诉"摸到后打哪张"，这是用户真正要的动作。
+        wait_plan = ''
+        strategy_spare = ''
+        if won:
+            wait_plan = '直接和牌'
+        elif not discard:
+            spare = self._fast_spare_tile(verified, evidence)
+            wait_plan = ('轮到你摸牌后打 %s' % spare) if spare else '轮到你后打最孤的浮牌'
+            strategy_spare = spare or ''
         strategy = {
             'stance': '进攻' if won or ((best or {}).get('shanten') or 9) <= 2 else '均衡',
             'recommendation': {'action':action,'tile':discard,'reason':reason},
-            'offense': fast.get('wait_plan') or '',
-            'defense': fast.get('risk') or '',
+            'offense': wait_plan,
+            'defense': '',
             'alternatives': [],
-            'next_turn_plan': [fast.get('wait_plan')] if fast.get('wait_plan') else [],
-            'call_plan': '快速模式：鸣牌时请以牌效率与役种为准',
-            'placement': '快速模式未展开点差分析',
+            'next_turn_plan': [wait_plan] if wait_plan else [],
+            'call_plan': '',
+            'placement': '',
+            # 13 张时"下一步要打哪张"，UI 直接用它做标题。
+            'next_discard': strategy_spare,
             'uncertainties': notes,
             'confidence': 'medium' if (evidence.get('hand') or {}).get('reliable') else 'low',
         }
@@ -469,6 +436,33 @@ class SparkClient:
         reply['stage_usage'] = {'fast':reply.get('usage') or {}}
         reply['mode'] = 'fast'
         return reply
+
+    @staticmethod
+    def _fast_spare_tile(verified, evidence):
+        """13 张时最该先打掉的浮牌：孤张字牌 → 孤张幺九 → 无搭中张。"""
+        if not verified:
+            return ''
+        counts = {}
+        for code in verified:
+            counts[code] = counts.get(code, 0) + 1
+        def neighbours(code):
+            try:
+                index = tile_index(code)
+            except ValueError:
+                return 0
+            if code[1] == 'z':
+                return counts.get(code, 0) - 1
+            total = 0
+            for delta in (-2, -1, 1, 2):
+                other = index + delta
+                if 0 <= other < 27 and other // 9 == index // 9:
+                    total += counts.get(tile_code(other), 0)
+            return total
+        lone = [code for code, n in counts.items() if n == 1]
+        if not lone:
+            return ''
+        lone.sort(key=lambda code: (0 if code[1] == 'z' else 1, neighbours(code)))
+        return lone[0]
 
     @staticmethod
     def _won_result(verified, calculations, evidence, notes, hand_source):

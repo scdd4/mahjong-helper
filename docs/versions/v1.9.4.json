@@ -1,0 +1,52 @@
+{
+  "version": "1.9.4",
+  "built_at": "2026-11-21T01:33:00+08:00",
+  "builder": "Python 3.12.14 / PyInstaller 6.22.3",
+  "entry": "MahjongStrategyAssistant/MahjongStrategyAssistant.exe",
+  "launcher": "启动-v1.9.4.cmd",
+  "exe_sha256": "079faa8c5d65fdcd82fd93fd4c6acbee7e0e73e4b1798b85a66fd6526b72dea6",
+  "exe_bytes": 5658211,
+  "payload_file_count": 1249,
+  "payload_total_bytes": 234434950,
+  "payload_scope": "MahjongStrategyAssistant 内 EXE 与 _internal；排除运行时 user-data；交付清单不计入负载",
+  "self_check": {
+    "ok": true,
+    "version": "1.9.4",
+    "opencv": "4.14.0",
+    "thinking": "medium"
+  },
+  "changes": {
+    "speed": "快速模式彻底不联网（0 请求）；read_scene(fast=True) 只读手牌与立直，跳过牌河/副露/宝牌逐张识别",
+    "ux": "前瞻标题直接给「轮到你打 X」；正文收敛到 1~3 行，不再罗列攻守长篇",
+    "new_field": "strategy.next_discard —— 13 张时算出摸牌后该打的孤张"
+  },
+  "new_in_this_version": [
+    "fast_mode_zero_network",
+    "fast_read_scene_skips_rivers_and_melds",
+    "next_discard_in_title",
+    "concise_panel_1_to_3_lines",
+    "trimmed_crop_variants"
+  ],
+  "measured_latency": {
+    "end_to_end_median_seconds": 1.40,
+    "end_to_end_max_seconds": 1.56,
+    "packaged_exe_end_to_end_seconds": 1.43,
+    "previous_version_seconds": "9+",
+    "speedup": "约 6.4 倍",
+    "network_requests": 0,
+    "recognition_fast_seconds": 1.27,
+    "recognition_full_seconds": 2.49
+  },
+  "tests": {
+    "python_suites": 9,
+    "python_total_cases": 141,
+    "python_all_passed": true,
+    "npm_groups": 6,
+    "npm_all_passed": true,
+    "self_check_passed": true
+  },
+  "privacy": {
+    "credentials_packaged": false,
+    "user_screenshots_packaged": false
+  }
+}

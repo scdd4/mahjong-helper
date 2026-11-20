@@ -14,7 +14,7 @@ from desktop_runtime import (ROOT, ExactSolver, Settings, acquire_single_instanc
                              load_settings, log_event, save_settings, tile_name)
 from spark_strategy import Cancelled, SparkClient, validate_report
 
-APP_VERSION = '1.9.3'
+APP_VERSION = '1.9.4'
 PHASE_LABELS = {'local':'正在识别手牌与整张牌桌','vision_ready':'识牌完成，本地规则核算就绪',
                 'structured':'结构化局面已生成，模型正在推理决策',
                 'vision':'Spark 正在读取牌河、副露与场况','thinking':'Spark 正在思考攻守',
@@ -93,7 +93,9 @@ class AnalysisPipeline:
             if progress:progress(event)
         if progress:
             progress({'phase':'local'})
-        local = read_scene(image, self.cancelled)
+        # 快速模式只需要手牌与立直，跳过牌河/副露的逐张识别（约省 1.2s）。
+        local = read_scene(image, self.cancelled,
+                           fast=getattr(settings, 'analysis_mode', 'structured') == 'fast')
         if self.cancelled.is_set():
             raise Cancelled('分析已取消')
         hand = local.get('hand') or {}
@@ -167,8 +169,12 @@ def report_sections(result):
     observed, strategy = report['observed'],report['strategy']
     action = strategy.get('recommendation',{})
     tile = action.get('tile')
+    fast = bool(result.get('thinking_stages',{}).get('fast'))
     if tile and tile not in ('null','unknown','无'):
         title = '建议打 '+tile_name(tile)
+    elif fast and strategy.get('next_discard'):
+        # 未轮到：直接给"轮到你打哪张"，这比"给你前瞻"有用。
+        title = '轮到你打 '+tile_name(strategy['next_discard'])
     elif action.get('action') == '等待摸牌':
         title = '未轮到你 · 给你前瞻'
     else:
@@ -176,6 +182,22 @@ def report_sections(result):
     warnings = result.get('validation_warnings',[])
     if warnings:
         title = '行动建议待核对'
+    # 快速模式只要结论：标题即答案，正文两行内收口，不铺开场面细节。
+    if fast and not warnings:
+        quick = []
+        reason = _text(action.get('reason'))
+        if reason and reason != '未确认':
+            quick.append(('结论', reason))
+        # 标题已经是"建议打 X / 轮到你打 X"，正文不再重复同一动作。
+        if strategy.get('defense'):
+            quick.append(('要防的', _text(strategy['defense'])))
+        issues = [w for w in (result.get('vision_uncertainties') or [])
+                  if '模板结果不是完整场况' not in w and '程序判断可直接和牌' not in w]
+        if issues:
+            quick.append(('需留意', _text(issues)))
+        hand = observed.get('hand',[])
+        quick.append(('手牌', ' '.join(tile_name(t) for t in hand)))
+        return title, quick
     scores = observed.get('scores',{}) or {}
     hand = observed.get('hand',[])
     observed_text = '手牌：'+ ' '.join(tile_name(t) for t in hand)

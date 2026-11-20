@@ -190,75 +190,58 @@ class DesktopTests(unittest.TestCase):
             self.assertTrue(all(request['chat_template_kwargs']['enable_thinking'] for request in received))
         finally:server.shutdown();server.server_close();thread.join(timeout=2)
 
-    def test_fast_mode_is_text_only_no_thinking_and_defers_to_local_solver(self):
-        """v1.9.3：关思考、不发图、弃牌以本地求解器为准（模型给错也会被纠正）。"""
+    def test_fast_mode_is_fully_local_and_never_calls_the_model(self):
+        """v1.9.4：快速模式纯本地出结论，一个网络请求都不发。
+
+        弃牌原本已由 ExactSolver 决定，模型只是"写一句话理由"，
+        这一句话要付 2.0s 网络代价，还会偶发 20~50s 的 prefill 抖动。
+        """
         received=[]
-        # 模型故意给一个错误牌，验证程序会用本地事实覆盖它。
-        fast_answer=json.dumps({'discard':'9z','reason':'效率最高','wait_plan':'推进','risk':'观察'},ensure_ascii=False)
         class Handler(BaseHTTPRequestHandler):
             def log_message(self,*args):pass
             def do_POST(self):
-                received.append(json.loads(self.rfile.read(int(self.headers['Content-Length']))))
-                self.send_response(200);self.send_header('Content-Type','text/event-stream');self.end_headers()
-                payload={'choices':[{'delta':{'content':fast_answer},'finish_reason':None}]}
-                self.wfile.write(('data: '+json.dumps(payload)+'\n\n').encode());self.wfile.flush()
-                self.wfile.write(b'data: [DONE]\n\n')
+                received.append(1)
+                self.send_response(500);self.end_headers()
         server=HTTPServer(('127.0.0.1',0),Handler)
         thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
         try:
             settings=Settings(base_url='http://127.0.0.1:%d/v1'%server.server_port,api_key='test-key')
             local={'hand':{'reliable':True,'tiles':[{'name':t} for t in HAND]},'dora_indicators':[],
-                   'rivers':{},'melds':{},'warnings':[]}
+                   'rivers':{},'melds':{},'riichi':{},'warnings':[]}
             calculations={'shanten':0,'candidates':[{'tile':'4z','shanten':0,'ukeire':40,'kinds':6}],
                           'waits':[],'ukeire':[]}
             with Image.new('RGB',(2560,1400),'navy') as image:
                 result=SparkClient(settings).analyze_fast(image,local,calculations)
-            self.assertEqual(len(received),1)  # single call
-            request=received[0]
-            # 思考会挤占 max_tokens 的一半并拖慢数倍，快速模式必须关闭。
-            self.assertEqual(request['reasoning_effort'],'none')
-            self.assertFalse(request['chat_template_kwargs']['enable_thinking'])
-            self.assertEqual(request['max_tokens'],512)  # 200 时思考预算仅 100，必然撞上限
-            # 不再发图：手牌已本地核验，图片只增加 0.7s。
-            self.assertFalse(any(isinstance(p,dict) and p.get('type')=='image_url'
-                                 for p in request['messages'][1]['content']))
+            self.assertEqual(received,[])                      # 零网络请求
             report=result['report']
-            # 模型说 9z（不在手牌），程序必须改用本地最优 4z
             self.assertEqual(report['strategy']['recommendation']['tile'],'4z')
-            self.assertTrue(any('不一致' in w for w in result['vision_uncertainties']))
+            self.assertIn('40张进张',report['strategy']['recommendation']['reason'])
             self.assertEqual(report['observed']['hand'],HAND)
             self.assertEqual(result['mode'],'fast')
             self.assertIn('fast',result['stage_seconds'])
         finally:server.shutdown();server.server_close();thread.join(timeout=2)
 
-    def test_fast_mode_turn_prompt_carries_local_fact(self):
-        """轮次感知：14 张提示"程序最优"，13 张提示摸牌前瞻。"""
-        received=[]
-        answer=json.dumps({'discard':None,'reason':'等雀头','wait_plan':'摸1z成对即听','risk':'防立直'},ensure_ascii=False)
-        class Handler(BaseHTTPRequestHandler):
-            def log_message(self,*args):pass
-            def do_POST(self):
-                received.append(json.loads(self.rfile.read(int(self.headers['Content-Length']))))
-                self.send_response(200);self.send_header('Content-Type','text/event-stream');self.end_headers()
-                self.wfile.write(('data: '+json.dumps({'choices':[{'delta':{'content':answer}}]})+'\n\n').encode())
-                self.wfile.write(b'data: [DONE]\n\n')
-        server=HTTPServer(('127.0.0.1',0),Handler)
-        thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
-        try:
-            settings=Settings(base_url='http://127.0.0.1:%d/v1'%server.server_port,api_key='test-key')
-            local={'hand':{'reliable':True,'tiles':[{'name':t} for t in HAND[:-1]]},'dora_indicators':[],
-                   'rivers':{},'melds':{},'warnings':[]}
-            calculations={'shanten':1,'candidates':[],'waits':[],
-                          'ukeire':[{'tile':'1z','remaining':3},{'tile':'5z','remaining':2}]}
-            with Image.new('RGB',(640,360),'navy') as image:
-                result=SparkClient(settings).analyze_fast(image,local,calculations)
-            text=received[0]['messages'][1]['content'][0]['text']
-            self.assertIn('还没轮到你',text)
-            self.assertIn('1z',text)          # 本地进张作为事实注入
-            action=result['report']['strategy']['recommendation']
-            self.assertEqual(action['action'],'等待摸牌')
-            self.assertIsNone(action['tile'])
-        finally:server.shutdown();server.server_close();thread.join(timeout=2)
+    def test_fast_mode_wait_turn_gives_next_discard_directly(self):
+        """13 张：标题给"轮到你打 X"，正文只留一句进度，不铺开分析。"""
+        settings=Settings(base_url='http://127.0.0.1:1/v1',api_key='test-key')
+        local={'hand':{'reliable':True,'tiles':[{'name':t} for t in HAND[:-1]]},'dora_indicators':[],
+               'rivers':{},'melds':{},'riichi':{},'warnings':[]}
+        calculations={'shanten':1,'candidates':[],'waits':[],
+                      'ukeire':[{'tile':'1z','remaining':3},{'tile':'5z','remaining':2}]}
+        with Image.new('RGB',(640,360),'navy') as image:
+            result=SparkClient(settings).analyze_fast(image,local,calculations)
+        action=result['report']['strategy']['recommendation']
+        self.assertEqual(action['action'],'等待摸牌')
+        self.assertIsNone(action['tile'])
+        strategy=result['report']['strategy']
+        # 必须直接给"轮到你打哪张"，而不是含糊的"给你前瞻"
+        self.assertTrue(strategy.get('next_discard'))
+        self.assertIn(strategy['next_discard'],HAND[:-1])
+        title,sections=report_sections(result)
+        self.assertIn('轮到你打',title)
+        # 正文收敛：不超过 3 段，且不含模型长文
+        self.assertLessEqual(len(sections),3)
+
 
     def test_fast_mode_complete_hand_reports_win_without_model_call(self):
         """已和牌：程序直接给结论，不发请求。"""
@@ -351,10 +334,14 @@ class DesktopTests(unittest.TestCase):
             settings=Settings(base_url='http://127.0.0.1:%d/v1'%server.server_port,api_key='test-key')
             local={'hand':{'reliable':True,'tiles':[{'name':t} for t in HAND]},'dora_indicators':[],
                    'rivers':{},'melds':{},'warnings':[]}
-            with Image.new('RGB',(640,360),'navy') as image:
-                result=SparkClient(settings).analyze_fast(image,local)
+            # 快速模式不联网，重试逻辑属于网络层：直接测 _request_with_retry。
+            client=SparkClient(settings)
+            payload={'model':'m','messages':[{'role':'user','content':'x'}],
+                     'stream':True,'max_tokens':64,'reasoning_effort':'none',
+                     'chat_template_kwargs':{'enable_thinking':False}}
+            result=client._request_with_retry(payload,None,'fast')
             self.assertEqual(len(received),2)  # one retry after the broken stream
-            self.assertEqual(result['report']['strategy']['recommendation']['tile'],'1m')
+            self.assertEqual(result['report']['discard'],'1m')
         finally:server.shutdown();server.server_close();thread.join(timeout=2)
 
     def test_occlusion_error_has_machine_readable_code(self):
