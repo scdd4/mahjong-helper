@@ -14,7 +14,7 @@ from desktop_runtime import (ROOT, ExactSolver, Settings, acquire_single_instanc
                              load_settings, log_event, save_settings, tile_name)
 from spark_strategy import Cancelled, SparkClient, validate_report
 
-APP_VERSION = '1.9.5'
+APP_VERSION = '1.10.0'
 PHASE_LABELS = {'local':'正在识别手牌与整张牌桌','vision_ready':'识牌完成，本地规则核算就绪',
                 'structured':'结构化局面已生成，模型正在推理决策',
                 'vision':'Spark 正在读取牌河、副露与场况','thinking':'Spark 正在思考攻守',
@@ -94,8 +94,9 @@ class AnalysisPipeline:
         if progress:
             progress({'phase':'local'})
         # 快速模式只需要手牌与立直，跳过牌河/副露的逐张识别（约省 1.2s）。
-        local = read_scene(image, self.cancelled,
-                           fast=getattr(settings, 'analysis_mode', 'structured') == 'fast')
+        # Jev 模式需要牌河/立直事实做攻守判断，因此用完整识别。
+        mode_now = getattr(settings, 'analysis_mode', 'structured')
+        local = read_scene(image, self.cancelled, fast=(mode_now == 'fast'))
         if self.cancelled.is_set():
             raise Cancelled('分析已取消')
         hand = local.get('hand') or {}
@@ -129,9 +130,11 @@ class AnalysisPipeline:
             raise Cancelled('分析已取消')
         self.client = SparkClient(replace(settings), cancel_event=self.cancelled)
         try:
-            if getattr(settings, 'analysis_mode', 'structured') == 'structured':
+            if mode_now == 'structured':
                 result = self.client.analyze_structured(image, local, exact, history, track_progress)
-            elif getattr(settings, 'analysis_mode', 'structured') == 'fast':
+            elif mode_now == 'jev':
+                result = self.client.decide_jev(image, local, exact, history, track_progress)
+            elif mode_now == 'fast':
                 result = self.client.analyze_fast(image, local, exact, history, track_progress)
             else:
                 result = self.client.analyze(image, local, exact, history, track_progress)
@@ -169,7 +172,7 @@ def report_sections(result):
     observed, strategy = report['observed'],report['strategy']
     action = strategy.get('recommendation',{})
     tile = action.get('tile')
-    fast = bool(result.get('thinking_stages',{}).get('fast'))
+    fast = bool(result.get('thinking_stages',{}).get('fast')) or result.get('mode') == 'jev'
     if tile and tile not in ('null','unknown','无'):
         title = '建议打 '+tile_name(tile)
     elif fast and strategy.get('next_discard'):
@@ -447,7 +450,7 @@ class StrategyApp:
     def _update_badge(self):
         source='雀魂窗口' if self.settings.capture_source=='window' else '全屏'
         current = getattr(self.settings,'analysis_mode','structured')
-        mode='结构化' if current=='structured' else ('快速' if current=='fast' else '完整')
+        mode={'structured':'结构化','jev':'Jev决策','fast':'快速'}.get(current,'完整')
         badge = 'Spark · 快速思考' if current!='full' else 'Spark · '+{'low':'快速思考','medium':'标准思考','high':'深入思考'}[self.settings.reasoning_effort]
         badge += ' · '+source+' · '+mode+'模式'
         if self.settings_warning:
@@ -680,11 +683,11 @@ class StrategyApp:
         self.mini_hand.config(text=' '.join(tile_name(t.get('name') or '?') for t in local.get('tiles',[])))
         elapsed=result.get('total_seconds',result.get('elapsed_seconds',0))
         stages=result.get('stage_seconds',{})
-        stage_names={'local':'识牌','structured':'策略','fast':'策略','quick':'初判','detail':'详解','vision':'读图','strategy':'策略','pipeline_other':'其他'}
+        stage_names={'local':'识牌','structured':'策略','fast':'策略','jev':'决策','quick':'初判','detail':'详解','vision':'读图','strategy':'策略','pipeline_other':'其他'}
         detail=' · '.join('%s %.1f秒' % (stage_names.get(name,'处理'),value) for name,value in stages.items() if isinstance(value,(int,float)))
         effort = 'low' if result.get('mode') in ('fast','structured') else result.get('reasoning_effort','medium')
         effort = {'low':'快速','medium':'标准','high':'深入'}.get(effort,'标准')
-        prefix={'fast':'快速','structured':'结构化'}.get(result.get('mode'),'完整')
+        prefix={'fast':'快速','jev':'Jev决策','structured':'结构化'}.get(result.get('mode'),'完整')
         self._set_status(prefix+' · 分析完成 · %.1f 秒 · 思考 %s%s' % (elapsed,effort,(' · '+detail) if detail else ''),'#8bcdb1')
         observed=result['report']['observed'];strategy=result['report']['strategy']
         round_label=_text(observed.get('round')); self_wind=_text(observed.get('self_wind'))

@@ -5,7 +5,8 @@ from tkinter import messagebox, ttk
 from desktop_runtime import log_event
 
 
-MODE_LABELS = {'fast': '快速（只报下一张，推荐）', 'structured': '结构化（初判+详解）', 'full': '完整分析'}
+MODE_LABELS = {'fast': '快速（只报下一张）', 'jev': 'Jev决策（概率+置信度，推荐）',
+               'structured': '结构化（初判+详解）', 'full': '完整分析'}
 
 
 def settings_from_form(initial, values):
@@ -80,9 +81,10 @@ class SettingsDialog(tk.Toplevel):
             value = tk.StringVar(value=initial)
             self.values[field] = value
             ttk.Combobox(self.form, textvariable=value, values=choices, state='readonly', width=20).grid(row=row, column=1, sticky='ew', padx=(12, 0))
-        description = ('快速模式（默认）只回答这一张打什么；不是你回合时回答轮到你先考虑哪些牌，约 5 秒。'
-                       '结构化模式先给初判再补全场面详解，完整模式展开攻守与后续计划，两者耗时较长。'
-                       '\n三种模式均开启思考。结构化和快速模式使用快速思考档位。'
+        description = ('Jev决策（推荐）：把候选牌锁死在受限 token，一次前向读出每张牌的概率与置信度，'
+                       '只回答打哪张牌，结构上不会编造不存在的牌，约 3 秒。'
+                       '\n快速模式只回答这一张打什么，约 5 秒；结构化先给初判再补全详解；完整模式展开攻守计划。'
+                       '\n各模式均开启思考（不展示思考过程）。'
                        '\n\n密钥使用当前 Windows 用户加密保存。识别到的游戏画面会发送到配置的模型服务。')
         help_label = ttk.Label(self.form, text=description, wraplength=560, justify='left')
         help_label.grid(row=11, column=0, columnspan=2, sticky='ew', pady=(14, 6))

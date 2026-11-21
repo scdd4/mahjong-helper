@@ -1,0 +1,600 @@
+{
+  "summary": {
+    "passed": 48,
+    "total": 59,
+    "accuracy": 0.8135593220338984,
+    "median_s": 1.24
+  },
+  "results": [
+    {
+      "id": "eff-001",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.21,
+      "confidence": 0.794,
+      "tile": "2z",
+      "detail": "期望 2z(备选 ['3z', '4z'])，模型 2z"
+    },
+    {
+      "id": "eff-002",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.24,
+      "confidence": 0.823,
+      "tile": "1z",
+      "detail": "期望 1z(备选 ['9p'])，模型 1z"
+    },
+    {
+      "id": "eff-003",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.23,
+      "confidence": 0.776,
+      "tile": "1m",
+      "detail": "期望 1m(备选 ['8m'])，模型 1m"
+    },
+    {
+      "id": "eff-004",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.25,
+      "confidence": 0.847,
+      "tile": "4m",
+      "detail": "期望 4m(备选 [])，模型 4m"
+    },
+    {
+      "id": "eff-005",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.2,
+      "confidence": 0.685,
+      "tile": "1z",
+      "detail": "期望 1z(备选 ['4z', '6z'])，模型 1z"
+    },
+    {
+      "id": "eff-006",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.22,
+      "confidence": 0.934,
+      "tile": "1z",
+      "detail": "期望 1z(备选 [])，模型 1z"
+    },
+    {
+      "id": "eff-007",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.25,
+      "confidence": 0.935,
+      "tile": "9s",
+      "detail": "期望 9s(备选 [])，模型 9s"
+    },
+    {
+      "id": "eff-008",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.27,
+      "confidence": 0.95,
+      "tile": "7z",
+      "detail": "期望 7z(备选 [])，模型 7z"
+    },
+    {
+      "id": "eff-009",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.84,
+      "confidence": 0.549,
+      "tile": "1m",
+      "detail": "期望 1m(备选 ['2m', '8m', '9m'])，模型 1m"
+    },
+    {
+      "id": "eff-010",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 2.23,
+      "confidence": 0.906,
+      "tile": "9m",
+      "detail": "期望 9m(备选 [])，模型 9m"
+    },
+    {
+      "id": "def-001",
+      "kind": "defense",
+      "category": "defense",
+      "passed": true,
+      "seconds": 2.31,
+      "confidence": 0.798,
+      "tile": "1z",
+      "detail": "安全集 ['1z', '9s']，模型 1z"
+    },
+    {
+      "id": "def-002",
+      "kind": "defense",
+      "category": "defense",
+      "passed": true,
+      "seconds": 1.7,
+      "confidence": 0.427,
+      "tile": "1m",
+      "detail": "安全集 ['1m', '2p', '4z', '6s', '7m']，模型 1m"
+    },
+    {
+      "id": "def-003",
+      "kind": "defense",
+      "category": "defense",
+      "passed": true,
+      "seconds": 1.77,
+      "confidence": 0.788,
+      "tile": "3z",
+      "detail": "安全集 ['2s', '3z', '4z']，模型 3z"
+    },
+    {
+      "id": "def-004",
+      "kind": "defense",
+      "category": "defense",
+      "passed": true,
+      "seconds": 1.32,
+      "confidence": 0.987,
+      "tile": "2z",
+      "detail": "安全集 ['2z']，模型 2z"
+    },
+    {
+      "id": "def-005",
+      "kind": "defense",
+      "category": "defense",
+      "passed": true,
+      "seconds": 1.29,
+      "confidence": 0.229,
+      "tile": "6z",
+      "detail": "安全集 ['2z', '4z', '6z']，模型 6z"
+    },
+    {
+      "id": "def-006",
+      "kind": "defense",
+      "category": "defense",
+      "passed": true,
+      "seconds": 1.23,
+      "confidence": 0.808,
+      "tile": "1m",
+      "detail": "安全集 ['1m']，模型 1m"
+    },
+    {
+      "id": "def-007",
+      "kind": "defense",
+      "category": "defense",
+      "passed": true,
+      "seconds": 1.22,
+      "confidence": 0.968,
+      "tile": "9p",
+      "detail": "安全集 ['9p']，模型 9p"
+    },
+    {
+      "id": "def-008",
+      "kind": "defense",
+      "category": "defense",
+      "passed": true,
+      "seconds": 1.26,
+      "confidence": 0.834,
+      "tile": "2m",
+      "detail": "安全集 ['2m', '3z', '4z', '5z', '6z', '7z', '8m']，模型 2m"
+    },
+    {
+      "id": "pf-001",
+      "kind": "push_fold",
+      "category": "push_fold",
+      "passed": false,
+      "seconds": 1.23,
+      "confidence": 0.365,
+      "tile": "9p",
+      "detail": "期望 push(进攻，保持听牌弃牌 ['1m', '4m', '5z', '7m'])，模型 均衡/9p"
+    },
+    {
+      "id": "pf-002",
+      "kind": "push_fold",
+      "category": "push_fold",
+      "passed": false,
+      "seconds": 1.24,
+      "confidence": 0.377,
+      "tile": "5p",
+      "detail": "期望 fold(防守，安全集 ['3z', '4z', '5p', '8s'])，模型 均衡/5p"
+    },
+    {
+      "id": "pf-003",
+      "kind": "push_fold",
+      "category": "push_fold",
+      "passed": true,
+      "seconds": 1.2,
+      "confidence": 0.834,
+      "tile": "7z",
+      "detail": "期望 push(进攻，保持听牌弃牌 ['3m', '6m', '7z', '9m'])，模型 均衡/7z"
+    },
+    {
+      "id": "pf-004",
+      "kind": "push_fold",
+      "category": "push_fold",
+      "passed": true,
+      "seconds": 1.26,
+      "confidence": 0.736,
+      "tile": "5z",
+      "detail": "期望 push(进攻，保持听牌弃牌 ['5z', '6m', '9m'])，模型 均衡/5z"
+    },
+    {
+      "id": "val-001",
+      "kind": "value",
+      "category": "value",
+      "passed": true,
+      "seconds": 1.16,
+      "confidence": 0.396,
+      "tile": "9m",
+      "detail": "期望 9m，模型 9m（Jev 不输出理由）"
+    },
+    {
+      "id": "val-002",
+      "kind": "value",
+      "category": "value",
+      "passed": true,
+      "seconds": 1.19,
+      "confidence": 0.4,
+      "tile": "9s",
+      "detail": "期望 9s，模型 9s（Jev 不输出理由）"
+    },
+    {
+      "id": "def-009",
+      "kind": "defense",
+      "category": "defense",
+      "passed": true,
+      "seconds": 1.2,
+      "confidence": 0.893,
+      "tile": "3m",
+      "detail": "安全集 ['3m']，模型 3m"
+    },
+    {
+      "id": "def-010",
+      "kind": "defense",
+      "category": "defense",
+      "passed": true,
+      "seconds": 1.29,
+      "confidence": 0.635,
+      "tile": "1m",
+      "detail": "安全集 ['1m', '2p', '6s', '7m']，模型 1m"
+    },
+    {
+      "id": "def-011",
+      "kind": "defense",
+      "category": "defense",
+      "passed": false,
+      "seconds": 1.23,
+      "confidence": 0.337,
+      "tile": "9p",
+      "detail": "安全集 ['3z', '4z', '8p']，模型 9p"
+    },
+    {
+      "id": "def-012",
+      "kind": "defense",
+      "category": "defense",
+      "passed": true,
+      "seconds": 1.21,
+      "confidence": 0.338,
+      "tile": "3z",
+      "detail": "安全集 ['3z', '5p']，模型 3z"
+    },
+    {
+      "id": "def-013",
+      "kind": "defense",
+      "category": "defense",
+      "passed": true,
+      "seconds": 1.21,
+      "confidence": 0.386,
+      "tile": "4z",
+      "detail": "安全集 ['4z']，模型 4z"
+    },
+    {
+      "id": "def-014",
+      "kind": "defense",
+      "category": "defense",
+      "passed": true,
+      "seconds": 1.25,
+      "confidence": 0.848,
+      "tile": "2m",
+      "detail": "安全集 ['2m', '8m']，模型 2m"
+    },
+    {
+      "id": "def-015",
+      "kind": "defense",
+      "category": "defense",
+      "passed": true,
+      "seconds": 1.23,
+      "confidence": 0.865,
+      "tile": "6z",
+      "detail": "安全集 ['5p', '6z']，模型 6z"
+    },
+    {
+      "id": "def-016",
+      "kind": "defense",
+      "category": "defense",
+      "passed": true,
+      "seconds": 1.26,
+      "confidence": 0.429,
+      "tile": "1m",
+      "detail": "安全集 ['1m', '1z', '3z', '9p']，模型 1m"
+    },
+    {
+      "id": "eff-011",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.24,
+      "confidence": 0.87,
+      "tile": "3z",
+      "detail": "期望 3z(备选 [])，模型 3z"
+    },
+    {
+      "id": "eff-012",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.15,
+      "confidence": 0.381,
+      "tile": "9p",
+      "detail": "期望 2s(备选 ['3s', '4s', '9p'])，模型 9p"
+    },
+    {
+      "id": "eff-013",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.27,
+      "confidence": 0.882,
+      "tile": "9s",
+      "detail": "期望 9s(备选 [])，模型 9s"
+    },
+    {
+      "id": "eff-014",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.31,
+      "confidence": 0.968,
+      "tile": "6z",
+      "detail": "期望 6z(备选 [])，模型 6z"
+    },
+    {
+      "id": "eff-015",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.27,
+      "confidence": 0.976,
+      "tile": "6m",
+      "detail": "期望 6m(备选 [])，模型 6m"
+    },
+    {
+      "id": "eff-017",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.24,
+      "confidence": 0.97,
+      "tile": "5m",
+      "detail": "期望 5m(备选 [])，模型 5m"
+    },
+    {
+      "id": "eff-018",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.2,
+      "confidence": 0.463,
+      "tile": "9s",
+      "detail": "期望 5m(备选 ['9s'])，模型 9s"
+    },
+    {
+      "id": "eff-016",
+      "kind": "efficiency",
+      "category": "efficiency",
+      "passed": true,
+      "seconds": 1.19,
+      "confidence": 0.819,
+      "tile": "2p",
+      "detail": "期望 2p(备选 ['5p'])，模型 2p"
+    },
+    {
+      "id": "val-003",
+      "kind": "value",
+      "category": "value",
+      "passed": true,
+      "seconds": 1.23,
+      "confidence": 0.747,
+      "tile": "5z",
+      "detail": "期望 5z，模型 5z（Jev 不输出理由）"
+    },
+    {
+      "id": "val-004",
+      "kind": "value",
+      "category": "value",
+      "passed": false,
+      "seconds": 1.21,
+      "confidence": 0.511,
+      "tile": "5z",
+      "detail": "期望 4m，模型 5z（Jev 不输出理由）"
+    },
+    {
+      "id": "val-005",
+      "kind": "value",
+      "category": "value",
+      "passed": true,
+      "seconds": 1.2,
+      "confidence": 0.535,
+      "tile": "9p",
+      "detail": "期望 9p，模型 9p（Jev 不输出理由）"
+    },
+    {
+      "id": "pf-005",
+      "kind": "push_fold",
+      "category": "push_fold",
+      "passed": false,
+      "seconds": 1.28,
+      "confidence": 0.412,
+      "tile": "2m",
+      "detail": "期望 push(进攻，保持听牌弃牌 ['5z', '6s'])，模型 均衡/2m"
+    },
+    {
+      "id": "pf-006",
+      "kind": "push_fold",
+      "category": "push_fold",
+      "passed": false,
+      "seconds": 1.26,
+      "confidence": 0.354,
+      "tile": "7m",
+      "detail": "期望 fold(防守，安全集 ['2p', '2z', '3z', '4z', '7m'])，模型 均衡/7m"
+    },
+    {
+      "id": "pf-007",
+      "kind": "push_fold",
+      "category": "push_fold",
+      "passed": false,
+      "seconds": 1.25,
+      "confidence": 0.392,
+      "tile": "9p",
+      "detail": "期望 push(进攻，保持听牌弃牌 ['2s', '3s', '5s', '6s'])，模型 均衡/9p"
+    },
+    {
+      "id": "pf-008",
+      "kind": "push_fold",
+      "category": "push_fold",
+      "passed": false,
+      "seconds": 1.23,
+      "confidence": 0.234,
+      "tile": "4m",
+      "detail": "期望 fold(防守，安全集 ['3z', '5m'])，模型 均衡/4m"
+    },
+    {
+      "id": "lim-001",
+      "kind": "defense",
+      "category": "limit",
+      "passed": true,
+      "seconds": 1.24,
+      "confidence": 0.963,
+      "tile": "3z",
+      "detail": "安全集 ['3z']，模型 3z"
+    },
+    {
+      "id": "lim-002",
+      "kind": "defense",
+      "category": "limit",
+      "passed": true,
+      "seconds": 1.28,
+      "confidence": 0.605,
+      "tile": "1z",
+      "detail": "安全集 ['1z', '2p']，模型 1z"
+    },
+    {
+      "id": "lim-003",
+      "kind": "defense",
+      "category": "limit",
+      "passed": true,
+      "seconds": 1.29,
+      "confidence": 0.983,
+      "tile": "4z",
+      "detail": "安全集 ['4z']，模型 4z"
+    },
+    {
+      "id": "lim-004",
+      "kind": "defense",
+      "category": "limit",
+      "passed": true,
+      "seconds": 1.24,
+      "confidence": 0.822,
+      "tile": "2p",
+      "detail": "安全集 ['2p']，模型 2p"
+    },
+    {
+      "id": "lim-005",
+      "kind": "defense",
+      "category": "limit",
+      "passed": false,
+      "seconds": 1.21,
+      "confidence": 0.313,
+      "tile": "9p",
+      "detail": "安全集 ['2z', '4z']，模型 9p"
+    },
+    {
+      "id": "lim-006",
+      "kind": "efficiency",
+      "category": "limit",
+      "passed": true,
+      "seconds": 1.25,
+      "confidence": 0.963,
+      "tile": "2m",
+      "detail": "期望 2m(备选 [])，模型 2m"
+    },
+    {
+      "id": "lim-007",
+      "kind": "efficiency",
+      "category": "limit",
+      "passed": true,
+      "seconds": 1.23,
+      "confidence": 0.861,
+      "tile": "9s",
+      "detail": "期望 9s(备选 [])，模型 9s"
+    },
+    {
+      "id": "lim-008",
+      "kind": "efficiency",
+      "category": "limit",
+      "passed": true,
+      "seconds": 1.25,
+      "confidence": 0.822,
+      "tile": "6m",
+      "detail": "期望 6m(备选 ['6s', '9s'])，模型 6m"
+    },
+    {
+      "id": "lim-009",
+      "kind": "push_fold",
+      "category": "limit",
+      "passed": true,
+      "seconds": 1.28,
+      "confidence": 0.406,
+      "tile": "5z",
+      "detail": "期望 push(进攻，保持听牌弃牌 ['5z', '6s'])，模型 均衡/5z"
+    },
+    {
+      "id": "lim-010",
+      "kind": "push_fold",
+      "category": "limit",
+      "passed": false,
+      "seconds": 1.29,
+      "confidence": 0.257,
+      "tile": "1m",
+      "detail": "期望 fold(防守，安全集 ['4z', '5z'])，模型 均衡/1m"
+    },
+    {
+      "id": "lim-011",
+      "kind": "value",
+      "category": "limit",
+      "passed": true,
+      "seconds": 1.17,
+      "confidence": 0.303,
+      "tile": "1z",
+      "detail": "期望 9s，模型 1z（Jev 不输出理由）"
+    },
+    {
+      "id": "lim-012",
+      "kind": "value",
+      "category": "limit",
+      "passed": false,
+      "seconds": 1.21,
+      "confidence": 0.34,
+      "tile": "1z",
+      "detail": "期望 4m，模型 1z（Jev 不输出理由）"
+    }
+  ]
+}

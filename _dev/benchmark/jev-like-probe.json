@@ -1,0 +1,1445 @@
+{
+  "off": {
+    "accuracy": 0.8305,
+    "passed": 49,
+    "total": 59,
+    "median_s": 1.34,
+    "median_first_token_s": 1.28,
+    "detail": [
+      {
+        "id": "eff-001",
+        "kind": "efficiency",
+        "discard": "2z",
+        "expected": "2z",
+        "ok": true,
+        "s": 1.38
+      },
+      {
+        "id": "eff-002",
+        "kind": "efficiency",
+        "discard": "1z",
+        "expected": "1z",
+        "ok": true,
+        "s": 1.39
+      },
+      {
+        "id": "eff-003",
+        "kind": "efficiency",
+        "discard": "1m",
+        "expected": "1m",
+        "ok": true,
+        "s": 1.31
+      },
+      {
+        "id": "eff-004",
+        "kind": "efficiency",
+        "discard": "4m",
+        "expected": "4m",
+        "ok": true,
+        "s": 1.4
+      },
+      {
+        "id": "eff-005",
+        "kind": "efficiency",
+        "discard": "1z",
+        "expected": "1z",
+        "ok": true,
+        "s": 1.34
+      },
+      {
+        "id": "eff-006",
+        "kind": "efficiency",
+        "discard": "1z",
+        "expected": "1z",
+        "ok": true,
+        "s": 1.34
+      },
+      {
+        "id": "eff-007",
+        "kind": "efficiency",
+        "discard": "9s",
+        "expected": "9s",
+        "ok": true,
+        "s": 1.42
+      },
+      {
+        "id": "eff-008",
+        "kind": "efficiency",
+        "discard": "7z",
+        "expected": "7z",
+        "ok": true,
+        "s": 1.38
+      },
+      {
+        "id": "eff-009",
+        "kind": "efficiency",
+        "discard": "1m",
+        "expected": "1m",
+        "ok": true,
+        "s": 1.34
+      },
+      {
+        "id": "eff-010",
+        "kind": "efficiency",
+        "discard": "9m",
+        "expected": "9m",
+        "ok": true,
+        "s": 1.35
+      },
+      {
+        "id": "def-001",
+        "kind": "defense",
+        "discard": "1z",
+        "expected": null,
+        "ok": true,
+        "s": 1.33
+      },
+      {
+        "id": "def-002",
+        "kind": "defense",
+        "discard": "1m",
+        "expected": null,
+        "ok": true,
+        "s": 1.27
+      },
+      {
+        "id": "def-003",
+        "kind": "defense",
+        "discard": "2s",
+        "expected": null,
+        "ok": true,
+        "s": 1.31
+      },
+      {
+        "id": "def-004",
+        "kind": "defense",
+        "discard": "2z",
+        "expected": null,
+        "ok": true,
+        "s": 1.45
+      },
+      {
+        "id": "def-005",
+        "kind": "defense",
+        "discard": "1z",
+        "expected": null,
+        "ok": false,
+        "s": 1.32
+      },
+      {
+        "id": "def-006",
+        "kind": "defense",
+        "discard": "1m",
+        "expected": null,
+        "ok": true,
+        "s": 1.28
+      },
+      {
+        "id": "def-007",
+        "kind": "defense",
+        "discard": "9p",
+        "expected": null,
+        "ok": true,
+        "s": 1.29
+      },
+      {
+        "id": "def-008",
+        "kind": "defense",
+        "discard": "2m",
+        "expected": null,
+        "ok": true,
+        "s": 1.32
+      },
+      {
+        "id": "pf-001",
+        "kind": "push_fold",
+        "discard": "9p",
+        "expected": null,
+        "ok": false,
+        "s": 1.33
+      },
+      {
+        "id": "pf-002",
+        "kind": "push_fold",
+        "discard": "5p",
+        "expected": null,
+        "ok": true,
+        "s": 1.39
+      },
+      {
+        "id": "pf-003",
+        "kind": "push_fold",
+        "discard": "7z",
+        "expected": null,
+        "ok": true,
+        "s": 1.36
+      },
+      {
+        "id": "pf-004",
+        "kind": "push_fold",
+        "discard": "7m",
+        "expected": null,
+        "ok": false,
+        "s": 1.35
+      },
+      {
+        "id": "val-001",
+        "kind": "value",
+        "discard": "9m",
+        "expected": "9m",
+        "ok": true,
+        "s": 1.25
+      },
+      {
+        "id": "val-002",
+        "kind": "value",
+        "discard": "9s",
+        "expected": "9s",
+        "ok": true,
+        "s": 1.21
+      },
+      {
+        "id": "def-009",
+        "kind": "defense",
+        "discard": "3m",
+        "expected": null,
+        "ok": true,
+        "s": 1.29
+      },
+      {
+        "id": "def-010",
+        "kind": "defense",
+        "discard": "1m",
+        "expected": null,
+        "ok": true,
+        "s": 1.32
+      },
+      {
+        "id": "def-011",
+        "kind": "defense",
+        "discard": "8p",
+        "expected": null,
+        "ok": true,
+        "s": 1.3
+      },
+      {
+        "id": "def-012",
+        "kind": "defense",
+        "discard": "5p",
+        "expected": null,
+        "ok": true,
+        "s": 1.31
+      },
+      {
+        "id": "def-013",
+        "kind": "defense",
+        "discard": "9s",
+        "expected": null,
+        "ok": false,
+        "s": 1.35
+      },
+      {
+        "id": "def-014",
+        "kind": "defense",
+        "discard": "2m",
+        "expected": null,
+        "ok": true,
+        "s": 1.24
+      },
+      {
+        "id": "def-015",
+        "kind": "defense",
+        "discard": "6z",
+        "expected": null,
+        "ok": true,
+        "s": 1.32
+      },
+      {
+        "id": "def-016",
+        "kind": "defense",
+        "discard": "1m",
+        "expected": null,
+        "ok": true,
+        "s": 1.32
+      },
+      {
+        "id": "eff-011",
+        "kind": "efficiency",
+        "discard": "3z",
+        "expected": "3z",
+        "ok": true,
+        "s": 1.39
+      },
+      {
+        "id": "eff-012",
+        "kind": "efficiency",
+        "discard": "9p",
+        "expected": "2s",
+        "ok": true,
+        "s": 1.38
+      },
+      {
+        "id": "eff-013",
+        "kind": "efficiency",
+        "discard": "9s",
+        "expected": "9s",
+        "ok": true,
+        "s": 1.33
+      },
+      {
+        "id": "eff-014",
+        "kind": "efficiency",
+        "discard": "6z",
+        "expected": "6z",
+        "ok": true,
+        "s": 1.36
+      },
+      {
+        "id": "eff-015",
+        "kind": "efficiency",
+        "discard": "6m",
+        "expected": "6m",
+        "ok": true,
+        "s": 1.38
+      },
+      {
+        "id": "eff-017",
+        "kind": "efficiency",
+        "discard": "5m",
+        "expected": "5m",
+        "ok": true,
+        "s": 1.38
+      },
+      {
+        "id": "eff-018",
+        "kind": "efficiency",
+        "discard": "9s",
+        "expected": "5m",
+        "ok": true,
+        "s": 1.34
+      },
+      {
+        "id": "eff-016",
+        "kind": "efficiency",
+        "discard": "2p",
+        "expected": "2p",
+        "ok": true,
+        "s": 1.34
+      },
+      {
+        "id": "val-003",
+        "kind": "value",
+        "discard": "5z",
+        "expected": "5z",
+        "ok": true,
+        "s": 1.21
+      },
+      {
+        "id": "val-004",
+        "kind": "value",
+        "discard": "5z",
+        "expected": "4m",
+        "ok": false,
+        "s": 1.2
+      },
+      {
+        "id": "val-005",
+        "kind": "value",
+        "discard": "9p",
+        "expected": "9p",
+        "ok": true,
+        "s": 1.25
+      },
+      {
+        "id": "pf-005",
+        "kind": "push_fold",
+        "discard": "2m",
+        "expected": null,
+        "ok": false,
+        "s": 1.32
+      },
+      {
+        "id": "pf-006",
+        "kind": "push_fold",
+        "discard": "2p",
+        "expected": null,
+        "ok": true,
+        "s": 1.35
+      },
+      {
+        "id": "pf-007",
+        "kind": "push_fold",
+        "discard": "6m",
+        "expected": null,
+        "ok": false,
+        "s": 1.45
+      },
+      {
+        "id": "pf-008",
+        "kind": "push_fold",
+        "discard": "5m",
+        "expected": null,
+        "ok": true,
+        "s": 1.34
+      },
+      {
+        "id": "lim-001",
+        "kind": "defense",
+        "discard": "3z",
+        "expected": null,
+        "ok": true,
+        "s": 1.37
+      },
+      {
+        "id": "lim-002",
+        "kind": "defense",
+        "discard": "1z",
+        "expected": null,
+        "ok": true,
+        "s": 1.26
+      },
+      {
+        "id": "lim-003",
+        "kind": "defense",
+        "discard": "4z",
+        "expected": null,
+        "ok": true,
+        "s": 1.4
+      },
+      {
+        "id": "lim-004",
+        "kind": "defense",
+        "discard": "2p",
+        "expected": null,
+        "ok": true,
+        "s": 1.28
+      },
+      {
+        "id": "lim-005",
+        "kind": "defense",
+        "discard": "9p",
+        "expected": null,
+        "ok": false,
+        "s": 1.32
+      },
+      {
+        "id": "lim-006",
+        "kind": "efficiency",
+        "discard": "2m",
+        "expected": "2m",
+        "ok": true,
+        "s": 1.38
+      },
+      {
+        "id": "lim-007",
+        "kind": "efficiency",
+        "discard": "9s",
+        "expected": "9s",
+        "ok": true,
+        "s": 1.41
+      },
+      {
+        "id": "lim-008",
+        "kind": "efficiency",
+        "discard": "6m",
+        "expected": "6m",
+        "ok": true,
+        "s": 1.38
+      },
+      {
+        "id": "lim-009",
+        "kind": "push_fold",
+        "discard": "5z",
+        "expected": null,
+        "ok": true,
+        "s": 1.32
+      },
+      {
+        "id": "lim-010",
+        "kind": "push_fold",
+        "discard": "2z",
+        "expected": null,
+        "ok": false,
+        "s": 1.39
+      },
+      {
+        "id": "lim-011",
+        "kind": "value",
+        "discard": "9s",
+        "expected": "9s",
+        "ok": true,
+        "s": 1.17
+      },
+      {
+        "id": "lim-012",
+        "kind": "value",
+        "discard": "1z",
+        "expected": "4m",
+        "ok": false,
+        "s": 1.19
+      }
+    ]
+  },
+  "on-64": {
+    "accuracy": 0.8305,
+    "passed": 49,
+    "total": 59,
+    "median_s": 3.15,
+    "median_first_token_s": 3.1,
+    "detail": [
+      {
+        "id": "eff-001",
+        "kind": "efficiency",
+        "discard": "2z",
+        "expected": "2z",
+        "ok": true,
+        "s": 3.25
+      },
+      {
+        "id": "eff-002",
+        "kind": "efficiency",
+        "discard": "1z",
+        "expected": "1z",
+        "ok": true,
+        "s": 3.18
+      },
+      {
+        "id": "eff-003",
+        "kind": "efficiency",
+        "discard": "1m",
+        "expected": "1m",
+        "ok": true,
+        "s": 3.22
+      },
+      {
+        "id": "eff-004",
+        "kind": "efficiency",
+        "discard": "4m",
+        "expected": "4m",
+        "ok": true,
+        "s": 3.18
+      },
+      {
+        "id": "eff-005",
+        "kind": "efficiency",
+        "discard": "1z",
+        "expected": "1z",
+        "ok": true,
+        "s": 3.23
+      },
+      {
+        "id": "eff-006",
+        "kind": "efficiency",
+        "discard": "1z",
+        "expected": "1z",
+        "ok": true,
+        "s": 3.21
+      },
+      {
+        "id": "eff-007",
+        "kind": "efficiency",
+        "discard": "9s",
+        "expected": "9s",
+        "ok": true,
+        "s": 3.2
+      },
+      {
+        "id": "eff-008",
+        "kind": "efficiency",
+        "discard": "7z",
+        "expected": "7z",
+        "ok": true,
+        "s": 3.17
+      },
+      {
+        "id": "eff-009",
+        "kind": "efficiency",
+        "discard": "1m",
+        "expected": "1m",
+        "ok": true,
+        "s": 3.18
+      },
+      {
+        "id": "eff-010",
+        "kind": "efficiency",
+        "discard": "9m",
+        "expected": "9m",
+        "ok": true,
+        "s": 3.26
+      },
+      {
+        "id": "def-001",
+        "kind": "defense",
+        "discard": "1z",
+        "expected": null,
+        "ok": true,
+        "s": 3.14
+      },
+      {
+        "id": "def-002",
+        "kind": "defense",
+        "discard": "1m",
+        "expected": null,
+        "ok": true,
+        "s": 3.02
+      },
+      {
+        "id": "def-003",
+        "kind": "defense",
+        "discard": "3z",
+        "expected": null,
+        "ok": true,
+        "s": 3.11
+      },
+      {
+        "id": "def-004",
+        "kind": "defense",
+        "discard": "2z",
+        "expected": null,
+        "ok": true,
+        "s": 3.09
+      },
+      {
+        "id": "def-005",
+        "kind": "defense",
+        "discard": "1z",
+        "expected": null,
+        "ok": false,
+        "s": 3.09
+      },
+      {
+        "id": "def-006",
+        "kind": "defense",
+        "discard": "1m",
+        "expected": null,
+        "ok": true,
+        "s": 3.03
+      },
+      {
+        "id": "def-007",
+        "kind": "defense",
+        "discard": "9p",
+        "expected": null,
+        "ok": true,
+        "s": 3.08
+      },
+      {
+        "id": "def-008",
+        "kind": "defense",
+        "discard": "8m",
+        "expected": null,
+        "ok": true,
+        "s": 2.99
+      },
+      {
+        "id": "pf-001",
+        "kind": "push_fold",
+        "discard": "9p",
+        "expected": null,
+        "ok": false,
+        "s": 3.22
+      },
+      {
+        "id": "pf-002",
+        "kind": "push_fold",
+        "discard": "5p",
+        "expected": null,
+        "ok": true,
+        "s": 3.14
+      },
+      {
+        "id": "pf-003",
+        "kind": "push_fold",
+        "discard": "7z",
+        "expected": null,
+        "ok": true,
+        "s": 3.16
+      },
+      {
+        "id": "pf-004",
+        "kind": "push_fold",
+        "discard": "7m",
+        "expected": null,
+        "ok": false,
+        "s": 3.2
+      },
+      {
+        "id": "val-001",
+        "kind": "value",
+        "discard": "9m",
+        "expected": "9m",
+        "ok": true,
+        "s": 2.9
+      },
+      {
+        "id": "val-002",
+        "kind": "value",
+        "discard": "9s",
+        "expected": "9s",
+        "ok": true,
+        "s": 2.85
+      },
+      {
+        "id": "def-009",
+        "kind": "defense",
+        "discard": "3m",
+        "expected": null,
+        "ok": true,
+        "s": 3.15
+      },
+      {
+        "id": "def-010",
+        "kind": "defense",
+        "discard": "2p",
+        "expected": null,
+        "ok": true,
+        "s": 3.11
+      },
+      {
+        "id": "def-011",
+        "kind": "defense",
+        "discard": "8p",
+        "expected": null,
+        "ok": true,
+        "s": 2.96
+      },
+      {
+        "id": "def-012",
+        "kind": "defense",
+        "discard": "2p",
+        "expected": null,
+        "ok": false,
+        "s": 3.04
+      },
+      {
+        "id": "def-013",
+        "kind": "defense",
+        "discard": "4z",
+        "expected": null,
+        "ok": true,
+        "s": 3.24
+      },
+      {
+        "id": "def-014",
+        "kind": "defense",
+        "discard": "2m",
+        "expected": null,
+        "ok": true,
+        "s": 3.1
+      },
+      {
+        "id": "def-015",
+        "kind": "defense",
+        "discard": "6z",
+        "expected": null,
+        "ok": true,
+        "s": 3.1
+      },
+      {
+        "id": "def-016",
+        "kind": "defense",
+        "discard": "1m",
+        "expected": null,
+        "ok": true,
+        "s": 3.07
+      },
+      {
+        "id": "eff-011",
+        "kind": "efficiency",
+        "discard": "3z",
+        "expected": "3z",
+        "ok": true,
+        "s": 3.27
+      },
+      {
+        "id": "eff-012",
+        "kind": "efficiency",
+        "discard": "9p",
+        "expected": "2s",
+        "ok": true,
+        "s": 3.19
+      },
+      {
+        "id": "eff-013",
+        "kind": "efficiency",
+        "discard": "9s",
+        "expected": "9s",
+        "ok": true,
+        "s": 3.17
+      },
+      {
+        "id": "eff-014",
+        "kind": "efficiency",
+        "discard": "6z",
+        "expected": "6z",
+        "ok": true,
+        "s": 3.27
+      },
+      {
+        "id": "eff-015",
+        "kind": "efficiency",
+        "discard": "6m",
+        "expected": "6m",
+        "ok": true,
+        "s": 3.19
+      },
+      {
+        "id": "eff-017",
+        "kind": "efficiency",
+        "discard": "5m",
+        "expected": "5m",
+        "ok": true,
+        "s": 3.25
+      },
+      {
+        "id": "eff-018",
+        "kind": "efficiency",
+        "discard": "9s",
+        "expected": "5m",
+        "ok": true,
+        "s": 3.26
+      },
+      {
+        "id": "eff-016",
+        "kind": "efficiency",
+        "discard": "2p",
+        "expected": "2p",
+        "ok": true,
+        "s": 3.19
+      },
+      {
+        "id": "val-003",
+        "kind": "value",
+        "discard": "5z",
+        "expected": "5z",
+        "ok": true,
+        "s": 2.88
+      },
+      {
+        "id": "val-004",
+        "kind": "value",
+        "discard": "5z",
+        "expected": "4m",
+        "ok": false,
+        "s": 2.88
+      },
+      {
+        "id": "val-005",
+        "kind": "value",
+        "discard": "9p",
+        "expected": "9p",
+        "ok": true,
+        "s": 2.99
+      },
+      {
+        "id": "pf-005",
+        "kind": "push_fold",
+        "discard": "2m",
+        "expected": null,
+        "ok": false,
+        "s": 3.04
+      },
+      {
+        "id": "pf-006",
+        "kind": "push_fold",
+        "discard": "7m",
+        "expected": null,
+        "ok": true,
+        "s": 3.07
+      },
+      {
+        "id": "pf-007",
+        "kind": "push_fold",
+        "discard": "7p",
+        "expected": null,
+        "ok": false,
+        "s": 3.44
+      },
+      {
+        "id": "pf-008",
+        "kind": "push_fold",
+        "discard": "5m",
+        "expected": null,
+        "ok": true,
+        "s": 3.09
+      },
+      {
+        "id": "lim-001",
+        "kind": "defense",
+        "discard": "3z",
+        "expected": null,
+        "ok": true,
+        "s": 3.16
+      },
+      {
+        "id": "lim-002",
+        "kind": "defense",
+        "discard": "1z",
+        "expected": null,
+        "ok": true,
+        "s": 3.06
+      },
+      {
+        "id": "lim-003",
+        "kind": "defense",
+        "discard": "4z",
+        "expected": null,
+        "ok": true,
+        "s": 3.23
+      },
+      {
+        "id": "lim-004",
+        "kind": "defense",
+        "discard": "2p",
+        "expected": null,
+        "ok": true,
+        "s": 3.04
+      },
+      {
+        "id": "lim-005",
+        "kind": "defense",
+        "discard": "9p",
+        "expected": null,
+        "ok": false,
+        "s": 3.05
+      },
+      {
+        "id": "lim-006",
+        "kind": "efficiency",
+        "discard": "2m",
+        "expected": "2m",
+        "ok": true,
+        "s": 3.19
+      },
+      {
+        "id": "lim-007",
+        "kind": "efficiency",
+        "discard": "9s",
+        "expected": "9s",
+        "ok": true,
+        "s": 3.31
+      },
+      {
+        "id": "lim-008",
+        "kind": "efficiency",
+        "discard": "6m",
+        "expected": "6m",
+        "ok": true,
+        "s": 3.3
+      },
+      {
+        "id": "lim-009",
+        "kind": "push_fold",
+        "discard": "5z",
+        "expected": null,
+        "ok": true,
+        "s": 3.14
+      },
+      {
+        "id": "lim-010",
+        "kind": "push_fold",
+        "discard": "2z",
+        "expected": null,
+        "ok": false,
+        "s": 3.18
+      },
+      {
+        "id": "lim-011",
+        "kind": "value",
+        "discard": "1z",
+        "expected": "9s",
+        "ok": true,
+        "s": 2.94
+      },
+      {
+        "id": "lim-012",
+        "kind": "value",
+        "discard": "1z",
+        "expected": "4m",
+        "ok": false,
+        "s": 2.9
+      }
+    ]
+  },
+  "on-128": {
+    "accuracy": 0.8475,
+    "passed": 50,
+    "total": 59,
+    "median_s": 3.48,
+    "median_first_token_s": 3.43,
+    "detail": [
+      {
+        "id": "eff-001",
+        "kind": "efficiency",
+        "discard": "4z",
+        "expected": "2z",
+        "ok": true,
+        "s": 3.52
+      },
+      {
+        "id": "eff-002",
+        "kind": "efficiency",
+        "discard": "1z",
+        "expected": "1z",
+        "ok": true,
+        "s": 3.48
+      },
+      {
+        "id": "eff-003",
+        "kind": "efficiency",
+        "discard": "1m",
+        "expected": "1m",
+        "ok": true,
+        "s": 3.52
+      },
+      {
+        "id": "eff-004",
+        "kind": "efficiency",
+        "discard": "4m",
+        "expected": "4m",
+        "ok": true,
+        "s": 3.6
+      },
+      {
+        "id": "eff-005",
+        "kind": "efficiency",
+        "discard": "1z",
+        "expected": "1z",
+        "ok": true,
+        "s": 3.59
+      },
+      {
+        "id": "eff-006",
+        "kind": "efficiency",
+        "discard": "1z",
+        "expected": "1z",
+        "ok": true,
+        "s": 3.54
+      },
+      {
+        "id": "eff-007",
+        "kind": "efficiency",
+        "discard": "9s",
+        "expected": "9s",
+        "ok": true,
+        "s": 3.58
+      },
+      {
+        "id": "eff-008",
+        "kind": "efficiency",
+        "discard": "7z",
+        "expected": "7z",
+        "ok": true,
+        "s": 3.55
+      },
+      {
+        "id": "eff-009",
+        "kind": "efficiency",
+        "discard": "9m",
+        "expected": "1m",
+        "ok": true,
+        "s": 3.61
+      },
+      {
+        "id": "eff-010",
+        "kind": "efficiency",
+        "discard": "9m",
+        "expected": "9m",
+        "ok": true,
+        "s": 3.61
+      },
+      {
+        "id": "def-001",
+        "kind": "defense",
+        "discard": "1z",
+        "expected": null,
+        "ok": true,
+        "s": 3.38
+      },
+      {
+        "id": "def-002",
+        "kind": "defense",
+        "discard": "1m",
+        "expected": null,
+        "ok": true,
+        "s": 3.39
+      },
+      {
+        "id": "def-003",
+        "kind": "defense",
+        "discard": "3z",
+        "expected": null,
+        "ok": true,
+        "s": 3.4
+      },
+      {
+        "id": "def-004",
+        "kind": "defense",
+        "discard": "2z",
+        "expected": null,
+        "ok": true,
+        "s": 3.45
+      },
+      {
+        "id": "def-005",
+        "kind": "defense",
+        "discard": "1z",
+        "expected": null,
+        "ok": false,
+        "s": 3.43
+      },
+      {
+        "id": "def-006",
+        "kind": "defense",
+        "discard": "1m",
+        "expected": null,
+        "ok": true,
+        "s": 3.34
+      },
+      {
+        "id": "def-007",
+        "kind": "defense",
+        "discard": "9p",
+        "expected": null,
+        "ok": true,
+        "s": 3.47
+      },
+      {
+        "id": "def-008",
+        "kind": "defense",
+        "discard": "2m",
+        "expected": null,
+        "ok": true,
+        "s": 3.4
+      },
+      {
+        "id": "pf-001",
+        "kind": "push_fold",
+        "discard": "9p",
+        "expected": null,
+        "ok": false,
+        "s": 3.54
+      },
+      {
+        "id": "pf-002",
+        "kind": "push_fold",
+        "discard": "5p",
+        "expected": null,
+        "ok": true,
+        "s": 3.48
+      },
+      {
+        "id": "pf-003",
+        "kind": "push_fold",
+        "discard": "7z",
+        "expected": null,
+        "ok": true,
+        "s": 3.63
+      },
+      {
+        "id": "pf-004",
+        "kind": "push_fold",
+        "discard": "7m",
+        "expected": null,
+        "ok": false,
+        "s": 3.46
+      },
+      {
+        "id": "val-001",
+        "kind": "value",
+        "discard": "9p",
+        "expected": "9m",
+        "ok": true,
+        "s": 3.3
+      },
+      {
+        "id": "val-002",
+        "kind": "value",
+        "discard": "9s",
+        "expected": "9s",
+        "ok": true,
+        "s": 3.21
+      },
+      {
+        "id": "def-009",
+        "kind": "defense",
+        "discard": "3m",
+        "expected": null,
+        "ok": true,
+        "s": 3.49
+      },
+      {
+        "id": "def-010",
+        "kind": "defense",
+        "discard": "2p",
+        "expected": null,
+        "ok": true,
+        "s": 3.47
+      },
+      {
+        "id": "def-011",
+        "kind": "defense",
+        "discard": "8p",
+        "expected": null,
+        "ok": true,
+        "s": 3.32
+      },
+      {
+        "id": "def-012",
+        "kind": "defense",
+        "discard": "2p",
+        "expected": null,
+        "ok": false,
+        "s": 3.42
+      },
+      {
+        "id": "def-013",
+        "kind": "defense",
+        "discard": "4z",
+        "expected": null,
+        "ok": true,
+        "s": 3.65
+      },
+      {
+        "id": "def-014",
+        "kind": "defense",
+        "discard": "2m",
+        "expected": null,
+        "ok": true,
+        "s": 3.46
+      },
+      {
+        "id": "def-015",
+        "kind": "defense",
+        "discard": "6z",
+        "expected": null,
+        "ok": true,
+        "s": 3.39
+      },
+      {
+        "id": "def-016",
+        "kind": "defense",
+        "discard": "1m",
+        "expected": null,
+        "ok": true,
+        "s": 3.45
+      },
+      {
+        "id": "eff-011",
+        "kind": "efficiency",
+        "discard": "3z",
+        "expected": "3z",
+        "ok": true,
+        "s": 3.64
+      },
+      {
+        "id": "eff-012",
+        "kind": "efficiency",
+        "discard": "9p",
+        "expected": "2s",
+        "ok": true,
+        "s": 3.76
+      },
+      {
+        "id": "eff-013",
+        "kind": "efficiency",
+        "discard": "9s",
+        "expected": "9s",
+        "ok": true,
+        "s": 3.58
+      },
+      {
+        "id": "eff-014",
+        "kind": "efficiency",
+        "discard": "6z",
+        "expected": "6z",
+        "ok": true,
+        "s": 3.56
+      },
+      {
+        "id": "eff-015",
+        "kind": "efficiency",
+        "discard": "6m",
+        "expected": "6m",
+        "ok": true,
+        "s": 3.6
+      },
+      {
+        "id": "eff-017",
+        "kind": "efficiency",
+        "discard": "5m",
+        "expected": "5m",
+        "ok": true,
+        "s": 3.53
+      },
+      {
+        "id": "eff-018",
+        "kind": "efficiency",
+        "discard": "9s",
+        "expected": "5m",
+        "ok": true,
+        "s": 3.61
+      },
+      {
+        "id": "eff-016",
+        "kind": "efficiency",
+        "discard": "2p",
+        "expected": "2p",
+        "ok": true,
+        "s": 3.58
+      },
+      {
+        "id": "val-003",
+        "kind": "value",
+        "discard": "5z",
+        "expected": "5z",
+        "ok": true,
+        "s": 3.14
+      },
+      {
+        "id": "val-004",
+        "kind": "value",
+        "discard": "4m",
+        "expected": "4m",
+        "ok": true,
+        "s": 3.2
+      },
+      {
+        "id": "val-005",
+        "kind": "value",
+        "discard": "9p",
+        "expected": "9p",
+        "ok": true,
+        "s": 3.35
+      },
+      {
+        "id": "pf-005",
+        "kind": "push_fold",
+        "discard": "2m",
+        "expected": null,
+        "ok": false,
+        "s": 3.48
+      },
+      {
+        "id": "pf-006",
+        "kind": "push_fold",
+        "discard": "2p",
+        "expected": null,
+        "ok": true,
+        "s": 3.45
+      },
+      {
+        "id": "pf-007",
+        "kind": "push_fold",
+        "discard": "7p",
+        "expected": null,
+        "ok": false,
+        "s": 3.73
+      },
+      {
+        "id": "pf-008",
+        "kind": "push_fold",
+        "discard": "5m",
+        "expected": null,
+        "ok": true,
+        "s": 3.37
+      },
+      {
+        "id": "lim-001",
+        "kind": "defense",
+        "discard": "3z",
+        "expected": null,
+        "ok": true,
+        "s": 3.56
+      },
+      {
+        "id": "lim-002",
+        "kind": "defense",
+        "discard": "1z",
+        "expected": null,
+        "ok": true,
+        "s": 3.45
+      },
+      {
+        "id": "lim-003",
+        "kind": "defense",
+        "discard": "4z",
+        "expected": null,
+        "ok": true,
+        "s": 3.61
+      },
+      {
+        "id": "lim-004",
+        "kind": "defense",
+        "discard": "2p",
+        "expected": null,
+        "ok": true,
+        "s": 3.37
+      },
+      {
+        "id": "lim-005",
+        "kind": "defense",
+        "discard": "9p",
+        "expected": null,
+        "ok": false,
+        "s": 3.42
+      },
+      {
+        "id": "lim-006",
+        "kind": "efficiency",
+        "discard": "2m",
+        "expected": "2m",
+        "ok": true,
+        "s": 3.56
+      },
+      {
+        "id": "lim-007",
+        "kind": "efficiency",
+        "discard": "9s",
+        "expected": "9s",
+        "ok": true,
+        "s": 3.62
+      },
+      {
+        "id": "lim-008",
+        "kind": "efficiency",
+        "discard": "6m",
+        "expected": "6m",
+        "ok": true,
+        "s": 3.71
+      },
+      {
+        "id": "lim-009",
+        "kind": "push_fold",
+        "discard": "5z",
+        "expected": null,
+        "ok": true,
+        "s": 3.51
+      },
+      {
+        "id": "lim-010",
+        "kind": "push_fold",
+        "discard": "2z",
+        "expected": null,
+        "ok": false,
+        "s": 3.58
+      },
+      {
+        "id": "lim-011",
+        "kind": "value",
+        "discard": "1z",
+        "expected": "9s",
+        "ok": true,
+        "s": 3.29
+      },
+      {
+        "id": "lim-012",
+        "kind": "value",
+        "discard": "1z",
+        "expected": "4m",
+        "ok": false,
+        "s": 3.15
+      }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "version": "1.10.0",
+  "built_at": "2026-11-21T09:15:00+08:00",
+  "builder": "Python 3.12.14 / PyInstaller 6.22.3",
+  "entry": "MahjongStrategyAssistant/MahjongStrategyAssistant.exe",
+  "launcher": "启动-v1.10.0.cmd",
+  "exe_sha256": "7fbf475bf2b9c9437788e4bbf4c83d8cdd3d3dad214b1d31db5d456be6ef9a84",
+  "exe_bytes": 5670917,
+  "self_check": {"ok": true, "version": "1.10.0", "jev_module_in_exe": true},
+  "new_mode": "jev",
+  "jev_like_design": {
+    "server": "10.201.137.10:8080 strata 0.1.59 + qwen3.8-flash-next-iq3_s（未停服、未训新模型）",
+    "primitive": "allowed_token_ids 锁候选 A-N + logprobs 读概率分布 = Jev Choice 原语",
+    "thinking": "关闭（System One；受限空间已取代 CoT，实测更快且更准）",
+    "no_hallucination": "结构上不可能输出候选外的牌",
+    "confidence": "top1 概率；high>=0.60 / medium 0.30~0.60 / low<0.30"
+  },
+  "benchmark_59_scenarios": {
+    "jev_accuracy": "81% (48/59)",
+    "jev_model_latency_median_s": 1.24,
+    "current_fast_accuracy": "85% (50/59)",
+    "current_fast_latency_median_s": 1.94,
+    "confidence_calibration": {
+      "high": "35 题 100%",
+      "medium": "21 题 57%",
+      "low": "3 题 33%",
+      "note": "11 个错误全部落在 medium/low，high 档零失败"
+    }
+  },
+  "tests": {
+    "python_suites": 10,
+    "python_all_pass": true,
+    "npm_pass": 11,
+    "new_tests": 9,
+    "benchmark_scripts": ["jev_benchmark.py", "jev_like_probe.py"]
+  },
+  "docs": ["Jev-like决策方案.md", "Jev-like对比评测.md"]
+}

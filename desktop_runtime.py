@@ -133,7 +133,7 @@ class Settings:
             raise ValueError('等待时间应在 60 到 1800 秒之间')
         if self.capture_source not in ('window', 'screen'):
             raise ValueError('截图来源无效')
-        if self.analysis_mode not in ('fast', 'structured', 'full'):
+        if self.analysis_mode not in ('fast', 'jev', 'structured', 'full'):
             raise ValueError('分析模式无效')
         if not isinstance(self.mini_mode, bool) or not isinstance(self.mini_topmost, bool):
             raise ValueError('窗口模式设置无效')

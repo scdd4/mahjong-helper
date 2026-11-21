@@ -397,6 +397,148 @@ class SparkClient:
             self._socket = None
             self._lock.release()
 
+    def decide_jev(self, image, evidence, calculations=None, history=None, progress=None):
+        """Jev-like 决策：候选锁死在 A-N 单 token，一次前向读 logprob 分布。
+
+        与 analyze_fast 的本质区别：
+        - 输出只有一个受限 token，结构上不可能产生不存在的牌或格式错误；
+        - top_logprobs 给出所有候选的概率，置信度可直接分支；
+        - 思考在服务端保留但不展示，用户只看一张牌。
+        """
+        from jev_decision import (SYSTEM, TOKEN_FIRST_ID, MAX_CHOICES, candidates_from_calculations,
+                                  build_prompt, parse_logprobs, confidence_level, build_report)
+        if not self.settings.api_key:
+            raise ValueError('尚未配置 Spark API 密钥，请在模型设置里填写')
+        if not self._lock.acquire(blocking=False):
+            raise RuntimeError('模型为单并发，请等待上一次分析结束')
+        if not getattr(self, '_shared_cancel', False):
+            self._cancel.clear()
+        try:
+            hand_evidence = evidence.get('hand', {})
+            if hand_evidence.get('reliable'):
+                verified = [tile['name'] for tile in hand_evidence['tiles']]
+                hand_source = '本地核验'
+            else:
+                verified = [tile['name'] for tile in hand_evidence.get('tiles', []) if tile.get('name')]
+                hand_source = '本地候选，未核验' if verified else '手牌未核验'
+            notes = list(evidence.get('warnings') or [])
+            if not hand_evidence.get('reliable'):
+                notes.append('自家手牌尚未通过本地核验，策略仅可作条件参考')
+            is_my_turn = hand_tile_total(verified, evidence) == 14
+            if is_my_turn and calculations and calculations.get('win'):
+                return self._fast_result(self._won_result(verified, calculations, evidence, notes,
+                                                          hand_source), 0.0)
+            if not is_my_turn:
+                # 未轮到：Jev 的 Choice 是针对弃牌的，没有可弃牌时退回本地前瞻。
+                best = self._fast_pick(calculations, verified, False, evidence)
+                return self._fast_result(({}, verified, evidence, notes, hand_source, False, best), 0.0)
+            candidates = candidates_from_calculations(calculations, verified, evidence)
+            if not candidates:
+                raise ValueError('手牌识别失败，请让手牌完整清晰后重新截图')
+            # 生产链路的 read_scene 不产出 safety_facts，这里按基准同口径现场构造。
+            from desktop_runtime import build_safety_facts
+            rivers = {seat: [t.get('name') for t in items if isinstance(t, dict) and t.get('name')]
+                      for seat, items in (evidence.get('rivers') or {}).items()}
+            facts = build_safety_facts(rivers, evidence.get('riichi') or {},
+                                       (evidence.get('round') or '')[:1], evidence.get('self_wind'))
+            jev_evidence = dict(evidence)
+            jev_evidence['safety_facts'] = facts
+            riichi_seats = [s for s, on in (evidence.get('riichi') or {}).items() if on and s != 'own']
+            if riichi_seats:
+                from desktop_runtime import common_safe_tiles
+                common = common_safe_tiles(facts, riichi_seats, verified)
+                if common:
+                    jev_evidence['common_safe_for_all_riichi'] = common
+                safe_union = set()
+                for seat in riichi_seats:
+                    for key in ('现物', '筋', '两筋'):
+                        safe_union |= set((facts.get(key) or {}).get(seat) or [])
+                unsafe = [t for t in verified if t not in safe_union]
+                if unsafe:
+                    jev_evidence['unsafe_hand_tiles'] = unsafe
+            user_text = build_prompt(verified, calculations, jev_evidence, candidates)
+            allowed = [TOKEN_FIRST_ID + i for i in range(len(candidates))]
+            payload = {'model': self.settings.model,
+                       'messages': [{'role': 'system', 'content': SYSTEM},
+                                    {'role': 'user', 'content': [{'type': 'text', 'text': user_text}]}],
+                       # Jev 是 System One：受限候选 + 完整事实已把决策空间收窄，
+                       # 不需要 CoT。实测关思考 1.2s 且准确率不低于开思考 4.3s。
+                       # 思考会占 max_tokens 一半，过小会吃光额度导致 content=null。
+                       'stream': False, 'max_tokens': 64,
+                       'logprobs': True, 'top_logprobs': MAX_CHOICES,
+                       'allowed_token_ids': allowed,
+                       'reasoning_effort': 'none',
+                       'chat_template_kwargs': {'enable_thinking': False},
+                       'strata_checkpoint': False}
+            if progress:
+                progress({'phase': 'vision'})
+            reply = self._jev_request(payload, progress)
+            if self._cancel.is_set():
+                raise Cancelled('分析已取消')
+            choice = reply['choices'][0]
+            tile, confidence, probs = parse_logprobs(choice, candidates)
+            if not tile:
+                raise RuntimeError('模型未返回可解析的候选选择，请重试')
+            result = build_report(tile, confidence, probs, candidates, verified, evidence,
+                                  hand_source, notes, reply['elapsed_seconds'],
+                                  reply.get('model', self.settings.model),
+                                  bool(choice.get('message', {}).get('reasoning_content')))
+            level = confidence_level(confidence)
+            result['jev_level'] = level
+            if level == 'low':
+                notes.append('模型置信度低（%.0f%%），建议复核' % (confidence * 100))
+                result['report']['strategy']['uncertainties'] = notes
+            return result
+        finally:
+            self._socket = None
+            self._lock.release()
+
+    def _jev_request(self, payload, progress):
+        """非流式请求，返回完整 choices（含 logprobs）。与 _request 分开，避免污染现有解析。"""
+        url = urlsplit(self.settings.endpoint)
+        connection_class = http.client.HTTPSConnection if url.scheme == 'https' else http.client.HTTPConnection
+        connection = connection_class(url.hostname, url.port, timeout=15)
+        response = None
+        started = time.perf_counter()
+        try:
+            connection.connect()
+            self._socket = connection.sock
+            connection.sock.settimeout(self.settings.timeout)
+            if self._cancel.is_set():
+                raise Cancelled('分析已取消')
+            body = json.dumps(payload, ensure_ascii=False).encode('utf-8')
+            target = url.path or '/'
+            if url.query:
+                target += '?' + url.query
+            connection.request('POST', target, body,
+                               {'Authorization': 'Bearer ' + self.settings.api_key,
+                                'Content-Type': 'application/json', 'Accept': 'application/json'})
+            response = connection.getresponse()
+            if response.status != 200:
+                explanation = {401: '密钥未被服务接受', 403: '服务拒绝了请求',
+                               429: '模型正在处理其他请求，请稍后重试',
+                               400: '模型服务不接受本次参数或图片'}.get(response.status, '模型服务返回异常')
+                if response.status in (502, 503, 504):
+                    raise TransientError('模型服务暂时不可用（HTTP %s）' % response.status)
+                raise RuntimeError('%s（HTTP %s）' % (explanation, response.status))
+            data = json.loads(response.read().decode('utf-8'))
+            if self._cancel.is_set():
+                raise Cancelled('分析已取消')
+            if progress:
+                progress({'phase': 'jev_done'})
+            data['elapsed_seconds'] = round(time.perf_counter() - started, 2)
+            return data
+        except (OSError, http.client.HTTPException) as error:
+            if self._cancel.is_set():
+                raise Cancelled('分析已取消') from None
+            if isinstance(error, TimeoutError):
+                raise TimeoutError('连接或模型输出等待超时，请检查服务状态') from None
+            raise TransientError('无法连接 Spark 模型服务，请检查局域网连接和模型地址') from None
+        finally:
+            if response:
+                response.close()
+            connection.close()
+
     def _fast_result(self, state, elapsed, request=None):
         """组装与完整流程兼容的 report；本地事实优先于模型表述。"""
         fast, verified, evidence, notes, hand_source, is_my_turn, best = state
