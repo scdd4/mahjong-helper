@@ -1,0 +1,73 @@
+{
+  "config": "high",
+  "passed": 8,
+  "total": 8,
+  "accuracy": 1.0,
+  "median_s": 11.620000000000001,
+  "results": [
+    {
+      "id": "eff-001",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 12.14,
+      "confidence": 0.674,
+      "tile": "2z"
+    },
+    {
+      "id": "eff-002",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 11.0,
+      "confidence": 0.766,
+      "tile": "1z"
+    },
+    {
+      "id": "eff-003",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 11.93,
+      "confidence": 0.581,
+      "tile": "1m"
+    },
+    {
+      "id": "eff-004",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 11.04,
+      "confidence": 0.853,
+      "tile": "4m"
+    },
+    {
+      "id": "eff-005",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 12.44,
+      "confidence": 0.723,
+      "tile": "1z"
+    },
+    {
+      "id": "eff-006",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 10.98,
+      "confidence": 0.921,
+      "tile": "1z"
+    },
+    {
+      "id": "eff-007",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 11.31,
+      "confidence": 0.914,
+      "tile": "9s"
+    },
+    {
+      "id": "eff-008",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 12.51,
+      "confidence": 0.969,
+      "tile": "7z"
+    }
+  ]
+}

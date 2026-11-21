@@ -29,6 +29,12 @@ def run_jev(sc, client):
     hand = list(state['hand'])
     verified = hand
     calc = state.get('local_calculations') or {}
+    # 生产口径：ExactSolver 总给出候选表；基准场景自带 solver_table，补齐所有类别。
+    if not calc.get('candidates') and sc.get('solver_table'):
+        calc = dict(calc)
+        calc['candidates'] = [
+            {'tile': row['drop'], 'shanten': row['shanten'], 'ukeire': row['ukeire']}
+            for row in sorted(sc['solver_table'], key=lambda r: (r['shanten'], -r['ukeire']))[:8]]
     candidates = candidates_from_calculations(calc, verified, state)
     if not candidates:
         candidates = list(dict.fromkeys(hand))[:14]

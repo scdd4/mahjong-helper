@@ -1,0 +1,481 @@
+{
+  "config": "off+rules",
+  "passed": 47,
+  "total": 59,
+  "accuracy": 0.7966101694915254,
+  "median_s": 1.48,
+  "results": [
+    {
+      "id": "eff-001",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.49,
+      "confidence": 0.722,
+      "tile": "2z"
+    },
+    {
+      "id": "eff-002",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.47,
+      "confidence": 0.818,
+      "tile": "1z"
+    },
+    {
+      "id": "eff-003",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.44,
+      "confidence": 0.812,
+      "tile": "1m"
+    },
+    {
+      "id": "eff-004",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.45,
+      "confidence": 0.874,
+      "tile": "4m"
+    },
+    {
+      "id": "eff-005",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.51,
+      "confidence": 0.602,
+      "tile": "1z"
+    },
+    {
+      "id": "eff-006",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.51,
+      "confidence": 0.966,
+      "tile": "1z"
+    },
+    {
+      "id": "eff-007",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.52,
+      "confidence": 0.901,
+      "tile": "9s"
+    },
+    {
+      "id": "eff-008",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.48,
+      "confidence": 0.924,
+      "tile": "7z"
+    },
+    {
+      "id": "eff-009",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.57,
+      "confidence": 0.531,
+      "tile": "1m"
+    },
+    {
+      "id": "eff-010",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.45,
+      "confidence": 0.946,
+      "tile": "9m"
+    },
+    {
+      "id": "def-001",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.48,
+      "confidence": 0.589,
+      "tile": "1z"
+    },
+    {
+      "id": "def-002",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.51,
+      "confidence": 0.35,
+      "tile": "1m"
+    },
+    {
+      "id": "def-003",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.52,
+      "confidence": 0.548,
+      "tile": "3z"
+    },
+    {
+      "id": "def-004",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.53,
+      "confidence": 0.953,
+      "tile": "2z"
+    },
+    {
+      "id": "def-005",
+      "kind": "defense",
+      "passed": false,
+      "seconds": 1.47,
+      "confidence": 0.234,
+      "tile": "1z"
+    },
+    {
+      "id": "def-006",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.49,
+      "confidence": 0.76,
+      "tile": "1m"
+    },
+    {
+      "id": "def-007",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.36,
+      "confidence": 0.861,
+      "tile": "9p"
+    },
+    {
+      "id": "def-008",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.47,
+      "confidence": 0.665,
+      "tile": "2m"
+    },
+    {
+      "id": "pf-001",
+      "kind": "push_fold",
+      "passed": true,
+      "seconds": 1.47,
+      "confidence": 0.537,
+      "tile": "5z"
+    },
+    {
+      "id": "pf-002",
+      "kind": "push_fold",
+      "passed": false,
+      "seconds": 1.46,
+      "confidence": 0.275,
+      "tile": "5p"
+    },
+    {
+      "id": "pf-003",
+      "kind": "push_fold",
+      "passed": true,
+      "seconds": 1.5,
+      "confidence": 0.761,
+      "tile": "7z"
+    },
+    {
+      "id": "pf-004",
+      "kind": "push_fold",
+      "passed": true,
+      "seconds": 1.48,
+      "confidence": 0.388,
+      "tile": "5z"
+    },
+    {
+      "id": "val-001",
+      "kind": "value",
+      "passed": true,
+      "seconds": 1.43,
+      "confidence": 0.365,
+      "tile": "9m"
+    },
+    {
+      "id": "val-002",
+      "kind": "value",
+      "passed": false,
+      "seconds": 1.42,
+      "confidence": 0.248,
+      "tile": "2z"
+    },
+    {
+      "id": "def-009",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.49,
+      "confidence": 0.872,
+      "tile": "3m"
+    },
+    {
+      "id": "def-010",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.51,
+      "confidence": 0.548,
+      "tile": "1m"
+    },
+    {
+      "id": "def-011",
+      "kind": "defense",
+      "passed": false,
+      "seconds": 1.48,
+      "confidence": 0.345,
+      "tile": "9p"
+    },
+    {
+      "id": "def-012",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.48,
+      "confidence": 0.145,
+      "tile": "5p"
+    },
+    {
+      "id": "def-013",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.49,
+      "confidence": 0.274,
+      "tile": "4z"
+    },
+    {
+      "id": "def-014",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.47,
+      "confidence": 0.723,
+      "tile": "2m"
+    },
+    {
+      "id": "def-015",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.48,
+      "confidence": 0.725,
+      "tile": "6z"
+    },
+    {
+      "id": "def-016",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.53,
+      "confidence": 0.364,
+      "tile": "1m"
+    },
+    {
+      "id": "eff-011",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.52,
+      "confidence": 0.918,
+      "tile": "3z"
+    },
+    {
+      "id": "eff-012",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.46,
+      "confidence": 0.378,
+      "tile": "9p"
+    },
+    {
+      "id": "eff-013",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.49,
+      "confidence": 0.815,
+      "tile": "9s"
+    },
+    {
+      "id": "eff-014",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.45,
+      "confidence": 0.966,
+      "tile": "6z"
+    },
+    {
+      "id": "eff-015",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.48,
+      "confidence": 0.968,
+      "tile": "6m"
+    },
+    {
+      "id": "eff-017",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.47,
+      "confidence": 0.967,
+      "tile": "5m"
+    },
+    {
+      "id": "eff-018",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.44,
+      "confidence": 0.614,
+      "tile": "9s"
+    },
+    {
+      "id": "eff-016",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.48,
+      "confidence": 0.751,
+      "tile": "2p"
+    },
+    {
+      "id": "val-003",
+      "kind": "value",
+      "passed": true,
+      "seconds": 1.39,
+      "confidence": 0.65,
+      "tile": "5z"
+    },
+    {
+      "id": "val-004",
+      "kind": "value",
+      "passed": false,
+      "seconds": 1.4,
+      "confidence": 0.325,
+      "tile": "5z"
+    },
+    {
+      "id": "val-005",
+      "kind": "value",
+      "passed": false,
+      "seconds": 1.48,
+      "confidence": 0.353,
+      "tile": "5s"
+    },
+    {
+      "id": "pf-005",
+      "kind": "push_fold",
+      "passed": false,
+      "seconds": 1.49,
+      "confidence": 0.266,
+      "tile": "2m"
+    },
+    {
+      "id": "pf-006",
+      "kind": "push_fold",
+      "passed": false,
+      "seconds": 1.51,
+      "confidence": 0.288,
+      "tile": "7m"
+    },
+    {
+      "id": "pf-007",
+      "kind": "push_fold",
+      "passed": false,
+      "seconds": 1.48,
+      "confidence": 0.144,
+      "tile": "3m"
+    },
+    {
+      "id": "pf-008",
+      "kind": "push_fold",
+      "passed": false,
+      "seconds": 1.48,
+      "confidence": 0.296,
+      "tile": "3z"
+    },
+    {
+      "id": "lim-001",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.52,
+      "confidence": 0.933,
+      "tile": "3z"
+    },
+    {
+      "id": "lim-002",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.46,
+      "confidence": 0.424,
+      "tile": "2p"
+    },
+    {
+      "id": "lim-003",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.52,
+      "confidence": 0.978,
+      "tile": "4z"
+    },
+    {
+      "id": "lim-004",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.51,
+      "confidence": 0.792,
+      "tile": "2p"
+    },
+    {
+      "id": "lim-005",
+      "kind": "defense",
+      "passed": true,
+      "seconds": 1.48,
+      "confidence": 0.333,
+      "tile": "2z"
+    },
+    {
+      "id": "lim-006",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.52,
+      "confidence": 0.967,
+      "tile": "2m"
+    },
+    {
+      "id": "lim-007",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.45,
+      "confidence": 0.746,
+      "tile": "9s"
+    },
+    {
+      "id": "lim-008",
+      "kind": "efficiency",
+      "passed": true,
+      "seconds": 1.54,
+      "confidence": 0.83,
+      "tile": "6m"
+    },
+    {
+      "id": "lim-009",
+      "kind": "push_fold",
+      "passed": true,
+      "seconds": 1.51,
+      "confidence": 0.466,
+      "tile": "5z"
+    },
+    {
+      "id": "lim-010",
+      "kind": "push_fold",
+      "passed": false,
+      "seconds": 1.52,
+      "confidence": 0.419,
+      "tile": "2z"
+    },
+    {
+      "id": "lim-011",
+      "kind": "value",
+      "passed": false,
+      "seconds": 1.41,
+      "confidence": 0.279,
+      "tile": "7z"
+    },
+    {
+      "id": "lim-012",
+      "kind": "value",
+      "passed": true,
+      "seconds": 1.44,
+      "confidence": 0.281,
+      "tile": "4m"
+    }
+  ]
+}

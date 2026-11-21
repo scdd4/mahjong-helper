@@ -1,0 +1,26 @@
+{
+  "high": {
+    "passed": 8,
+    "total": 8,
+    "accuracy": 1.0,
+    "median_s": 11.620000000000001
+  },
+  "high+rules": {
+    "passed": 49,
+    "total": 59,
+    "accuracy": 0.831,
+    "median_s": 11.59
+  },
+  "off": {
+    "passed": 48,
+    "total": 59,
+    "accuracy": 0.814,
+    "median_s": 1.21
+  },
+  "off+rules": {
+    "passed": 47,
+    "total": 59,
+    "accuracy": 0.797,
+    "median_s": 1.48
+  }
+}
