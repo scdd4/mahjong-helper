@@ -20,10 +20,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from desktop_runtime import ExactSolver, build_safety_facts, common_safe_tiles, tile_index, tile_code
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from safety_core import dora_from_indicator
 
 TILES = [str(n) + s for s in 'mps' for n in range(1, 10)] + [str(n) + 'z' for n in range(1, 8)]
 HONORS = {str(n) + 'z' for n in range(1, 8)}
 SEATS = ('own', 'right', 'across', 'left')
+_cand_rng = random.Random(20261123)  # 候选乱序专用，切断"答案恒在A"的位置捷径
 SYSTEM = ('你是雀魂麻将决策模型。只输出一个牌名和一句≤12字理由，格式：牌名|理由。'
           '依据局面事实（安全集、立直、役牌、宝牌、点棒、巡目、向听与进张）选择最优弃牌。')
 
@@ -81,6 +84,7 @@ def format_prompt(hand, shanten, candidates, rivers, riichi, safety, common_safe
     lines = ['手牌(%d张)：%s' % (len(hand), ' '.join(hand))]
     if shanten is not None:
         lines.append('当前向听：%s' % shanten)
+    candidates = _cand_rng.sample(candidates, len(candidates)) if candidates else candidates
     for i, c in enumerate(candidates):
         letter = chr(ord('A') + i)
         note = []
@@ -115,6 +119,18 @@ def format_prompt(hand, shanten, candidates, rivers, riichi, safety, common_safe
         lines.append('巡目：%s' % turn)
     lines.append('轮到你出牌。只输出牌名|理由。')
     return '\n'.join(lines)
+
+
+def prompt_cands(cands, rng):
+    """乱序候选列表后写入 prompt。
+
+    v1 数据答案 100% 排在第 1 位（300/300），模型学的是"永远选 A"的位置捷径：
+    4B 靠它虚高（eval 恰好答案也几乎都在 A），27B 记忆能力更强反而暴露捷径失效，
+    efficiency 从 90% 崩到 62%。重训前必须切断位置捷径。
+    """
+    lst = list(cands)
+    rng.shuffle(lst)
+    return lst
 
 
 def make_record(prompt, discard, reason):
@@ -176,38 +192,97 @@ def gen_defense(rng, solver, n):
     return records
 
 
+def tenpai_hand(rng, solver):
+    """构造 14 张听牌手牌 + 一个'打了仍听牌'的安全弃牌。
+
+    方法：先组一副完整和牌型（4 面子 + 1 对，14 张），去掉其中一张 → 13 张必听牌；
+    再摸进一张杂牌 d 凑成 14 张，则打出 d 后回到那 13 张听牌态（保证保持听牌）。
+    v1 的 push_fold"进攻"类只有 1 条样本（随机手牌几乎不可能听牌），导致全模型攻守崩，
+    此函数保证进攻样本可量产。返回 (hand14, keep_tenpai_discard)。
+    """
+    for _ in range(300):
+        tiles = []
+        ok = True
+        for _ in range(4):
+            if rng.random() < 0.75:
+                s = rng.choice('mps'); n = rng.randint(1, 7)
+                tiles += [str(n) + s, str(n + 1) + s, str(n + 2) + s]
+            else:
+                h = str(rng.randint(1, 7)) + 'z'
+                tiles += [h, h, h]
+        if rng.random() < 0.5:
+            ps = rng.choice('mps'); pn = rng.randint(1, 9)
+            pair = str(pn) + ps
+        else:
+            pair = str(rng.randint(1, 7)) + 'z'
+        tiles += [pair, pair]
+        if any(tiles.count(t) > 4 for t in set(tiles)):
+            continue
+        # 去掉一张得 13 张听牌
+        drop_idx = rng.randrange(14)
+        hand13 = tiles[:drop_idx] + tiles[drop_idx + 1:]
+        try:
+            if solver.analyze(hand13).get('shanten') != 0:
+                continue
+        except Exception:
+            continue
+        # 摸一张杂牌 d（不使任一张超 4），打出 d 后 = hand13 听牌
+        d = rng.choice(TILES)
+        if hand13.count(d) >= 4:
+            continue
+        hand14 = hand13 + [d]
+        rng.shuffle(hand14)
+        return hand14, d
+    return None, None
+
+
 def gen_push_fold(rng, solver, n):
-    """攻守：末巡落后/听牌好形进攻，否则弃和防守。"""
+    """攻守：末巡+落后+听牌好形 → 进攻保持听牌；否则弃和打安全牌。
+
+    v2：约 40% 样本用 tenpai_hand 强制构造听牌进攻场景，修复"进攻类仅 1 条"。
+    """
     records = []
     for _ in range(n):
-        hand = random_hand(rng)
-        result, cands = solver_candidates(solver, hand)
-        if not result or not cands:
-            continue
-        rivers, riichi, riichi_seats = make_rivers(rng, hand, rng.choice([1, 1, 2]))
-        safety = build_safety_facts(rivers, riichi, '东', '西')
-        common = common_safe_tiles(safety, riichi_seats, hand)
-        # 决策规则：末巡(>=10) + 落后 + 听牌好形 → 进攻；否则防守
-        late = rng.random() < 0.4
-        behind = rng.random() < 0.5
-        tenpai = result.get('tenpai') or any(c.get('tenpai') for c in cands)
-        attack = late and behind and tenpai
-        if attack:
+        want_attack = rng.random() < 0.4
+        if want_attack:
+            hand, _ = tenpai_hand(rng, solver)
+            if not hand:
+                continue
+            result, cands = solver_candidates(solver, hand)
             tenpai_discards = [c['tile'] for c in cands if c.get('tenpai')]
             if not tenpai_discards:
                 continue
-            discard = rng.choice(tenpai_discards)
-            reason = '听牌好形保持进攻'
+            discard = tenpai_discards[0]
+            reason = '听牌保持进攻'
+            n_riichi = rng.choice([1, 2])  # 进攻题必有威胁，否则 push 无意义
         else:
-            safe = [t for t in common if t in hand] or [t for seat in riichi_seats
-                    for t in (safety.get('现物', {}).get(seat) or []) if t in hand]
+            hand = random_hand(rng)
+            result, cands = solver_candidates(solver, hand)
+            if not result or not cands:
+                continue
+            tenpai_discards = []
+            discard = None
+            n_riichi = rng.choice([1, 1, 2])
+        rivers, riichi, riichi_seats = make_rivers(rng, hand, n_riichi)
+        safety = build_safety_facts(rivers, riichi, '东', '西')
+        common = common_safe_tiles(safety, riichi_seats, hand)
+        if not want_attack:
+            safe = [t for t in common if t in hand] or [
+                t for seat in riichi_seats
+                for t in (safety.get('现物', {}).get(seat) or []) if t in hand]
             if not safe:
                 continue
-            discard = rng.choice(safe)
-            reason = '无役且巡目早先弃和'
-        scores = {'own': rng.choice([15000, 25000, 35000]),
-                  'right': rng.choice([25000, 35000, 45000])}
-        turn = rng.randint(6, 14)
+            discard = safe[0]
+            reason = '有威胁弃和打安全'
+        # 进攻场景点棒落后且末巡，弃和场景点棒领先或中巡（与理由因果对齐）
+        if want_attack:
+            scores = {'own': rng.choice([15000, 22000]),
+                      'right': 45000, 'across': 35000, 'left': 30000}
+            turn = rng.randint(11, 15)
+        else:
+            scores = {'own': rng.choice([40000, 45000]),
+                      'right': 22000, 'across': 20000, 'left': 18000}
+            turn = rng.randint(3, 9)
         prompt = format_prompt(hand, result['shanten'], cands, rivers, riichi,
                                safety, common, round_wind='东', self_wind='西',
                                scores=scores, turn=turn)
@@ -216,7 +291,13 @@ def gen_push_fold(rng, solver, n):
 
 
 def gen_value(rng, solver, n):
-    """打点：宝牌/役牌保留，打低价值浮牌。"""
+    """打点：宝牌/役牌保留，从打点与效率兼顾处选弃牌。
+
+    v1 缺陷（导致 4B value 只有 14%）：把宝牌**指示牌**当成宝牌本体保留
+    （actual_dora = dora_indicator ∩ hand），教的是错误概念。
+    v2 修复：指示牌 → dora_from_indicator → 真宝牌；理由与"保留宝牌"因果对齐。
+    并且不再随机丢浮牌——只在候选里挑"打了不损向听、且不拆真宝牌/役牌对子"的最优牌。
+    """
     records = []
     for _ in range(n):
         hand = random_hand(rng)
@@ -224,18 +305,24 @@ def gen_value(rng, solver, n):
         if not cands:
             continue
         rivers, riichi, _ = make_rivers(rng, hand, 0)
-        dora = rng.sample([t for t in TILES], rng.randint(1, 3))
-        # 保留宝牌/役牌，从候选中打非宝牌非役牌
-        # 只把手牌里真实存在的宝牌/役牌计为"有价值"，否则会误把浮牌当宝牌
-        actual_dora = set(dora) & set(hand)
-        valuable = actual_dora | (HONORS & set(hand))
-        low_value = [c['tile'] for c in cands if c['tile'] not in valuable]
-        if not low_value:
+        indicators = rng.sample([t for t in TILES], rng.randint(1, 3))
+        real_dora = {dora_from_indicator(t) for t in indicators} & set(hand)
+        # 役牌：场风/自风 + 三元牌；只认手牌里成对/成刻的才算"有价值"，孤张役牌可打
+        honors_kept = {t for t in HONORS & set(hand) if hand.count(t) >= 2}
+        valuable = real_dora | honors_kept
+        best = min(c['shanten'] for c in cands)
+        # 只在最优向听候选里挑，且不拆有价值牌
+        safe_drops = [c for c in cands
+                      if c['shanten'] == best and c['tile'] not in valuable]
+        if not safe_drops:
             continue
-        discard = low_value[0]
-        reason = '保留宝牌役牌打浮牌' if valuable else '牌效率优先打浮牌'
+        # 有价值牌确实存在时才归为"打点"决策，否则是纯效率（避免噪声标签）
+        if not valuable:
+            continue
+        discard = max(safe_drops, key=lambda c: c.get('ukeire', 0))['tile']
+        reason = ('保留宝牌打浮牌' if real_dora else '保留役牌打浮牌')
         prompt = format_prompt(hand, result['shanten'] if result else None, cands,
-                               rivers, riichi, {}, [], dora=dora)
+                               rivers, riichi, {}, [], dora=indicators)
         records.append(make_record(prompt, discard, reason))
     return records
 
@@ -244,7 +331,13 @@ def gen_simple(rng, solver, n, kind):
     """鸣牌/立直/终局/多立直：规则驱动的简化样本。"""
     records = []
     for _ in range(n):
-        hand = random_hand(rng)
+        if kind == '立直判断':
+            # 随机手牌几乎不可能听牌（v1 该类 2490 条只出 2 条有效），改用听牌构造器
+            hand, _ = tenpai_hand(rng, solver)
+            if not hand:
+                continue
+        else:
+            hand = random_hand(rng)
         result, cands = solver_candidates(solver, hand)
         if not cands:
             continue

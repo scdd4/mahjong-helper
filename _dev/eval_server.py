@@ -22,27 +22,27 @@ SYSTEM_SFT = ('你是雀魂麻将决策模型。只输出一个牌名和一句�
 SEATS = ('own', 'right', 'across', 'left')
 
 
+import sys
+_HERE = Path(__file__).resolve().parent
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
+# safety_core 是生产 desktop_runtime 安全逻辑的无依赖纯 Python 副本，
+# 本机与服务器口径一致（已逐场景校验 0 mismatch）。
+from safety_core import build_safety_facts, common_safe_tiles
+
+
 def safety_from(state):
-    """复用 gen_training_data 的安全事实口径：现物/筋 + 共同安全。"""
+    """生产口径安全事实（与 gen_training_data 完全一致）。
+
+    v1 手写近似有 bug：无立直时把全手牌标成"共同安全"（59 题中 27 题输入被污染），
+    筋计算也与生产/训练不一致（def-011 中假"共同安全：4m"直接把模型引向错误答案）。
+    """
     riichi = state.get('riichi') or {}
     rivers = state.get('rivers') or {}
-    active = [s for s, on in riichi.items() if on and s != 'own']
-    genbutsu, suji = {}, {}
-    for seat in active:
-        river = rivers.get(seat) or []
-        genbutsu[seat] = list(dict.fromkeys(river))
-        suji[seat] = []
-        for t in river:
-            if t.endswith('m') or t.endswith('p') or t.endswith('s'):
-                n = int(t[0])
-                if 1 <= n <= 6:
-                    suji[seat].append('%dm' % (n + 3) if t.endswith('m') else
-                                      '%dp' % (n + 3) if t.endswith('p') else '%ds' % (n + 3))
-        suji[seat] = list(dict.fromkeys(suji[seat]))
-    common = set(state['hand'])
-    for seat in active:
-        common &= (set(genbutsu[seat]) | set(suji[seat]))
-    return {'现物': genbutsu, '筋': suji}, sorted(common)
+    facts = build_safety_facts(rivers, riichi, state.get('round'), state.get('self_wind'))
+    seats = [s for s, on in riichi.items() if on and s != 'own']
+    common = sorted(common_safe_tiles(facts, seats, state['hand']))
+    return facts, common
 
 
 def format_prompt(state):

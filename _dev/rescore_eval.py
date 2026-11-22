@@ -53,6 +53,14 @@ def main():
         if sc['kind'] == 'value':
             exp = sc['expected']
             passed = discard == exp['tile'] or discard in exp.get('alternatives', [])
+        elif sc['kind'] == 'push_fold':
+            # 微调模型格式只有 牌名|理由，无 stance 字段；弃牌本身即表达方向：
+            # fold 题打安全集内牌即算弃和成功（score() 的 stance 硬校验对单牌格式是误杀）。
+            exp = sc['expected']
+            if exp['direction'] == 'fold':
+                passed = discard in exp.get('safe', []) and discard not in exp.get('must_avoid', [])
+            else:
+                passed = discard in exp.get('tenpai_discards', [])
         else:
             ans = {'discard': discard, 'stance': '均衡', 'reason': '', 'offense': '', 'defense': ''}
             passed, _ = score(sc, ans)

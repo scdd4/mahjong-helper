@@ -1,0 +1,418 @@
+{
+  "model": "/home/user/mahjong_train/out-4b/merged",
+  "results": [
+    {
+      "id": "eff-001",
+      "kind": "efficiency",
+      "discard": "2z",
+      "reply": "2z|进张8张最广",
+      "seconds": 1.45
+    },
+    {
+      "id": "eff-002",
+      "kind": "efficiency",
+      "discard": "1z",
+      "reply": "1z|进张3张最广",
+      "seconds": 0.84
+    },
+    {
+      "id": "eff-003",
+      "kind": "efficiency",
+      "discard": "1m",
+      "reply": "1m|进张9张最广",
+      "seconds": 0.84
+    },
+    {
+      "id": "eff-004",
+      "kind": "efficiency",
+      "discard": "4m",
+      "reply": "4m|保留宝牌役牌打浮牌",
+      "seconds": 1.02
+    },
+    {
+      "id": "eff-005",
+      "kind": "efficiency",
+      "discard": "1z",
+      "reply": "1z|进张8张保顺位",
+      "seconds": 0.96
+    },
+    {
+      "id": "eff-006",
+      "kind": "efficiency",
+      "discard": "7p",
+      "reply": "7p|保留宝牌役牌打浮牌",
+      "seconds": 1.01
+    },
+    {
+      "id": "eff-007",
+      "kind": "efficiency",
+      "discard": "5s",
+      "reply": "5s|保留宝牌役牌打浮牌",
+      "seconds": 1.01
+    },
+    {
+      "id": "eff-008",
+      "kind": "efficiency",
+      "discard": "7z",
+      "reply": "7z|进张4张保顺位",
+      "seconds": 0.96
+    },
+    {
+      "id": "eff-009",
+      "kind": "efficiency",
+      "discard": "1m",
+      "reply": "1m|保留宝牌役牌打浮牌",
+      "seconds": 1.02
+    },
+    {
+      "id": "eff-010",
+      "kind": "efficiency",
+      "discard": "9m",
+      "reply": "9m|进张8张最广",
+      "seconds": 0.85
+    },
+    {
+      "id": "def-001",
+      "kind": "defense",
+      "discard": "1z",
+      "reply": "1z|进张66张最广",
+      "seconds": 0.93
+    },
+    {
+      "id": "def-002",
+      "kind": "defense",
+      "discard": "5s",
+      "reply": "5s|进张16张最广",
+      "seconds": 0.92
+    },
+    {
+      "id": "def-003",
+      "kind": "defense",
+      "discard": "3z",
+      "reply": "3z|进张17张最广",
+      "seconds": 0.93
+    },
+    {
+      "id": "def-004",
+      "kind": "defense",
+      "discard": "2z",
+      "reply": "2z|多家立直打共同安全",
+      "seconds": 0.93
+    },
+    {
+      "id": "def-005",
+      "kind": "defense",
+      "discard": "9p",
+      "reply": "9p|保留宝牌役牌打浮牌",
+      "seconds": 1.04
+    },
+    {
+      "id": "def-006",
+      "kind": "defense",
+      "discard": "5m",
+      "reply": "5m|进张28张最广",
+      "seconds": 0.92
+    },
+    {
+      "id": "def-007",
+      "kind": "defense",
+      "discard": "9p",
+      "reply": "9p|进张33张最广",
+      "seconds": 0.91
+    },
+    {
+      "id": "def-008",
+      "kind": "defense",
+      "discard": "3z",
+      "reply": "3z|进张65张最广",
+      "seconds": 0.92
+    },
+    {
+      "id": "pf-001",
+      "kind": "push_fold",
+      "discard": "4s",
+      "reply": "4s|无役且巡目早先弃和",
+      "seconds": 1.09
+    },
+    {
+      "id": "pf-002",
+      "kind": "push_fold",
+      "discard": "5p",
+      "reply": "5p|无役且巡目早先弃和",
+      "seconds": 1.1
+    },
+    {
+      "id": "pf-003",
+      "kind": "push_fold",
+      "discard": "3m",
+      "reply": "3m|无役且巡目早先弃和",
+      "seconds": 1.09
+    },
+    {
+      "id": "pf-004",
+      "kind": "push_fold",
+      "discard": "7m",
+      "reply": "7m|无役且巡目早先弃和",
+      "seconds": 1.09
+    },
+    {
+      "id": "val-001",
+      "kind": "value",
+      "discard": "9p",
+      "reply": "9p|牌效率优先打浮牌",
+      "seconds": 0.91
+    },
+    {
+      "id": "val-002",
+      "kind": "value",
+      "discard": "9s",
+      "reply": "9s|保留宝牌役牌打浮牌",
+      "seconds": 1.02
+    },
+    {
+      "id": "def-009",
+      "kind": "defense",
+      "discard": "3m",
+      "reply": "3m|无役且巡目早先弃和",
+      "seconds": 1.09
+    },
+    {
+      "id": "def-010",
+      "kind": "defense",
+      "discard": "1m",
+      "reply": "1m|进张38张最广",
+      "seconds": 0.92
+    },
+    {
+      "id": "def-011",
+      "kind": "defense",
+      "discard": "3z",
+      "reply": "3z|进张19张最广",
+      "seconds": 0.92
+    },
+    {
+      "id": "def-012",
+      "kind": "defense",
+      "discard": "3z",
+      "reply": "3z|进张21张最广",
+      "seconds": 0.92
+    },
+    {
+      "id": "def-013",
+      "kind": "defense",
+      "discard": "2m",
+      "reply": "2m|无共同安全牌选相对安全",
+      "seconds": 0.98
+    },
+    {
+      "id": "def-014",
+      "kind": "defense",
+      "discard": "6m",
+      "reply": "6m|进张12张最广",
+      "seconds": 0.92
+    },
+    {
+      "id": "def-015",
+      "kind": "defense",
+      "discard": "2p",
+      "reply": "2p|避免放铳保点棒",
+      "seconds": 0.98
+    },
+    {
+      "id": "def-016",
+      "kind": "defense",
+      "discard": "5m",
+      "reply": "5m|进张83张最广",
+      "seconds": 0.92
+    },
+    {
+      "id": "eff-011",
+      "kind": "efficiency",
+      "discard": "3z",
+      "reply": "3z|进张6张最广",
+      "seconds": 0.85
+    },
+    {
+      "id": "eff-012",
+      "kind": "efficiency",
+      "discard": "2s",
+      "reply": "2s|进张9张最广",
+      "seconds": 0.84
+    },
+    {
+      "id": "eff-013",
+      "kind": "efficiency",
+      "discard": "9s",
+      "reply": "9s|进张6张最广",
+      "seconds": 0.85
+    },
+    {
+      "id": "eff-014",
+      "kind": "efficiency",
+      "discard": "6z",
+      "reply": "6z|进张11张最广",
+      "seconds": 0.91
+    },
+    {
+      "id": "eff-015",
+      "kind": "efficiency",
+      "discard": "6m",
+      "reply": "6m|进张7张最广",
+      "seconds": 0.85
+    },
+    {
+      "id": "eff-017",
+      "kind": "efficiency",
+      "discard": "5m",
+      "reply": "5m|进张39张最广",
+      "seconds": 0.91
+    },
+    {
+      "id": "eff-018",
+      "kind": "efficiency",
+      "discard": "9s",
+      "reply": "9s|进张3张保顺位",
+      "seconds": 0.96
+    },
+    {
+      "id": "eff-016",
+      "kind": "efficiency",
+      "discard": "2p",
+      "reply": "2p|进张9张最广",
+      "seconds": 0.85
+    },
+    {
+      "id": "val-003",
+      "kind": "value",
+      "discard": "2s",
+      "reply": "2s|保留宝牌役牌打浮牌",
+      "seconds": 1.02
+    },
+    {
+      "id": "val-004",
+      "kind": "value",
+      "discard": "1m",
+      "reply": "1m|保留宝牌役牌打浮牌",
+      "seconds": 1.02
+    },
+    {
+      "id": "val-005",
+      "kind": "value",
+      "discard": "9p",
+      "reply": "9p|进张10张最广",
+      "seconds": 0.92
+    },
+    {
+      "id": "pf-005",
+      "kind": "push_fold",
+      "discard": "2s",
+      "reply": "2s|无役且巡目早先弃和",
+      "seconds": 1.1
+    },
+    {
+      "id": "pf-006",
+      "kind": "push_fold",
+      "discard": "7m",
+      "reply": "7m|无役且巡目早先弃和",
+      "seconds": 1.1
+    },
+    {
+      "id": "pf-007",
+      "kind": "push_fold",
+      "discard": "9p",
+      "reply": "9p|无役且巡目早先弃和",
+      "seconds": 1.12
+    },
+    {
+      "id": "pf-008",
+      "kind": "push_fold",
+      "discard": "7s",
+      "reply": "7s|无役且巡目早先弃和",
+      "seconds": 1.1
+    },
+    {
+      "id": "lim-001",
+      "kind": "defense",
+      "discard": "3z",
+      "reply": "3z|多家立直打共同安全",
+      "seconds": 0.93
+    },
+    {
+      "id": "lim-002",
+      "kind": "defense",
+      "discard": "1m",
+      "reply": "1m|避免放铳保点棒",
+      "seconds": 0.98
+    },
+    {
+      "id": "lim-003",
+      "kind": "defense",
+      "discard": "4z",
+      "reply": "4z|多家立直打共同安全",
+      "seconds": 0.95
+    },
+    {
+      "id": "lim-004",
+      "kind": "defense",
+      "discard": "9m",
+      "reply": "9m|进张55张最广",
+      "seconds": 0.92
+    },
+    {
+      "id": "lim-005",
+      "kind": "defense",
+      "discard": "2z",
+      "reply": "2z|进张31张最广",
+      "seconds": 0.92
+    },
+    {
+      "id": "lim-006",
+      "kind": "efficiency",
+      "discard": "2m",
+      "reply": "2m|进张39张最广",
+      "seconds": 0.91
+    },
+    {
+      "id": "lim-007",
+      "kind": "efficiency",
+      "discard": "9s",
+      "reply": "9s|进张4张最广",
+      "seconds": 0.85
+    },
+    {
+      "id": "lim-008",
+      "kind": "efficiency",
+      "discard": "6m",
+      "reply": "6m|牌效率优先打浮牌",
+      "seconds": 0.91
+    },
+    {
+      "id": "lim-009",
+      "kind": "push_fold",
+      "discard": "9p",
+      "reply": "9p|无役且巡目早先弃和",
+      "seconds": 1.12
+    },
+    {
+      "id": "lim-010",
+      "kind": "push_fold",
+      "discard": "1m",
+      "reply": "1m|无役且巡目早先弃和",
+      "seconds": 1.12
+    },
+    {
+      "id": "lim-011",
+      "kind": "value",
+      "discard": "9s",
+      "reply": "9s|保留宝牌役牌打浮牌",
+      "seconds": 1.02
+    },
+    {
+      "id": "lim-012",
+      "kind": "value",
+      "discard": "4m",
+      "reply": "4m|保留宝牌役牌打浮牌",
+      "seconds": 1.02
+    }
+  ]
+}
