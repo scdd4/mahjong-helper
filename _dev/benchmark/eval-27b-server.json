@@ -1,0 +1,418 @@
+{
+  "model": "/home/user/mahjong_train/out-27b/merged",
+  "results": [
+    {
+      "id": "eff-001",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n1m|避免放铳保点棒",
+      "seconds": 6.31
+    },
+    {
+      "id": "eff-002",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n1z|进张3张最广",
+      "seconds": 4.52
+    },
+    {
+      "id": "eff-003",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n1m|进张9张最广",
+      "seconds": 4.52
+    },
+    {
+      "id": "eff-004",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n4m|保留宝牌役牌打浮牌",
+      "seconds": 5.26
+    },
+    {
+      "id": "eff-005",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n1z|进张8张最广",
+      "seconds": 4.53
+    },
+    {
+      "id": "eff-006",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n7p|保留宝牌役牌打浮牌",
+      "seconds": 5.26
+    },
+    {
+      "id": "eff-007",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n9s|保留宝牌役牌打浮牌",
+      "seconds": 5.27
+    },
+    {
+      "id": "eff-008",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n7z|进张4张最广",
+      "seconds": 4.52
+    },
+    {
+      "id": "eff-009",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n1m|保留宝牌役牌打浮牌",
+      "seconds": 5.27
+    },
+    {
+      "id": "eff-010",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n9m|进张8张最广",
+      "seconds": 4.54
+    },
+    {
+      "id": "def-001",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n6p|保留宝牌役牌打共同安全",
+      "seconds": 5.19
+    },
+    {
+      "id": "def-002",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n2p|避免放铳保点棒",
+      "seconds": 4.94
+    },
+    {
+      "id": "def-003",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n5s|保留宝牌役牌打浮牌",
+      "seconds": 5.18
+    },
+    {
+      "id": "def-004",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n2z|多家立直打共同安全",
+      "seconds": 4.72
+    },
+    {
+      "id": "def-005",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n2m|保留宝牌役牌打浮牌",
+      "seconds": 5.17
+    },
+    {
+      "id": "def-006",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n1m|保留宝牌役牌打共同安全",
+      "seconds": 5.19
+    },
+    {
+      "id": "def-007",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n9p|避免浪费宝牌役牌效率",
+      "seconds": 4.91
+    },
+    {
+      "id": "def-008",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n8m|保留宝牌役牌打共同安全",
+      "seconds": 5.15
+    },
+    {
+      "id": "pf-001",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n4s|无役且巡目晚先弃和",
+      "seconds": 5.45
+    },
+    {
+      "id": "pf-002",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n5p|无役且巡目早先弃和",
+      "seconds": 5.44
+    },
+    {
+      "id": "pf-003",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n3m|无共同安全牌选相对安全",
+      "seconds": 4.96
+    },
+    {
+      "id": "pf-004",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n7m|无役且巡目晚先弃和",
+      "seconds": 5.45
+    },
+    {
+      "id": "val-001",
+      "kind": "value",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n2p|保留宝牌役牌打共同安全",
+      "seconds": 5.17
+    },
+    {
+      "id": "val-002",
+      "kind": "value",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n2m|保留宝牌役牌打浮牌",
+      "seconds": 5.16
+    },
+    {
+      "id": "def-009",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n3m|多家立直打共同安全",
+      "seconds": 4.73
+    },
+    {
+      "id": "def-010",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n2p|避免放铳保点棒",
+      "seconds": 4.96
+    },
+    {
+      "id": "def-011",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n4m|避免放铳保点棒",
+      "seconds": 4.93
+    },
+    {
+      "id": "def-012",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n5p|避免放铳保点棒",
+      "seconds": 4.93
+    },
+    {
+      "id": "def-013",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n5p|现物安全",
+      "seconds": 3.99
+    },
+    {
+      "id": "def-014",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n8m|避免放铳保点棒",
+      "seconds": 4.93
+    },
+    {
+      "id": "def-015",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n5p|避免放铳保点棒",
+      "seconds": 4.93
+    },
+    {
+      "id": "def-016",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n1m|避免放铳保点棒",
+      "seconds": 4.93
+    },
+    {
+      "id": "eff-011",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n2m|避免放铳保点棒",
+      "seconds": 5.04
+    },
+    {
+      "id": "eff-012",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n1m|避免放铳保点棒",
+      "seconds": 5.03
+    },
+    {
+      "id": "eff-013",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n1m|避免放铳保点棒",
+      "seconds": 5.04
+    },
+    {
+      "id": "eff-014",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n2m|进张33张最广",
+      "seconds": 4.81
+    },
+    {
+      "id": "eff-015",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n6m|进张7张最广",
+      "seconds": 4.56
+    },
+    {
+      "id": "eff-017",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n5m|进张39张最广",
+      "seconds": 4.8
+    },
+    {
+      "id": "eff-018",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n1m|进张9张最广",
+      "seconds": 4.54
+    },
+    {
+      "id": "eff-016",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n2p|进张9张最广",
+      "seconds": 4.55
+    },
+    {
+      "id": "val-003",
+      "kind": "value",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n1m|保留宝牌役牌打浮牌",
+      "seconds": 5.17
+    },
+    {
+      "id": "val-004",
+      "kind": "value",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n1m|保留宝牌役牌打共同安全",
+      "seconds": 5.18
+    },
+    {
+      "id": "val-005",
+      "kind": "value",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n5s|保留宝牌役牌打共同安全",
+      "seconds": 5.18
+    },
+    {
+      "id": "pf-005",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n2m|无役且巡目早先弃和",
+      "seconds": 5.45
+    },
+    {
+      "id": "pf-006",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n2p|无役且巡目早先弃和",
+      "seconds": 5.45
+    },
+    {
+      "id": "pf-007",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n9p|无役且巡目早先弃和",
+      "seconds": 5.48
+    },
+    {
+      "id": "pf-008",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n5m|无役且巡目早先弃和",
+      "seconds": 5.47
+    },
+    {
+      "id": "lim-001",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n3z|多家立直打共同安全",
+      "seconds": 4.73
+    },
+    {
+      "id": "lim-002",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n1z|避免放铳保点棒",
+      "seconds": 4.94
+    },
+    {
+      "id": "lim-003",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n4z|多家立直打共同安全",
+      "seconds": 4.79
+    },
+    {
+      "id": "lim-004",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n2p|避免放铳保点棒",
+      "seconds": 4.93
+    },
+    {
+      "id": "lim-005",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n4p|避免放铳保点棒",
+      "seconds": 4.93
+    },
+    {
+      "id": "lim-006",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n2m|进张39张最广",
+      "seconds": 4.81
+    },
+    {
+      "id": "lim-007",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n1m|避免放铳保点棒",
+      "seconds": 5.05
+    },
+    {
+      "id": "lim-008",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n6m|保留宝牌役牌打浮牌",
+      "seconds": 5.34
+    },
+    {
+      "id": "lim-009",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n9p|无共同安全牌选相对安全",
+      "seconds": 4.98
+    },
+    {
+      "id": "lim-010",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n7m|无共同安全牌选相对安全",
+      "seconds": 5.05
+    },
+    {
+      "id": "lim-011",
+      "kind": "value",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n2m|保留宝牌役牌打浮牌",
+      "seconds": 5.17
+    },
+    {
+      "id": "lim-012",
+      "kind": "value",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n<think>\n\n</think>\n\n2p|保留宝牌役牌打共同安全",
+      "seconds": 5.18
+    }
+  ]
+}

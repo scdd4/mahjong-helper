@@ -1,0 +1,129 @@
+{
+  "model": "4B微调",
+  "passed": 42,
+  "total": 59,
+  "accuracy": 0.711864406779661,
+  "median_s": 0.95,
+  "by_kind": {
+    "efficiency": {
+      "passed": 21,
+      "total": 21
+    },
+    "defense": {
+      "passed": 17,
+      "total": 21
+    },
+    "push_fold": {
+      "passed": 3,
+      "total": 10
+    },
+    "value": {
+      "passed": 1,
+      "total": 7
+    }
+  },
+  "failures": [
+    {
+      "id": "def-005",
+      "kind": "defense",
+      "expected": "safe",
+      "got": "2m"
+    },
+    {
+      "id": "pf-001",
+      "kind": "push_fold",
+      "expected": "safe",
+      "got": "4s"
+    },
+    {
+      "id": "pf-002",
+      "kind": "push_fold",
+      "expected": "safe",
+      "got": "6m"
+    },
+    {
+      "id": "pf-004",
+      "kind": "push_fold",
+      "expected": "safe",
+      "got": "7m"
+    },
+    {
+      "id": "val-001",
+      "kind": "value",
+      "expected": "9m",
+      "got": "2p"
+    },
+    {
+      "id": "val-002",
+      "kind": "value",
+      "expected": "9s",
+      "got": "2m"
+    },
+    {
+      "id": "def-011",
+      "kind": "defense",
+      "expected": "safe",
+      "got": "4m"
+    },
+    {
+      "id": "def-013",
+      "kind": "defense",
+      "expected": "safe",
+      "got": "2m"
+    },
+    {
+      "id": "val-003",
+      "kind": "value",
+      "expected": "5z",
+      "got": "1m"
+    },
+    {
+      "id": "val-004",
+      "kind": "value",
+      "expected": "4m",
+      "got": "1m"
+    },
+    {
+      "id": "val-005",
+      "kind": "value",
+      "expected": "9p",
+      "got": "5s"
+    },
+    {
+      "id": "pf-005",
+      "kind": "push_fold",
+      "expected": "safe",
+      "got": "5m"
+    },
+    {
+      "id": "pf-006",
+      "kind": "push_fold",
+      "expected": "safe",
+      "got": "5p"
+    },
+    {
+      "id": "pf-008",
+      "kind": "push_fold",
+      "expected": "safe",
+      "got": "7s"
+    },
+    {
+      "id": "lim-005",
+      "kind": "defense",
+      "expected": "safe",
+      "got": "4p"
+    },
+    {
+      "id": "lim-010",
+      "kind": "push_fold",
+      "expected": "safe",
+      "got": "5p"
+    },
+    {
+      "id": "lim-012",
+      "kind": "value",
+      "expected": "4m",
+      "got": "1z"
+    }
+  ]
+}

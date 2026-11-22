@@ -101,6 +101,19 @@ def main():
     from unsloth import FastModel
     from trl import SFTTrainer, SFTConfig
 
+    # 27B 多分片权重用 device_map 懒加载，部分层是 meta tensor，
+    # Unsloth 的 fix_untrained_tokens 会崩（Cannot copy out of meta tensor）。
+    # 我们的 tokenizer 完整、无需补未训练 token，直接空操作掉。
+    try:
+        import unsloth_zoo.tokenizer_utils as _tu
+        _tu.fix_untrained_tokens = lambda *a, **k: None
+        import unsloth_zoo.training_utils as _tru
+        _orig_zero = _tru.fix_zero_training_loss
+        _tru.fix_zero_training_loss = _orig_zero  # 保留原实现
+        print('已禁用 fix_untrained_tokens（27B meta tensor 兼容）', flush=True)
+    except Exception as _e:
+        print('patch 跳过: %s' % _e, flush=True)
+
     t0 = time.perf_counter()
     print('加载模型 %s ...' % args.model, flush=True)
     model, processor = FastModel.from_pretrained(

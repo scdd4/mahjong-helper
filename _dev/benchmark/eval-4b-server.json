@@ -1,0 +1,418 @@
+{
+  "model": "/home/user/mahjong_train/out-4b/merged",
+  "results": [
+    {
+      "id": "eff-001",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n2z|进张8张最广",
+      "seconds": 1.46
+    },
+    {
+      "id": "eff-002",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n1z|进张3张最广",
+      "seconds": 0.86
+    },
+    {
+      "id": "eff-003",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n1m|进张9张最广",
+      "seconds": 0.86
+    },
+    {
+      "id": "eff-004",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n4m|进张10张最广",
+      "seconds": 0.92
+    },
+    {
+      "id": "eff-005",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n1z|进张8张最广",
+      "seconds": 0.86
+    },
+    {
+      "id": "eff-006",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n1z|进张8张最广",
+      "seconds": 0.86
+    },
+    {
+      "id": "eff-007",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n9s|进张3张最广",
+      "seconds": 0.87
+    },
+    {
+      "id": "eff-008",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n7z|进张4张最广",
+      "seconds": 0.86
+    },
+    {
+      "id": "eff-009",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n1m|进张41张最广",
+      "seconds": 0.92
+    },
+    {
+      "id": "eff-010",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n9m|进张8张最广",
+      "seconds": 0.87
+    },
+    {
+      "id": "def-001",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n1z|进张最广",
+      "seconds": 0.72
+    },
+    {
+      "id": "def-002",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n2p|避免放铳保点棒",
+      "seconds": 0.95
+    },
+    {
+      "id": "def-003",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n2s|避免放铳保点棒",
+      "seconds": 0.95
+    },
+    {
+      "id": "def-004",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n2z|多家立直打共同安全",
+      "seconds": 0.89
+    },
+    {
+      "id": "def-005",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n2m|保留宝牌役牌打浮牌",
+      "seconds": 1.01
+    },
+    {
+      "id": "def-006",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n1m|避免放铳保点棒",
+      "seconds": 0.95
+    },
+    {
+      "id": "def-007",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n9p|避免放铳保点棒",
+      "seconds": 0.94
+    },
+    {
+      "id": "def-008",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n8m|避免放铳保点棒",
+      "seconds": 0.94
+    },
+    {
+      "id": "pf-001",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n4s|无役且巡目早先弃和",
+      "seconds": 1.07
+    },
+    {
+      "id": "pf-002",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n6m|无役且巡目早先弃和",
+      "seconds": 1.07
+    },
+    {
+      "id": "pf-003",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n3m|无役且巡目早先弃和",
+      "seconds": 1.06
+    },
+    {
+      "id": "pf-004",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n7m|无役且巡目早先弃和",
+      "seconds": 1.07
+    },
+    {
+      "id": "val-001",
+      "kind": "value",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n2p|避免放铳保点棒",
+      "seconds": 0.95
+    },
+    {
+      "id": "val-002",
+      "kind": "value",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n2m|避免放铳保点棒",
+      "seconds": 0.94
+    },
+    {
+      "id": "def-009",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n3m|无役且巡目早先弃和",
+      "seconds": 1.07
+    },
+    {
+      "id": "def-010",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n2p|避免放铳保点棒",
+      "seconds": 0.95
+    },
+    {
+      "id": "def-011",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n4m|避免放铳保点棒",
+      "seconds": 0.95
+    },
+    {
+      "id": "def-012",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n5p|避免放铳保点棒",
+      "seconds": 0.95
+    },
+    {
+      "id": "def-013",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n2m|无共同安全牌选相对安全",
+      "seconds": 0.96
+    },
+    {
+      "id": "def-014",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n8m|避免放铳保点棒",
+      "seconds": 0.95
+    },
+    {
+      "id": "def-015",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n5p|避免放铳保点棒",
+      "seconds": 0.95
+    },
+    {
+      "id": "def-016",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n1m|避免放铳保点棒",
+      "seconds": 0.96
+    },
+    {
+      "id": "eff-011",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n3z|进张6张最广",
+      "seconds": 0.87
+    },
+    {
+      "id": "eff-012",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n2s|进张9张最广",
+      "seconds": 0.86
+    },
+    {
+      "id": "eff-013",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n9s|进张6张最广",
+      "seconds": 0.86
+    },
+    {
+      "id": "eff-014",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n6z|进张11张最广",
+      "seconds": 0.93
+    },
+    {
+      "id": "eff-015",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n6m|进张7张最广",
+      "seconds": 0.87
+    },
+    {
+      "id": "eff-017",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n5m|进张39张最广",
+      "seconds": 0.92
+    },
+    {
+      "id": "eff-018",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n9s|进张3张最广",
+      "seconds": 0.86
+    },
+    {
+      "id": "eff-016",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n2p|进张9张最广",
+      "seconds": 0.86
+    },
+    {
+      "id": "val-003",
+      "kind": "value",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n1m|避免放铳保点棒",
+      "seconds": 0.96
+    },
+    {
+      "id": "val-004",
+      "kind": "value",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n1m|避免放铳保点棒",
+      "seconds": 0.95
+    },
+    {
+      "id": "val-005",
+      "kind": "value",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n5s|避免放铳保点棒",
+      "seconds": 0.95
+    },
+    {
+      "id": "pf-005",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n5m|无役且巡目早先弃和",
+      "seconds": 1.07
+    },
+    {
+      "id": "pf-006",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n5p|无役且巡目早先弃和",
+      "seconds": 1.07
+    },
+    {
+      "id": "pf-007",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n6s|无役且巡目早先弃和",
+      "seconds": 1.08
+    },
+    {
+      "id": "pf-008",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n7s|无役且巡目早先弃和",
+      "seconds": 1.08
+    },
+    {
+      "id": "lim-001",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n3z|多家立直打共同安全",
+      "seconds": 0.9
+    },
+    {
+      "id": "lim-002",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n1z|避免放铳保点棒",
+      "seconds": 0.96
+    },
+    {
+      "id": "lim-003",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n4z|无役且巡目早先弃和",
+      "seconds": 1.09
+    },
+    {
+      "id": "lim-004",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n2p|避免放铳保点棒",
+      "seconds": 0.95
+    },
+    {
+      "id": "lim-005",
+      "kind": "defense",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n4p|避免放铳保点棒",
+      "seconds": 0.95
+    },
+    {
+      "id": "lim-006",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n2m|进张39张最广",
+      "seconds": 0.93
+    },
+    {
+      "id": "lim-007",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n9s|进张4张最广",
+      "seconds": 0.87
+    },
+    {
+      "id": "lim-008",
+      "kind": "efficiency",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n6m|进张44张最广",
+      "seconds": 0.94
+    },
+    {
+      "id": "lim-009",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n6s|无役且巡目早先弃和",
+      "seconds": 1.09
+    },
+    {
+      "id": "lim-010",
+      "kind": "push_fold",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n5p|无役且巡目早先弃和",
+      "seconds": 1.1
+    },
+    {
+      "id": "lim-011",
+      "kind": "value",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n1z|进张最广",
+      "seconds": 0.71
+    },
+    {
+      "id": "lim-012",
+      "kind": "value",
+      "discard": "<think>",
+      "reply": "<think>\n\n</think>\n\n1z|进张最广",
+      "seconds": 0.72
+    }
+  ]
+}
