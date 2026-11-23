@@ -1,0 +1,1569 @@
+{
+ "variant": "base",
+ "config": {
+  "thinking": false,
+  "effort": "low",
+  "max_tokens": 240
+ },
+ "results": [
+  {
+   "id": "eff-001",
+   "category": "efficiency",
+   "difficulty": "basic",
+   "passed": true,
+   "seconds": 3.4,
+   "detail": "期望 2z(备选 ['3z', '4z'])，模型 2z",
+   "answer": {
+    "stance": "进攻",
+    "discard": "2z",
+    "reason": "保留役牌对子，打孤张字牌",
+    "offense": "1向听进张8种最快",
+    "defense": "无人立直无需防守",
+    "next": "摸3z/4z即听牌",
+    "dora": "无宝牌"
+   },
+   "expected": {
+    "tile": "2z",
+    "alternatives": [
+     "3z",
+     "4z"
+    ],
+    "best_shanten": 1,
+    "max_ukeire": 8
+   }
+  },
+  {
+   "id": "eff-002",
+   "category": "efficiency",
+   "difficulty": "basic",
+   "passed": true,
+   "seconds": 3.2,
+   "detail": "期望 1z(备选 ['9p'])，模型 1z",
+   "answer": {
+    "stance": "进攻",
+    "discard": "1z",
+    "reason": "保留听牌，役牌单骑",
+    "offense": "立直+役牌高打点",
+    "defense": "无人立直无需防守",
+    "next": "摸9p或1z即和",
+    "dora": "无"
+   },
+   "expected": {
+    "tile": "1z",
+    "alternatives": [
+     "9p"
+    ],
+    "best_shanten": 0,
+    "max_ukeire": 3
+   }
+  },
+  {
+   "id": "eff-003",
+   "category": "efficiency",
+   "difficulty": "basic",
+   "passed": true,
+   "seconds": 3.2,
+   "detail": "期望 1m(备选 ['8m'])，模型 1m",
+   "answer": {
+    "stance": "进攻",
+    "discard": "1m",
+    "reason": "保持听牌，最大化进张效率",
+    "offense": "立直或断幺九打点",
+    "defense": "无立直无需防守",
+    "next": "摸6m/9m即和",
+    "dora": "无"
+   },
+   "expected": {
+    "tile": "1m",
+    "alternatives": [
+     "8m"
+    ],
+    "best_shanten": 0,
+    "max_ukeire": 9
+   }
+  },
+  {
+   "id": "eff-004",
+   "category": "efficiency",
+   "difficulty": "basic",
+   "passed": true,
+   "seconds": 3.0,
+   "detail": "期望 4m(备选 [])，模型 4m",
+   "answer": {
+    "stance": "进攻",
+    "discard": "4m",
+    "reason": "保留双宝牌听牌",
+    "offense": "高打点立直",
+    "defense": "无立直无需防守",
+    "next": "摸入即立直",
+    "dora": "4m为宝牌"
+   },
+   "expected": {
+    "tile": "4m",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 10
+   }
+  },
+  {
+   "id": "eff-005",
+   "category": "efficiency",
+   "difficulty": "basic",
+   "passed": true,
+   "seconds": 3.1,
+   "detail": "期望 1z(备选 ['4z', '6z'])，模型 1z",
+   "answer": {
+    "stance": "进攻",
+    "discard": "1z",
+    "reason": "打孤张字牌保留役牌",
+    "offense": "双役牌潜力大",
+    "defense": "无立直无需防守",
+    "next": "摸进中张加速听牌",
+    "dora": "无宝牌"
+   },
+   "expected": {
+    "tile": "1z",
+    "alternatives": [
+     "4z",
+     "6z"
+    ],
+    "best_shanten": 1,
+    "max_ukeire": 8
+   }
+  },
+  {
+   "id": "eff-006",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.5,
+   "detail": "期望 1z(备选 [])，模型 1z",
+   "answer": {
+    "stance": "进攻",
+    "discard": "1z",
+    "reason": "打役牌保听，含三张宝牌",
+    "offense": "立直+3dora高打点",
+    "defense": "无人立直无需防守",
+    "next": "摸5p/8m即和",
+    "dora": "4m×3"
+   },
+   "expected": {
+    "tile": "1z",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 8
+   }
+  },
+  {
+   "id": "eff-007",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.3,
+   "detail": "期望 9s(备选 [])，模型 9s",
+   "answer": {
+    "stance": "进攻",
+    "discard": "9s",
+    "reason": "保留听牌，打孤张",
+    "offense": "含2宝牌高打点",
+    "defense": "无人立直无需防守",
+    "next": "摸7m/4p即和",
+    "dora": "2m为宝牌"
+   },
+   "expected": {
+    "tile": "9s",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 3
+   }
+  },
+  {
+   "id": "eff-008",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.3,
+   "detail": "期望 7z(备选 [])，模型 7z",
+   "answer": {
+    "stance": "进攻",
+    "discard": "7z",
+    "reason": "打孤张七筒保持听牌",
+    "offense": "役牌对子多面听",
+    "defense": "无人立直无需防守",
+    "next": "摸5/6/7z即和",
+    "dora": "无宝牌"
+   },
+   "expected": {
+    "tile": "7z",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 4
+   }
+  },
+  {
+   "id": "eff-009",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.2,
+   "detail": "期望 1m(备选 ['2m', '8m', '9m'])，模型 9m",
+   "answer": {
+    "stance": "进攻",
+    "discard": "9m",
+    "reason": "保留两面搭子最大化进张",
+    "offense": "多面听牌潜力高",
+    "defense": "无立直无需防守",
+    "next": "摸入中张完善手牌",
+    "dora": "7s为宝牌"
+   },
+   "expected": {
+    "tile": "1m",
+    "alternatives": [
+     "2m",
+     "8m",
+     "9m"
+    ],
+    "best_shanten": 2,
+    "max_ukeire": 41
+   }
+  },
+  {
+   "id": "eff-010",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.2,
+   "detail": "期望 9m(备选 [])，模型 9m",
+   "answer": {
+    "stance": "进攻",
+    "discard": "9m",
+    "reason": "打9m即听牌，保留高进张",
+    "offense": "立直或断幺九役牌",
+    "defense": "无人立直无需防守",
+    "next": "摸1p/4p/2z听牌",
+    "dora": "无宝牌"
+   },
+   "expected": {
+    "tile": "9m",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 8
+   }
+  },
+  {
+   "id": "def-001",
+   "category": "defense",
+   "difficulty": "basic",
+   "passed": true,
+   "seconds": 3.2,
+   "detail": "安全集 ['1z', '9s']，模型 1z",
+   "answer": {
+    "stance": "防守",
+    "discard": "1z",
+    "reason": "对家立直，打现物保命",
+    "offense": "无役且手牌愚形",
+    "defense": "1z为绝对安全现物",
+    "next": "摸进安全牌再考虑进攻",
+    "dora": "2m"
+   },
+   "expected": {
+    "safe": [
+     "1z",
+     "9s"
+    ],
+    "must_avoid": [
+     "4m",
+     "5m"
+    ]
+   }
+  },
+  {
+   "id": "def-002",
+   "category": "defense",
+   "difficulty": "basic",
+   "passed": true,
+   "seconds": 3.2,
+   "detail": "安全集 ['1m', '2p', '4z', '6s', '7m']，模型 2p",
+   "answer": {
+    "stance": "防守",
+    "discard": "2p",
+    "reason": "对家立直，打现物保命",
+    "offense": "无役且手牌差",
+    "defense": "2p为绝对安全现物",
+    "next": "摸安牌继续弃和",
+    "dora": "无"
+   },
+   "expected": {
+    "safe": [
+     "1m",
+     "2p",
+     "4z",
+     "6s",
+     "7m"
+    ],
+    "must_avoid": [
+     "5m"
+    ]
+   }
+  },
+  {
+   "id": "def-003",
+   "category": "defense",
+   "difficulty": "basic",
+   "passed": true,
+   "seconds": 3.1,
+   "detail": "安全集 ['2s', '3z', '4z']，模型 3z",
+   "answer": {
+    "stance": "防守",
+    "discard": "3z",
+    "reason": "对家立直，打现物保命",
+    "offense": "无役且手牌愚形",
+    "defense": "3z为对家现物安全",
+    "next": "摸进安全牌再考虑进攻",
+    "dora": "3s"
+   },
+   "expected": {
+    "safe": [
+     "2s",
+     "3z",
+     "4z"
+    ],
+    "must_avoid": [
+     "2m",
+     "3m",
+     "5m"
+    ]
+   }
+  },
+  {
+   "id": "def-004",
+   "category": "defense",
+   "difficulty": "basic",
+   "passed": true,
+   "seconds": 2.9,
+   "detail": "安全集 ['2z']，模型 2z",
+   "answer": {
+    "stance": "防守",
+    "discard": "2z",
+    "reason": "双立直唯一现物",
+    "offense": "无役愚形难听",
+    "defense": "对两家绝对安全",
+    "next": "摸安牌继续弃和",
+    "dora": "6p为宝牌"
+   },
+   "expected": {
+    "safe": [
+     "2z"
+    ],
+    "must_avoid": [
+     "5p",
+     "8s"
+    ]
+   }
+  },
+  {
+   "id": "def-005",
+   "category": "defense",
+   "difficulty": "basic",
+   "passed": false,
+   "seconds": 3.2,
+   "detail": "建议牌不在手牌内",
+   "answer": {
+    "stance": "防守",
+    "discard": "2p",
+    "reason": "对家立直，打现物保命",
+    "offense": "手牌无役且愚形",
+    "defense": "2p为绝对安全现物",
+    "next": "摸安牌继续弃和",
+    "dora": "1z为宝牌"
+   },
+   "expected": {
+    "safe": [
+     "2z",
+     "4z",
+     "6z"
+    ],
+    "must_avoid": [
+     "1z",
+     "2m",
+     "4m",
+     "5m",
+     "7m",
+     "8m"
+    ]
+   }
+  },
+  {
+   "id": "def-006",
+   "category": "defense",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 2.9,
+   "detail": "安全集 ['1m']，模型 1m",
+   "answer": {
+    "stance": "防守",
+    "discard": "1m",
+    "reason": "唯一现物安全牌",
+    "offense": "无役且手牌差",
+    "defense": "对家立直需弃和",
+    "next": "摸安牌继续防守",
+    "dora": "4p"
+   },
+   "expected": {
+    "safe": [
+     "1m"
+    ],
+    "must_avoid": [
+     "2m",
+     "5m",
+     "9m"
+    ]
+   }
+  },
+  {
+   "id": "def-007",
+   "category": "defense",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 2.9,
+   "detail": "安全集 ['9p']，模型 9p",
+   "answer": {
+    "stance": "防守",
+    "discard": "9p",
+    "reason": "唯一现物安全牌",
+    "offense": "无役且手牌差",
+    "defense": "对家立直需弃和",
+    "next": "摸安牌继续防守",
+    "dora": "8m"
+   },
+   "expected": {
+    "safe": [
+     "9p"
+    ],
+    "must_avoid": [
+     "9m",
+     "1m",
+     "2m",
+     "4m",
+     "5m",
+     "6m",
+     "7m",
+     "8m",
+     "3s",
+     "4s",
+     "5s",
+     "6s",
+     "7s"
+    ]
+   }
+  },
+  {
+   "id": "def-008",
+   "category": "defense",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.0,
+   "detail": "安全集 ['2m', '3z', '4z', '5z', '6z', '7z', '8m']，模型 2m",
+   "answer": {
+    "stance": "防守",
+    "discard": "2m",
+    "reason": "对家立直，打现物筋牌",
+    "offense": "无役且手牌极差",
+    "defense": "2m为对家安全筋",
+    "next": "继续跟打安全牌",
+    "dora": "9s"
+   },
+   "expected": {
+    "safe": [
+     "2m",
+     "3z",
+     "4z",
+     "5z",
+     "6z",
+     "7z",
+     "8m"
+    ],
+    "must_avoid": [
+     "3m",
+     "1p",
+     "9p",
+     "2s",
+     "4s",
+     "6s",
+     "8s"
+    ]
+   }
+  },
+  {
+   "id": "pf-001",
+   "category": "push_fold",
+   "difficulty": "advanced",
+   "passed": false,
+   "seconds": 3.0,
+   "detail": "期望 push(进攻，保持听牌弃牌 ['1m', '4m', '5z', '7m'])，模型 防守/9p",
+   "answer": {
+    "stance": "防守",
+    "discard": "9p",
+    "reason": "对家立直，打现物保命",
+    "offense": "无役且手牌愚形",
+    "defense": "9p为对家绝对现物",
+    "next": "摸安全牌继续弃和",
+    "dora": "5m"
+   },
+   "expected": {
+    "direction": "push",
+    "stance": "进攻",
+    "tenpai_discards": [
+     "1m",
+     "4m",
+     "5z",
+     "7m"
+    ]
+   }
+  },
+  {
+   "id": "pf-002",
+   "category": "push_fold",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 2.8,
+   "detail": "期望 fold(防守，安全集 ['3z', '4z', '5p', '8s'])，模型 防守/5p",
+   "answer": {
+    "stance": "防守",
+    "discard": "5p",
+    "reason": "对家立直现物安全",
+    "offense": "无役手牌价值低",
+    "defense": "现物绝对安全",
+    "next": "摸安牌继续弃和",
+    "dora": "无宝牌"
+   },
+   "expected": {
+    "direction": "fold",
+    "stance": "防守",
+    "safe": [
+     "3z",
+     "4z",
+     "5p",
+     "8s"
+    ],
+    "must_avoid": [
+     "7m",
+     "2p"
+    ]
+   }
+  },
+  {
+   "id": "pf-003",
+   "category": "push_fold",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.4,
+   "detail": "期望 push(进攻，保持听牌弃牌 ['3m', '6m', '7z', '9m'])，模型 进攻/7z",
+   "answer": {
+    "stance": "进攻",
+    "discard": "7z",
+    "reason": "保留两面听牌，打无役字牌",
+    "offense": "多面听且含宝牌",
+    "defense": "对家立直需警惕中张",
+    "next": "摸入5s或2m即听",
+    "dora": "4s为宝牌"
+   },
+   "expected": {
+    "direction": "push",
+    "stance": "进攻",
+    "tenpai_discards": [
+     "3m",
+     "6m",
+     "7z",
+     "9m"
+    ]
+   }
+  },
+  {
+   "id": "pf-004",
+   "category": "push_fold",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.1,
+   "detail": "期望 push(进攻，保持听牌弃牌 ['5z', '6m', '9m'])，模型 进攻/5z",
+   "answer": {
+    "stance": "进攻",
+    "discard": "5z",
+    "reason": "南4落后需点数，保留宝牌",
+    "offense": "6p宝牌+立直打点高",
+    "defense": "7m现物安全可留",
+    "next": "摸进听牌即立直",
+    "dora": "6p为宝牌"
+   },
+   "expected": {
+    "direction": "push",
+    "stance": "进攻",
+    "tenpai_discards": [
+     "5z",
+     "6m",
+     "9m"
+    ]
+   }
+  },
+  {
+   "id": "val-001",
+   "category": "value",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.0,
+   "detail": "期望 9m(备选 ['9p'])，模型 9m；理由关键词 ['宝牌', '听牌']",
+   "answer": {
+    "stance": "进攻",
+    "discard": "9m",
+    "reason": "拆孤张保两面听牌",
+    "offense": "4宝牌高打点",
+    "defense": "无立直无需防守",
+    "next": "摸5p或8m即听",
+    "dora": "4m为宝牌"
+   },
+   "expected": {
+    "tile": "9m",
+    "alternatives": [
+     "9p"
+    ],
+    "rationale_keywords": [
+     "宝牌",
+     "听牌"
+    ]
+   }
+  },
+  {
+   "id": "val-002",
+   "category": "value",
+   "difficulty": "advanced",
+   "passed": false,
+   "seconds": 3.0,
+   "detail": "期望 9s(备选 [])，模型 9s；理由关键词 []",
+   "answer": {
+    "stance": "进攻",
+    "discard": "9s",
+    "reason": "拆孤张保门清立直",
+    "offense": "四暗刻/对对和潜力",
+    "defense": "早巡无需防守",
+    "next": "摸牌定听型",
+    "dora": "4p宝牌"
+   },
+   "expected": {
+    "tile": "9s",
+    "alternatives": [],
+    "rationale_keywords": [
+     "宝牌"
+    ]
+   }
+  },
+  {
+   "id": "def-009",
+   "category": "defense",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 2.8,
+   "detail": "安全集 ['3m']，模型 3m",
+   "answer": {
+    "stance": "防守",
+    "discard": "3m",
+    "reason": "唯一双立直现物",
+    "offense": "无役且手牌愚形",
+    "defense": "对两家绝对安全",
+    "next": "保持弃和状态",
+    "dora": "无宝牌"
+   },
+   "expected": {
+    "safe": [
+     "3m"
+    ],
+    "must_avoid": [
+     "9m",
+     "5m"
+    ]
+   }
+  },
+  {
+   "id": "def-010",
+   "category": "defense",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.2,
+   "detail": "安全集 ['1m', '2p', '6s', '7m']，模型 1m",
+   "answer": {
+    "stance": "防守",
+    "discard": "1m",
+    "reason": "对家立直，打现物保命",
+    "offense": "无役且手牌差",
+    "defense": "1m为对家现物",
+    "next": "摸安全牌继续弃和",
+    "dora": "无"
+   },
+   "expected": {
+    "safe": [
+     "1m",
+     "2p",
+     "6s",
+     "7m"
+    ],
+    "must_avoid": [
+     "5m",
+     "9m"
+    ]
+   }
+  },
+  {
+   "id": "def-011",
+   "category": "defense",
+   "difficulty": "basic",
+   "passed": true,
+   "seconds": 2.9,
+   "detail": "安全集 ['3z', '4z', '8p']，模型 8p",
+   "answer": {
+    "stance": "防守",
+    "discard": "8p",
+    "reason": "唯一现物安全牌",
+    "offense": "无役且手牌差",
+    "defense": "对家立直需弃和",
+    "next": "摸安牌继续防守",
+    "dora": "无"
+   },
+   "expected": {
+    "safe": [
+     "3z",
+     "4z",
+     "8p"
+    ],
+    "must_avoid": [
+     "2m",
+     "3m",
+     "5s"
+    ]
+   }
+  },
+  {
+   "id": "def-012",
+   "category": "defense",
+   "difficulty": "basic",
+   "passed": true,
+   "seconds": 3.0,
+   "detail": "安全集 ['3z', '5p']，模型 5p",
+   "answer": {
+    "stance": "防守",
+    "discard": "5p",
+    "reason": "对家立直，现物最安全",
+    "offense": "无役且手牌差",
+    "defense": "打现物绝对安全",
+    "next": "摸安牌继续弃和",
+    "dora": "无"
+   },
+   "expected": {
+    "safe": [
+     "3z",
+     "5p"
+    ],
+    "must_avoid": [
+     "4m",
+     "7m"
+    ]
+   }
+  },
+  {
+   "id": "def-013",
+   "category": "defense",
+   "difficulty": "advanced",
+   "passed": false,
+   "seconds": 3.0,
+   "detail": "安全集 ['4z']，模型 9s",
+   "answer": {
+    "stance": "防守",
+    "discard": "9s",
+    "reason": "双立直需共同安全牌",
+    "offense": "无役且手牌愚形",
+    "defense": "9s为对家现物",
+    "next": "优先打现物保命",
+    "dora": "无宝牌"
+   },
+   "expected": {
+    "safe": [
+     "4z"
+    ],
+    "must_avoid": [
+     "9s",
+     "5m",
+     "2p"
+    ]
+   }
+  },
+  {
+   "id": "def-014",
+   "category": "defense",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.3,
+   "detail": "安全集 ['2m', '8m']，模型 2m",
+   "answer": {
+    "stance": "防守",
+    "discard": "2m",
+    "reason": "对家立直，打现物筋牌保命",
+    "offense": "无役且手牌愚形",
+    "defense": "2m8m为共同安全牌",
+    "next": "摸危险牌继续弃和",
+    "dora": "无宝牌"
+   },
+   "expected": {
+    "safe": [
+     "2m",
+     "8m"
+    ],
+    "must_avoid": [
+     "9m",
+     "3m"
+    ]
+   }
+  },
+  {
+   "id": "def-015",
+   "category": "defense",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 2.9,
+   "detail": "安全集 ['5p', '6z']，模型 6z",
+   "answer": {
+    "stance": "防守",
+    "discard": "6z",
+    "reason": "现物安全且无役",
+    "offense": "无役难立直",
+    "defense": "对家现物绝对安全",
+    "next": "保留听牌或弃和",
+    "dora": "无"
+   },
+   "expected": {
+    "safe": [
+     "5p",
+     "6z"
+    ],
+    "must_avoid": [
+     "9m",
+     "7m"
+    ]
+   }
+  },
+  {
+   "id": "def-016",
+   "category": "defense",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.3,
+   "detail": "安全集 ['1m', '1z', '3z', '9p']，模型 1m",
+   "answer": {
+    "stance": "防守",
+    "discard": "1m",
+    "reason": "对家立直，打现物保命",
+    "offense": "无役且牌型极差",
+    "defense": "1m为对家现物安全",
+    "next": "摸入安全字牌再攻",
+    "dora": "无"
+   },
+   "expected": {
+    "safe": [
+     "1m",
+     "1z",
+     "3z",
+     "9p"
+    ],
+    "must_avoid": [
+     "5m"
+    ]
+   }
+  },
+  {
+   "id": "eff-011",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.2,
+   "detail": "期望 3z(备选 [])，模型 3z",
+   "answer": {
+    "stance": "进攻",
+    "discard": "3z",
+    "reason": "打孤张字牌保持听牌",
+    "offense": "六面听牌效率极高",
+    "defense": "无人立直无需防守",
+    "next": "摸入即和或立直",
+    "dora": "无宝牌"
+   },
+   "expected": {
+    "tile": "3z",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 6
+   }
+  },
+  {
+   "id": "eff-012",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.1,
+   "detail": "期望 2s(备选 ['3s', '4s', '9p'])，模型 9p",
+   "answer": {
+    "stance": "进攻",
+    "discard": "9p",
+    "reason": "拆孤张保留对子与顺子",
+    "offense": "七对子或一般形均可",
+    "defense": "无立直无需防守",
+    "next": "摸25s或万子进听",
+    "dora": "无"
+   },
+   "expected": {
+    "tile": "2s",
+    "alternatives": [
+     "3s",
+     "4s",
+     "9p"
+    ],
+    "best_shanten": 1,
+    "max_ukeire": 9
+   }
+  },
+  {
+   "id": "eff-013",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.2,
+   "detail": "期望 9s(备选 [])，模型 9s",
+   "answer": {
+    "stance": "进攻",
+    "discard": "9s",
+    "reason": "保留听牌且打点高",
+    "offense": "立直或断幺九",
+    "defense": "无人立直无需防守",
+    "next": "摸7s或4m即和",
+    "dora": "无"
+   },
+   "expected": {
+    "tile": "9s",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 6
+   }
+  },
+  {
+   "id": "eff-014",
+   "category": "efficiency",
+   "difficulty": "basic",
+   "passed": true,
+   "seconds": 3.1,
+   "detail": "期望 6z(备选 [])，模型 6z",
+   "answer": {
+    "stance": "进攻",
+    "discard": "6z",
+    "reason": "打孤张役牌保持听牌",
+    "offense": "立直役牌高打点",
+    "defense": "无人立直无需防守",
+    "next": "摸5z或字牌即和",
+    "dora": "无"
+   },
+   "expected": {
+    "tile": "6z",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 11
+   }
+  },
+  {
+   "id": "eff-015",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.3,
+   "detail": "期望 6m(备选 [])，模型 6m",
+   "answer": {
+    "stance": "进攻",
+    "discard": "6m",
+    "reason": "打六万即听牌",
+    "offense": "立直断幺赤宝牌",
+    "defense": "无人立直无需防守",
+    "next": "摸入八索或九索",
+    "dora": "无指示牌"
+   },
+   "expected": {
+    "tile": "6m",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 7
+   }
+  },
+  {
+   "id": "eff-017",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.0,
+   "detail": "期望 5m(备选 [])，模型 5m",
+   "answer": {
+    "stance": "进攻",
+    "discard": "5m",
+    "reason": "保留七对子听牌型",
+    "offense": "七对子役牌多面听",
+    "defense": "无立直无需防守",
+    "next": "摸任意字牌即听",
+    "dora": "无"
+   },
+   "expected": {
+    "tile": "5m",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 39
+   }
+  },
+  {
+   "id": "eff-018",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.2,
+   "detail": "期望 5m(备选 ['9s'])，模型 9s",
+   "answer": {
+    "stance": "进攻",
+    "discard": "9s",
+    "reason": "七对子听牌保留役牌对",
+    "offense": "七对子+役牌打点高",
+    "defense": "无立直无需防守",
+    "next": "摸6p/8s即和",
+    "dora": "无"
+   },
+   "expected": {
+    "tile": "5m",
+    "alternatives": [
+     "9s"
+    ],
+    "best_shanten": 0,
+    "max_ukeire": 3
+   }
+  },
+  {
+   "id": "eff-016",
+   "category": "efficiency",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 3.3,
+   "detail": "期望 2p(备选 ['5p'])，模型 5p",
+   "answer": {
+    "stance": "进攻",
+    "discard": "5p",
+    "reason": "保持听牌，打孤张五筒",
+    "offense": "立直门清高打点",
+    "defense": "无人立直无需防守",
+    "next": "摸入即和或立直",
+    "dora": "无"
+   },
+   "expected": {
+    "tile": "2p",
+    "alternatives": [
+     "5p"
+    ],
+    "best_shanten": 0,
+    "max_ukeire": 9
+   }
+  },
+  {
+   "id": "val-003",
+   "category": "value",
+   "difficulty": "advanced",
+   "passed": false,
+   "seconds": 3.1,
+   "detail": "期望 5z(备选 [])，模型 1m；理由关键词 ['宝牌']",
+   "answer": {
+    "stance": "进攻",
+    "discard": "1m",
+    "reason": "拆边搭保两面进张",
+    "offense": "含宝牌5s高打点",
+    "defense": "早巡无立直无需防守",
+    "next": "摸6p或2s听牌",
+    "dora": "5s为宝牌"
+   },
+   "expected": {
+    "tile": "5z",
+    "alternatives": [],
+    "rationale_keywords": [
+     "宝牌"
+    ]
+   }
+  },
+  {
+   "id": "val-004",
+   "category": "value",
+   "difficulty": "advanced",
+   "passed": false,
+   "seconds": 2.9,
+   "detail": "期望 4m(备选 [])，模型 5z；理由关键词 ['役牌']",
+   "answer": {
+    "stance": "进攻",
+    "discard": "5z",
+    "reason": "拆役牌对子保两面听",
+    "offense": "2宝牌+立直潜力",
+    "defense": "早巡无需防守",
+    "next": "摸3p/6m即听",
+    "dora": "2p为宝牌"
+   },
+   "expected": {
+    "tile": "4m",
+    "alternatives": [],
+    "rationale_keywords": [
+     "役牌"
+    ]
+   }
+  },
+  {
+   "id": "val-005",
+   "category": "value",
+   "difficulty": "advanced",
+   "passed": false,
+   "seconds": 3.1,
+   "detail": "期望 9p(备选 [])，模型 5s；理由关键词 ['立直']",
+   "answer": {
+    "stance": "防守",
+    "discard": "5s",
+    "reason": "对家立直，打现物保命",
+    "offense": "无役且手牌已成型",
+    "defense": "5s为对家现物安全",
+    "next": "摸危险牌继续弃和",
+    "dora": "5p宝牌"
+   },
+   "expected": {
+    "tile": "9p",
+    "alternatives": [],
+    "rationale_keywords": [
+     "立直",
+     "门清"
+    ]
+   }
+  },
+  {
+   "id": "pf-005",
+   "category": "push_fold",
+   "difficulty": "advanced",
+   "passed": false,
+   "seconds": 2.9,
+   "detail": "期望 push(进攻，保持听牌弃牌 ['5z', '6s'])，模型 防守/2m",
+   "answer": {
+    "stance": "防守",
+    "discard": "2m",
+    "reason": "现物安全保命",
+    "offense": "无役打点低",
+    "defense": "对家立直现物",
+    "next": "摸牌再定攻守",
+    "dora": "无"
+   },
+   "expected": {
+    "direction": "push",
+    "stance": "进攻",
+    "tenpai_discards": [
+     "5z",
+     "6s"
+    ]
+   }
+  },
+  {
+   "id": "pf-006",
+   "category": "push_fold",
+   "difficulty": "advanced",
+   "passed": true,
+   "seconds": 2.8,
+   "detail": "期望 fold(防守，安全集 ['2p', '2z', '3z', '4z', '7m'])，模型 防守/7m",
+   "answer": {
+    "stance": "防守",
+    "discard": "7m",
+    "reason": "右立直现物安全",
+    "offense": "无役手牌价值低",
+    "defense": "右家现物绝对安全",
+    "next": "保持弃和等待机会",
+    "dora": "无宝牌"
+   },
+   "expected": {
+    "direction": "fold",
+    "stance": "防守",
+    "safe": [
+     "2p",
+     "2z",
+     "3z",
+     "4z",
+     "7m"
+    ],
+    "must_avoid": [
+     "6z",
+     "5p"
+    ]
+   }
+  },
+  {
+   "id": "pf-007",
+   "category": "push_fold",
+   "difficulty": "advanced",
+   "passed": false,
+   "seconds": 3.1,
+   "detail": "期望 push(进攻，保持听牌弃牌 ['2s', '3s', '5s', '6s'])，模型 防守/9p",
+   "answer": {
+    "stance": "防守",
+    "discard": "9p",
+    "reason": "双立直需共同安全牌",
+    "offense": "无役且手牌已听",
+    "defense": "9p对两家均为筋",
+    "next": "保持完全弃和状态",
+    "dora": "2s为宝牌"
+   },
+   "expected": {
+    "direction": "push",
+    "stance": "进攻",
+    "tenpai_discards": [
+     "2s",
+     "3s",
+     "5s",
+     "6s"
+    ]
+   }
+  },
+  {
+   "id": "pf-008",
+   "category": "push_fold",
+   "difficulty": "basic",
+   "passed": false,
+   "seconds": 2.9,
+   "detail": "期望 fold(防守，安全集 ['3z', '5m'])，模型 均衡/5m",
+   "answer": {
+    "stance": "均衡",
+    "discard": "5m",
+    "reason": "现物安全且保留两面听牌",
+    "offense": "保持两面好形听牌",
+    "defense": "打对家现物绝对安全",
+    "next": "摸入中张即立直",
+    "dora": "无宝牌"
+   },
+   "expected": {
+    "direction": "fold",
+    "stance": "防守",
+    "safe": [
+     "3z",
+     "5m"
+    ],
+    "must_avoid": [
+     "9m",
+     "6m"
+    ]
+   }
+  },
+  {
+   "id": "lim-001",
+   "category": "limit",
+   "difficulty": "extreme",
+   "passed": true,
+   "seconds": 3.1,
+   "detail": "安全集 ['3z']，模型 3z",
+   "answer": {
+    "stance": "防守",
+    "discard": "3z",
+    "reason": "唯一双立直共同安全牌",
+    "offense": "无役且手牌愚形",
+    "defense": "现物对两家绝对安全",
+    "next": "摸入安全牌继续弃和",
+    "dora": "无宝牌"
+   },
+   "expected": {
+    "safe": [
+     "3z"
+    ],
+    "must_avoid": [
+     "9m",
+     "5m"
+    ]
+   }
+  },
+  {
+   "id": "lim-002",
+   "category": "limit",
+   "difficulty": "extreme",
+   "passed": true,
+   "seconds": 2.9,
+   "detail": "安全集 ['1z', '2p']，模型 1z",
+   "answer": {
+    "stance": "防守",
+    "discard": "1z",
+    "reason": "现物绝对安全且无役",
+    "offense": "无役无法立直",
+    "defense": "对家现物零风险",
+    "next": "摸入安全牌再攻",
+    "dora": "无宝牌"
+   },
+   "expected": {
+    "safe": [
+     "1z",
+     "2p"
+    ],
+    "must_avoid": [
+     "5m",
+     "9m"
+    ]
+   }
+  },
+  {
+   "id": "lim-003",
+   "category": "limit",
+   "difficulty": "extreme",
+   "passed": true,
+   "seconds": 3.1,
+   "detail": "安全集 ['4z']，模型 4z",
+   "answer": {
+    "stance": "防守",
+    "discard": "4z",
+    "reason": "唯一三家现物安全牌",
+    "offense": "无役手牌价值极低",
+    "defense": "规避三家立直放铳",
+    "next": "保持弃和等待流局",
+    "dora": "无宝牌"
+   },
+   "expected": {
+    "safe": [
+     "4z"
+    ],
+    "must_avoid": [
+     "9m",
+     "5m",
+     "1m"
+    ]
+   }
+  },
+  {
+   "id": "lim-004",
+   "category": "limit",
+   "difficulty": "extreme",
+   "passed": true,
+   "seconds": 2.8,
+   "detail": "安全集 ['2p']，模型 2p",
+   "answer": {
+    "stance": "防守",
+    "discard": "2p",
+    "reason": "对家立直现物安全",
+    "offense": "无役愚形价值低",
+    "defense": "现物绝对安全",
+    "next": "摸安牌继续弃和",
+    "dora": "无宝牌"
+   },
+   "expected": {
+    "safe": [
+     "2p"
+    ],
+    "must_avoid": [
+     "9m",
+     "8p"
+    ]
+   }
+  },
+  {
+   "id": "lim-005",
+   "category": "limit",
+   "difficulty": "extreme",
+   "passed": false,
+   "seconds": 2.9,
+   "detail": "安全集 ['2z', '4z']，模型 9p",
+   "answer": {
+    "stance": "防守",
+    "discard": "9p",
+    "reason": "对家立直，打现物保命",
+    "offense": "无役且手牌愚形",
+    "defense": "9p为对家现物",
+    "next": "摸安全牌继续弃和",
+    "dora": "无宝牌"
+   },
+   "expected": {
+    "safe": [
+     "2z",
+     "4z"
+    ],
+    "must_avoid": [
+     "1m",
+     "5m"
+    ]
+   }
+  },
+  {
+   "id": "lim-006",
+   "category": "limit",
+   "difficulty": "extreme",
+   "passed": true,
+   "seconds": 2.9,
+   "detail": "期望 2m(备选 [])，模型 2m",
+   "answer": {
+    "stance": "进攻",
+    "discard": "2m",
+    "reason": "打2m听七对子",
+    "offense": "七对子役牌多面听",
+    "defense": "无人立直无需防守",
+    "next": "摸任意字牌即和",
+    "dora": "无"
+   },
+   "expected": {
+    "tile": "2m",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 39
+   }
+  },
+  {
+   "id": "lim-007",
+   "category": "limit",
+   "difficulty": "extreme",
+   "passed": true,
+   "seconds": 3.2,
+   "detail": "期望 9s(备选 [])，模型 9s",
+   "answer": {
+    "stance": "进攻",
+    "discard": "9s",
+    "reason": "保留听牌且打点高",
+    "offense": "立直或断幺九",
+    "defense": "无人立直无需防守",
+    "next": "摸7s即和",
+    "dora": "无"
+   },
+   "expected": {
+    "tile": "9s",
+    "alternatives": [],
+    "best_shanten": 0,
+    "max_ukeire": 4
+   }
+  },
+  {
+   "id": "lim-008",
+   "category": "limit",
+   "difficulty": "extreme",
+   "passed": true,
+   "seconds": 3.5,
+   "detail": "期望 6m(备选 ['6s', '9s'])，模型 6m",
+   "answer": {
+    "stance": "进攻",
+    "discard": "6m",
+    "reason": "保留赤五与多面听，最大化进张效率",
+    "offense": "赤五在手，打点高且进张广",
+    "defense": "无人立直，无需防守",
+    "next": "摸入中张或字牌即可听牌",
+    "dora": "5m为宝牌"
+   },
+   "expected": {
+    "tile": "6m",
+    "alternatives": [
+     "6s",
+     "9s"
+    ],
+    "best_shanten": 1,
+    "max_ukeire": 44
+   }
+  },
+  {
+   "id": "lim-009",
+   "category": "limit",
+   "difficulty": "extreme",
+   "passed": false,
+   "seconds": 3.1,
+   "detail": "建议牌不在手牌内",
+   "answer": {
+    "stance": "防守",
+    "discard": "9s",
+    "reason": "两家立直需共同安全牌",
+    "offense": "无役且手牌愚形",
+    "defense": "右家现物绝对安全",
+    "next": "弃和保命避免放铳",
+    "dora": "9p为宝牌"
+   },
+   "expected": {
+    "direction": "push",
+    "stance": "进攻",
+    "tenpai_discards": [
+     "5z",
+     "6s"
+    ]
+   }
+  },
+  {
+   "id": "lim-010",
+   "category": "limit",
+   "difficulty": "extreme",
+   "passed": false,
+   "seconds": 3.0,
+   "detail": "期望 fold(防守，安全集 ['4z', '5z'])，模型 防守/2p",
+   "answer": {
+    "stance": "防守",
+    "discard": "2p",
+    "reason": "三家立直无共同安全牌",
+    "offense": "手牌极差无役",
+    "defense": "打对右对家现物",
+    "next": "弃和保命优先",
+    "dora": "无"
+   },
+   "expected": {
+    "direction": "fold",
+    "stance": "防守",
+    "safe": [
+     "4z",
+     "5z"
+    ],
+    "must_avoid": [
+     "6z",
+     "7m"
+    ]
+   }
+  },
+  {
+   "id": "lim-011",
+   "category": "limit",
+   "difficulty": "extreme",
+   "passed": true,
+   "seconds": 3.3,
+   "detail": "期望 9s(备选 ['1z'])，模型 9s；理由关键词 ['役牌', '宝牌']",
+   "answer": {
+    "stance": "进攻",
+    "discard": "9s",
+    "reason": "保留役牌对子与宝牌搭子",
+    "offense": "双役牌加四宝牌高打点",
+    "defense": "早巡无立直无需防守",
+    "next": "碰役牌或摸进万子听牌",
+    "dora": "4p为宝牌"
+   },
+   "expected": {
+    "tile": "9s",
+    "alternatives": [
+     "1z"
+    ],
+    "rationale_keywords": [
+     "役牌",
+     "宝牌"
+    ]
+   }
+  },
+  {
+   "id": "lim-012",
+   "category": "limit",
+   "difficulty": "extreme",
+   "passed": false,
+   "seconds": 2.9,
+   "detail": "期望 4m(备选 [])，模型 1z；理由关键词 []",
+   "answer": {
+    "stance": "进攻",
+    "discard": "1z",
+    "reason": "拆役牌对子保两面听",
+    "offense": "4m宝牌+两面好形",
+    "defense": "无立直无需防守",
+    "next": "摸37m或25p即听",
+    "dora": "4m宝牌"
+   },
+   "expected": {
+    "tile": "4m",
+    "alternatives": [],
+    "rationale_keywords": [
+     "听牌",
+     "速度"
+    ]
+   }
+  }
+ ]
+}
