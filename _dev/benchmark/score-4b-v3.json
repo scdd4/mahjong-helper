@@ -1,0 +1,249 @@
+{
+  "model": "4B-v3",
+  "passed": 22,
+  "total": 59,
+  "accuracy": 0.3728813559322034,
+  "median_s": 0.9,
+  "by_kind": {
+    "efficiency": {
+      "passed": 6,
+      "total": 21
+    },
+    "defense": {
+      "passed": 9,
+      "total": 21
+    },
+    "push_fold": {
+      "passed": 7,
+      "total": 10
+    },
+    "value": {
+      "passed": 0,
+      "total": 7
+    }
+  },
+  "failures": [
+    {
+      "id": "eff-001",
+      "kind": "efficiency",
+      "expected": "2z",
+      "got": "1m"
+    },
+    {
+      "id": "eff-003",
+      "kind": "efficiency",
+      "expected": "1m",
+      "got": "2p"
+    },
+    {
+      "id": "eff-004",
+      "kind": "efficiency",
+      "expected": "4m",
+      "got": "7m"
+    },
+    {
+      "id": "eff-005",
+      "kind": "efficiency",
+      "expected": "1z",
+      "got": "2m"
+    },
+    {
+      "id": "eff-006",
+      "kind": "efficiency",
+      "expected": "1z",
+      "got": "7p"
+    },
+    {
+      "id": "eff-007",
+      "kind": "efficiency",
+      "expected": "9s",
+      "got": "2p"
+    },
+    {
+      "id": "eff-008",
+      "kind": "efficiency",
+      "expected": "7z",
+      "got": "1m"
+    },
+    {
+      "id": "def-003",
+      "kind": "defense",
+      "expected": "safe",
+      "got": "3m"
+    },
+    {
+      "id": "def-007",
+      "kind": "defense",
+      "expected": "safe",
+      "got": "4m"
+    },
+    {
+      "id": "pf-001",
+      "kind": "push_fold",
+      "expected": "safe",
+      "got": "4s"
+    },
+    {
+      "id": "val-001",
+      "kind": "value",
+      "expected": "9m",
+      "got": "4m"
+    },
+    {
+      "id": "val-002",
+      "kind": "value",
+      "expected": "9s",
+      "got": "6p"
+    },
+    {
+      "id": "def-010",
+      "kind": "defense",
+      "expected": "safe",
+      "got": "4p"
+    },
+    {
+      "id": "def-011",
+      "kind": "defense",
+      "expected": "safe",
+      "got": "2m"
+    },
+    {
+      "id": "def-012",
+      "kind": "defense",
+      "expected": "safe",
+      "got": "2m"
+    },
+    {
+      "id": "def-013",
+      "kind": "defense",
+      "expected": "safe",
+      "got": "2m"
+    },
+    {
+      "id": "def-014",
+      "kind": "defense",
+      "expected": "safe",
+      "got": "6m"
+    },
+    {
+      "id": "def-015",
+      "kind": "defense",
+      "expected": "safe",
+      "got": "7m"
+    },
+    {
+      "id": "def-016",
+      "kind": "defense",
+      "expected": "safe",
+      "got": "5m"
+    },
+    {
+      "id": "eff-011",
+      "kind": "efficiency",
+      "expected": "3z",
+      "got": "2m"
+    },
+    {
+      "id": "eff-012",
+      "kind": "efficiency",
+      "expected": "2s",
+      "got": "1m"
+    },
+    {
+      "id": "eff-013",
+      "kind": "efficiency",
+      "expected": "9s",
+      "got": "8s"
+    },
+    {
+      "id": "eff-014",
+      "kind": "efficiency",
+      "expected": "6z",
+      "got": "2m"
+    },
+    {
+      "id": "eff-017",
+      "kind": "efficiency",
+      "expected": "5m",
+      "got": "1m"
+    },
+    {
+      "id": "eff-018",
+      "kind": "efficiency",
+      "expected": "5m",
+      "got": "1m"
+    },
+    {
+      "id": "val-003",
+      "kind": "value",
+      "expected": "5z",
+      "got": "1m"
+    },
+    {
+      "id": "val-004",
+      "kind": "value",
+      "expected": "4m",
+      "got": "1m"
+    },
+    {
+      "id": "val-005",
+      "kind": "value",
+      "expected": "9p",
+      "got": "2p"
+    },
+    {
+      "id": "pf-008",
+      "kind": "push_fold",
+      "expected": "safe",
+      "got": "2m"
+    },
+    {
+      "id": "lim-002",
+      "kind": "defense",
+      "expected": "safe",
+      "got": "7m"
+    },
+    {
+      "id": "lim-004",
+      "kind": "defense",
+      "expected": "safe",
+      "got": "8p"
+    },
+    {
+      "id": "lim-005",
+      "kind": "defense",
+      "expected": "safe",
+      "got": "4m"
+    },
+    {
+      "id": "lim-006",
+      "kind": "efficiency",
+      "expected": "2m",
+      "got": "1m"
+    },
+    {
+      "id": "lim-007",
+      "kind": "efficiency",
+      "expected": "9s",
+      "got": "8s"
+    },
+    {
+      "id": "lim-010",
+      "kind": "push_fold",
+      "expected": "safe",
+      "got": "1m"
+    },
+    {
+      "id": "lim-011",
+      "kind": "value",
+      "expected": "9s",
+      "got": "2m"
+    },
+    {
+      "id": "lim-012",
+      "kind": "value",
+      "expected": "4m",
+      "got": "7m"
+    }
+  ]
+}
