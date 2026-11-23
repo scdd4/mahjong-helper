@@ -21,6 +21,38 @@
 
 ## 实验进展记录（每次唤醒更新，最新在上）
 
+### 2026-11-23 17:45 — 真人数据路线启动（新阶段，覆盖前面"实验定稿"结论）
+
+**用户新指令**：不再微调手写规则，改为从真人高段牌谱学权重；评测也要向真人靠拢。
+
+已完成：
+- 数据源：`hf-mirror` 上 `nikketryhard/tenhou-houou-mjai`（天凤凤凰桌，MJAI 格式 zstd）。
+  Range 下载 30MB 片段 → 4347 局 / 45 万决策样本（本机已解析，`decisions_2015.jsonl`）。
+- `mjai_decision_parser.py`：MJAI 事件流重建决策局面（14 手牌/牌河/立直/宝牌/自风），
+  真人弃牌 100% 落在生产候选集内（已验证 3000 条）。
+- `make_human_train.py`：生成 3 万条训练样本（生产 build_prompt 格式 → 真人弃牌 A-N 字母），
+  标签分布分散（A 15%），已上传服务器 `data/human-train.jsonl`。
+- `make_human_benchmark.py`：**真人基准集 300 题**（gold = 真人实际弃牌，非手写标注），
+  已上传 `data/human-benchmark.json`。
+- **关键发现**：当前 Jev 生产方案在真人基准上仅 **33%**（riichi 37.5% / early 28.4%，
+  `eval-human-jev.json`）。输出字母分布与真人一致（都≈15%选A），说明不是位置捷径，
+  而是真人高段决策大量偏离"进张最广"solver 排序——旧 59 题基准的 81% 是手写标注虚高。
+- 真人策略微调已启动：`train_human_policy.py`（4B rank16，1500 步，batch 8×8），
+  PID 2028345，20.3s/步，ETA 约 8.5h（~次日 02:15 完成）+ merged 导出约 10 分钟。
+  之前两次启动因 unsloth_compiled_cache 污染 + 8080 服务抢 GPU 触发 meta tensor 崩溃，
+  已清缓存并停 8080（评测已完成暂不需要），第三次启动稳定。
+- 评测脚本 `eval_human_model.py` 已就绪（transformers 直接加载 merged，logits processor 受限解码），
+  训练完成后上传即可评测真人基准。
+
+**下一个唤醒点**：次日（11-24）02:30 之后。届时：
+1. 检查 `out-human-4b/merged` 是否导出完成（grep `全部完成` train-human-4b.log）。
+2. 上传 `eval_human_model.py` 到服务器，跑真人基准评测：
+   `--model out-human-4b/merged --bench data/human-benchmark.json --out eval-human-model.json`。
+3. 对比：Jev 33% vs 微调模型。若微调显著 >33%（如 >45%），证明真人数据有效，
+   考虑扩大数据/上 27B；若仍 ≈33%，排查训练/推理分布差异。
+4. **不要创建任何定时任务**（用户已废除链式看门狗），只把结果与下一唤醒点写回本文件并告知用户。
+5. 需要重开 8080 时用 `nohup sh /home/user/.local/share/strata/run-iq3_s.sh > log 2>&1 < /dev/null & disown`。
+
 ### 2026-11-23 09:35 — 4B v3 评测完成（37%），决策 D 触发停止分支，实验定稿
 - 4B v3 训练已于 08:22 完成：1200/1200，loss 0.04783，`全部完成` 标志=1，
   merged 已导出（PID 2012381 已退出，无遗留进程）。
